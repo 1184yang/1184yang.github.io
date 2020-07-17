@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GraphQL 用戶端 (1) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="完成 GraphQL 伺服器後，接下來要在用戶端設定 GraphQL。基本上，用戶端只是一個與伺服器溝通的 app。因為 GraphQL 的靈活性，你或許會幫網路瀏覽器建構 app、也可能會幫手機建構原生 app，你可以在用戶端用任何一種語言編寫 GraphQL 服務。 使用 GraphQL API最簡單的起步方式就是直接發一個 HTTP 請求給 GraphQL 端點。 抓取請求我們可以用 cUR">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GraphQL 用戶端 (1)">
+<meta property="og:url" content="https://1184yang.github.io/2019/11/13/GraphQL-Client-1/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="完成 GraphQL 伺服器後，接下來要在用戶端設定 GraphQL。基本上，用戶端只是一個與伺服器溝通的 app。因為 GraphQL 的靈活性，你或許會幫網路瀏覽器建構 app、也可能會幫手機建構原生 app，你可以在用戶端用任何一種語言編寫 GraphQL 服務。 使用 GraphQL API最簡單的起步方式就是直接發一個 HTTP 請求給 GraphQL 端點。 抓取請求我們可以用 cUR">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.049Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GraphQL 用戶端 (1)">
+<meta name="twitter:description" content="完成 GraphQL 伺服器後，接下來要在用戶端設定 GraphQL。基本上，用戶端只是一個與伺服器溝通的 app。因為 GraphQL 的靈活性，你或許會幫網路瀏覽器建構 app、也可能會幫手機建構原生 app，你可以在用戶端用任何一種語言編寫 GraphQL 服務。 使用 GraphQL API最簡單的起步方式就是直接發一個 HTTP 請求給 GraphQL 端點。 抓取請求我們可以用 cUR">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-Client-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/13/GraphQL-Client-1/" class="article-date">
+  <time datetime="2019-11-13T02:12:01.000Z" itemprop="datePublished">2019-11-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GraphQL 用戶端 (1)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>完成 GraphQL 伺服器後，接下來要在用戶端設定 GraphQL。基本上，用戶端只是一個與伺服器溝通的 app。因為 GraphQL 的靈活性，你或許會幫網路瀏覽器建構 app、也可能會幫手機建構原生 app，你可以在用戶端用任何一種語言編寫 GraphQL 服務。</p>
+<h3 id="使用-GraphQL-API"><a href="#使用-GraphQL-API" class="headerlink" title="使用 GraphQL API"></a>使用 GraphQL API</h3><p>最簡單的起步方式就是直接發一個 HTTP 請求給 GraphQL 端點。</p>
+<h4 id="抓取請求"><a href="#抓取請求" class="headerlink" title="抓取請求"></a>抓取請求</h4><p>我們可以用 cURL 來傳送請求給 GraphQL 服務，很多的硬體都有內建 cURL 程式，這意味著，我們可能可以幫冰箱的螢幕建構 GraphQL 服務。你只要設定一些不同的值即可:</p>
+<ul>
+<li>query: {totalPhotos, totalUsers}</li>
+<li>GraphQL 端點: <a href="http://localhost:4000/graphql" target="_blank" rel="noopener">http://localhost:4000/graphql</a></li>
+<li>內容型態: Content-Type: application/json</li>
+</ul>
+<figure class="highlight shell"><figcaption><span>cURL request</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -X POST \</span><br><span class="line">     -H "Content-Type: application/json" \</span><br><span class="line">     --data '&#123; "query": "&#123;totalUsers, totalPhotos&#125;" &#125;' \</span><br><span class="line">     http://10.11.100.30:4000/graphql</span><br></pre></td></tr></table></figure>
+
+<p>傳送這個請求後，你應該會在終端機裡面看到正確的 JSON 資料結果:</p>
+<figure class="highlight json"><figcaption><span>cURL request result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"data"</span>:&#123;<span class="attr">"totalUsers"</span>:<span class="number">3</span>,<span class="attr">"totalPhotos"</span>:<span class="number">45</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因為我們使用 cURL，所以可以使用 “可傳送 HTTP 請求” 的任何東西。我們改用 fetch 來建立一個在瀏覽器內運作的用戶端:</p>
+<figure class="highlight javascript"><figcaption><span>Browser fetch</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> query = <span class="string">`&#123;totalUsers, totalPhotos&#125;`</span>;</span><br><span class="line"><span class="keyword">const</span> url = <span class="string">'http://localhost:4000/graphql'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> opts = &#123;</span><br><span class="line">  method: <span class="string">'POST'</span>,</span><br><span class="line">  headers: &#123; <span class="string">'Content-Type'</span> : <span class="string">'application/json'</span> &#125;,</span><br><span class="line">  body: <span class="built_in">JSON</span>.stringify(&#123; query &#125;)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">fetch(url, opts)</span><br><span class="line">  .then(<span class="function"><span class="params">res</span> =&gt;</span> res.json())</span><br><span class="line">  .then(<span class="built_in">console</span>.log)</span><br><span class="line">  .catch(<span class="built_in">console</span>.error);</span><br></pre></td></tr></table></figure>
+
+<p>抓取資料後，我們可以從流覽器的主控台看到預期的結果:</p>
+<figure class="highlight json"><figcaption><span>Browser fetch result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"totalPhotos"</span>: <span class="number">45</span>,</span><br><span class="line">    <span class="attr">"totalUsers"</span>: <span class="number">3</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們可以使用結果資料來建立 app，直接更改 DOM 列出 totalUsers 與 totalPhotos:</p>
+<figure class="highlight javascript"><figcaption><span>GraphQL request</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">fetch(url, opts)</span><br><span class="line">  .then(<span class="function"><span class="params">res</span> =&gt;</span> res.json())</span><br><span class="line">  .then(<span class="function">(<span class="params">&#123;data&#125;</span>) =&gt;</span> <span class="string">`</span></span><br><span class="line"><span class="string">    &lt;h1&gt;photos: <span class="subst">$&#123;data.totalPhotos&#125;</span>&lt;/h1&gt;</span></span><br><span class="line"><span class="string">    &lt;h1&gt;users: <span class="subst">$&#123;data.totalUsers&#125;</span>&lt;/h1&gt;</span></span><br><span class="line"><span class="string">  `</span>)</span><br><span class="line">  .then(<span class="function"><span class="params">text</span> =&gt;</span> <span class="built_in">document</span>.body.innerHTML = text)</span><br><span class="line">  .catch(<span class="built_in">console</span>.error);</span><br></pre></td></tr></table></figure>
+
+<p>請小心，當請求完成後，這會覆寫原本在內文中的任何東西。</p>
+<p>當你知道如何用你最喜歡的用戶端來傳送 HTTP 請求時，你就擁有一項工具可建立 “可與任何 GraphQL API 溝通的用戶端 app” 了。 但是我們有更強大的 GraphQL 用戶端可用。</p>
+<h3 id="Apollo-Client"><a href="#Apollo-Client" class="headerlink" title="Apollo Client"></a>Apollo Client</h3><p>使用 REST 有一個很大的好處在於它可以方便我們處裡快取。使用 REST 時，你可以將請求回應的資料存放在之前用來使用該請求的 URL 底下的快取，這沒甚麼問題。但是在 GraphQL 使用快取有點麻煩。一個 GraphQL API 沒有多個路由，每一個請求都是用單一的端點來傳送與接收的，所以我們無法將路由回傳的資料放在用來請求它的 URL 底下。</p>
+<p>為了建立穩健、高性能的 app，我們必須設法將 query 與它們產生的物件存入快取。當我們想要建立快速、高效的 app 時，使用本地化的快取解決方案是必要的做法。我們可以自行建立這類的機制，也可以信賴一些已經經過嚴格審查的用戶端套件。</p>
+<p>目前最引人注目的 GraphQL 用戶端解決方案是 Relay 與 Apollo Client。Relay 只與 Facebook 的 React 和 React Native 相容，所以我們選擇使用更廣泛的 Apollo Client。</p>
+<p>Apollo Client 是 Meteor Development Group 開發的，它是一種社群驅動的專案，目的是建立靈活的 GraphQL 用戶端解決方案來處理諸如快取、積極 UI 更新 (optimistic UI update) 等工作。這個團隊建立了支援綁定 (binding) 的套件供 React、Angular、Ember、Vue、iOS 與 Android 使用。</p>
+<p>我們已經在伺服器用了一些 Apollo 團隊創造的工具了，但 Apollo Client 特別關注請求碼在用戶端與伺服器之間的傳送與接收。它使用 Apollo Link 來處理網路請求，用 Apollo Cache 來處理所有快取。接下來 Apollo Client 會將連結 (Apollo Link) 與快取 (Apollo Cache) 包起來，並高效的管理與 GraphQL 服務的所有互動。</p>
+<h3 id="Apollo-Client-和-Vue"><a href="#Apollo-Client-和-Vue" class="headerlink" title="Apollo Client 和 Vue"></a>Apollo Client 和 Vue</h3><p>Apollo Client 是一個 NPM 套件，要在 Web 瀏覽器或移動應用程序中使用此 Apollo Client 客戶端，您需要一個能夠在客戶端上加載 NPM 套件的構建系統。 一些常見的選擇包括 Browserify，Webpack 和 Meteor 1.3+。這理我們選擇使用 Vue 來作為使用者介面程式庫，所以將使用 <a href="https://cli.vuejs.org/" target="_blank" rel="noopener">Vue CLI</a> 來建立 Vue 專案，Vue CLI 使用 WebPack 來做編譯與打包，產生瀏覽器看得懂的部署檔案。</p>
+<h4 id="設定專案"><a href="#設定專案" class="headerlink" title="設定專案"></a>設定專案</h4><p>首先使用 Vue CLI 建立一個專案:</p>
+<figure class="highlight shell"><figcaption><span>create Vue Project</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vue create vue-apollo-sample</span><br></pre></td></tr></table></figure>
+
+<p>接著切換捯 vue-apollo-sample 資料夾並執行 npm run serve 來啟動 app，現在打開流覽器 <a href="http://localhost:8080/。" target="_blank" rel="noopener">http://localhost:8080/。</a> Vue app 已可以運作。</p>
+<h4 id="設置-Apollo-Client"><a href="#設置-Apollo-Client" class="headerlink" title="設置 Apollo Client"></a>設置 Apollo Client</h4><p>為了使用 Apollo 工具來建立 GraphQL 用戶端，你必須安裝一些套件。首先，你需要 graphql 套件，它裡面有 GraphQL 語言解析函式。接著需要一個稱為 apollo-boost 的套件。Apollo Boost 包含建立 Apollo Client 以及傳送操作 (operation) 給伺服器所需的 Apollo 套件。最後需要 vue-apollo。Vue Apollo 是一個 NPM 程式庫，可以整合到 Vue 實例中。我們要利用其中的 Vue 元件與 Apollo 來建構使用者介面。</p>
+<figure class="highlight shell"><figcaption><span>npm install</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install graphql apollo-boost vue-apollo</span><br></pre></td></tr></table></figure>
+
+<p>現在可以開始建立用戶端了。apollo-boost 裡面的 ApolloClient 建構式可以用來建立第一個用戶端。打開 HelloWorld.vue，我們就用 Vue CLI 產生的頁面來測試，刪除一些不需要的訊息，然後加入一些程式碼，首先先使用 ApolloClient，稍後再加入 vue-apollo 套件:</p>
+<figure class="highlight html"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">template</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"hello"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;&#123; msg &#125;&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">template</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="javascript"><span class="keyword">import</span> ApolloClient, &#123; gql &#125; <span class="keyword">from</span> <span class="string">'apollo-boost'</span></span></span><br><span class="line"></span><br><span class="line"><span class="javascript"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span></span><br><span class="line"><span class="javascript">  name: <span class="string">'HelloWorld'</span>,</span></span><br><span class="line">  props: &#123;</span><br><span class="line"><span class="javascript">    msg: <span class="built_in">String</span></span></span><br><span class="line">  &#125;,</span><br><span class="line">  created() &#123;</span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> client = <span class="keyword">new</span> ApolloClient(&#123;<span class="attr">uri</span>: <span class="string">'http://localhost:4000/graphql'</span>&#125;);</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> query = gql<span class="string">`</span></span></span><br><span class="line">      &#123;</span><br><span class="line">        totalUsers</span><br><span class="line">        totalPhotos</span><br><span class="line">      &#125;</span><br><span class="line">    `;</span><br><span class="line"></span><br><span class="line">    client.query(&#123; query &#125;)</span><br><span class="line"><span class="javascript">      .then(<span class="function">(<span class="params">&#123; data &#125;</span>) =&gt;</span> <span class="built_in">console</span>.log(data))</span></span><br><span class="line"><span class="javascript">      .catch(<span class="built_in">console</span>.error);</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>第 16 行我們使用 ApolloClient 建構式建立一個新的 client 實例。這個 client 已經可以處裡和 <a href="http://localhost:4000/graphql" target="_blank" rel="noopener">http://localhost:4000/graphql</a> 上的 GraphQL 服務之間的所有網路通訊了。這裡使用 client 傳送 query 來查詢使用者與照片的總數量。gql 函式屬於 graphql-tag 套件，它會隨著 apollo-boost 套件一起被加入，它的用途是將 query 解析成 AST 或抽象語法樹。第 26 行，我們只是將結果顯示在瀏覽器的 console。</p>
+<blockquote>
+<p>如果你的瀏覽器出現如下的錯誤，那是因為 Vue CLI 建立的專案 ESLint 預設禁止使用 console.log</p>
+</blockquote>
+<blockquote>
+<pre><code>Failed to compile.
+
+./src/components/HelloWorld.vue
+  Module Error (from ./node_modules/eslint-loader/index.js):
+  error: Unexpected console statement (no-console) at src\components\HelloWorld.vue:26:27:
+    24 | 
+    25 |     client.query({ query })
+  &gt; 26 |       .then(({ data }) =&gt; console.log(data))
+       |                           ^
+    27 |       .catch(console.error);
+    28 |   }
+    29 | }</code></pre></blockquote>
+<blockquote>
+<p>可修改 package.json eslintConfig:</p>
+</blockquote>
+<blockquote>
+<pre><code>&quot;eslintConfig&quot;: {
+    ...
+    &quot;rules&quot;: {
+      &quot;no-console&quot;: &quot;off&quot;
+    },
+    ...
+  }</code></pre></blockquote>
+<p>client.query({ query }) 會用 HTTP 請求 (request) 將 query 送給 GraphQL 服務伺服器，以及解析服務回傳的資料。我們在瀏覽器的主控台應該會有如下的回應:</p>
+<figure class="highlight javascript"><figcaption><span>Chrome console</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">totalUsers</span>: <span class="number">3</span>, <span class="attr">totalPhotos</span>: <span class="number">45</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也可以在 HTTP Headers 加入權杖 (token):</p>
+<figure class="highlight javascript"><figcaption><span>ApolloClient</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> client = <span class="keyword">new</span> ApolloClient(&#123;</span><br><span class="line">  uri: <span class="string">'http://localhost:4000/graphql'</span>,</span><br><span class="line">  request: <span class="function"><span class="params">operation</span> =&gt;</span> &#123;</span><br><span class="line">    operation.setContext(&#123;</span><br><span class="line">      headers: &#123;</span><br><span class="line">        Authorization: <span class="string">'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBMb2dpbiI6InNjb3R0IiwibmFtZSI6IuiAgeiZjiBTY290dCIsImlhdCI6MTU3MzYwNDUwOSwiZXhwIjoxNTczNjQ3NzA5fQ.3PEtLsXVZqoamXbIO10KTLgwaYBQAGKB4AH0kJXQ4bg'</span></span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>除了處裡送到 GraphQL 服務的網路請求之外，用戶端也會將回應存到本地記憶體快取中。無論何時，我們都可以藉由呼叫 client.extract( ) 來查看快取:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'cache'</span>, client.extract());</span><br><span class="line"></span><br><span class="line">    client.query(&#123;query&#125;)</span><br><span class="line">      .then(<span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">console</span>.log(<span class="string">'cache'</span>, client.extract()))</span><br><span class="line">      .catch(<span class="built_in">console</span>.error);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>第 2 行我們在送出之前查看快取，並且在第 5 行 query 被解析之後再度查看快取，你可以看到，現在結果已經被存在一個由用戶端管理的本地物件裡面了:</p>
+<figure class="highlight javascript"><figcaption><span>Client cache</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  ROOT_QUERY: &#123;</span><br><span class="line">    totalUsers: <span class="number">3</span>, </span><br><span class="line">    totalPhotos: <span class="number">45</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下一次我們傳送 query 給用戶端來索取這筆資料時，它會從快取讀出資料，而不是向 GraphQL 服務傳送另一個網路請求。 Apollo Client 可讓我們指定何時以及每隔多久透過網路傳送 HTTP 請求。稍後會討論這些選項。</p>
+<p>上面的例子我們只用到 apollo-boost 套件，而且是直接在 Vue 的元件中送出 GraphQL 請求，但是如果你在大部分的 Vue 元件都會使用到 GraphQL 服務，你必須重複產生 ApolloClient 實例，這顯然不是好的方式，你可把 ApolloClient 實例加入 Vue 的全域範圍，但是我們現在要使用一個更強大的套件 <a href="https://vue-apollo.netlify.com/" target="_blank" rel="noopener">Vue Apollo</a> 套件。</p>
+<p>這裡我們會建立一個用戶端，並且用一個稱為 apolloProvider 的實例將它加到 Vue 使用者介面。因為我們要將它加入 Vue 的全域範圍，所以要從修改 main.js 開始:</p>
+<figure class="highlight javascript"><figcaption><span>src/main.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Vue <span class="keyword">from</span> <span class="string">'vue'</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App.vue'</span></span><br><span class="line"><span class="keyword">import</span> VueApollo <span class="keyword">from</span> <span class="string">"vue-apollo"</span></span><br><span class="line"><span class="keyword">import</span> ApolloClient <span class="keyword">from</span> <span class="string">"apollo-boost"</span></span><br><span class="line"></span><br><span class="line">Vue.config.productionTip = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">Vue.use(VueApollo);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> client = <span class="keyword">new</span> ApolloClient(&#123;</span><br><span class="line">  uri: <span class="string">"http://localhost:4000/graphql"</span>,</span><br><span class="line">  request: <span class="function"><span class="params">operation</span> =&gt;</span> &#123;</span><br><span class="line">    operation.setContext(&#123;</span><br><span class="line">      headers: &#123;</span><br><span class="line">        Authorization:</span><br><span class="line">          <span class="string">"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBMb2dpbiI6InNjb3R0IiwibmFtZSI6IuiAgeiZjiBTY290dCIsImlhdCI6MTU3MzYwNDUwOSwiZXhwIjoxNTczNjQ3NzA5fQ.3PEtLsXVZqoamXbIO10KTLgwaYBQAGKB4AH0kJXQ4bg"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> apolloProvider = <span class="keyword">new</span> VueApollo(&#123;</span><br><span class="line">  defaultClient: client</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  apolloProvider,</span><br><span class="line">  render: <span class="function"><span class="params">h</span> =&gt;</span> h(App),</span><br><span class="line">&#125;).$mount(<span class="string">'#app'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>第 8 行我們調用 Vue.use( ) 全局方法來使用 VueApollo 插件 (Plugin)。第 10 行建立一個客戶端，這與先前的範例沒甚麼不同，接著第  22 行使用 VueApollo 建構式產生一個 apolloProvider 實例，並在第 27 行將它加入 Vue 的全域範圍內，這樣在所有的 Vue 子元件都可以使用這個用戶端，也就是都可以透過 Apollo Client 從 GraphQL 服務接收資料了。</p>
+<p>接著我們來看如何從子元件中使用 apolloProvider，我們修改一下 HelloWorld.vue 元件:</p>
+<figure class="highlight js"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; gql &#125; <span class="keyword">from</span> <span class="string">'apollo-boost'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  name: <span class="string">'HelloWorld'</span>,</span><br><span class="line">  props: &#123;</span><br><span class="line">    msg: <span class="built_in">String</span></span><br><span class="line">  &#125;,</span><br><span class="line">  created() &#123;</span><br><span class="line">    <span class="keyword">const</span> query = gql<span class="string">`</span></span><br><span class="line"><span class="string">      &#123;</span></span><br><span class="line"><span class="string">        totalUsers</span></span><br><span class="line"><span class="string">        totalPhotos</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    `</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.$apollo.query(&#123; query &#125;)</span><br><span class="line">      .then(<span class="function">(<span class="params">&#123; data &#125;</span>) =&gt;</span> <span class="built_in">console</span>.log(data))</span><br><span class="line">      .catch(<span class="built_in">console</span>.error);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.$apollo.provider.defaultClient.query(&#123; query &#125;)</span><br><span class="line">      .then(<span class="function">(<span class="params">&#123; data &#125;</span>) =&gt;</span> <span class="built_in">console</span>.log(data))</span><br><span class="line">      .catch(<span class="built_in">console</span>.error);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.$apollo.getClient().query(&#123; query &#125;)</span><br><span class="line">      .then(<span class="function">(<span class="params">&#123; data &#125;</span>) =&gt;</span> <span class="built_in">console</span>.log(data))</span><br><span class="line">      .catch(<span class="built_in">console</span>.error);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡我們不再需要產生 ApolloClient 實例，第 16 行我們直接調用 Vue 全域範圍中的 ApolloClient，你也可以使用第 20 行的  this.$apollo.provider.defaultClient 或第 24 行的  this.$apollo.getClient( ) 方法取得 ApolloClient 實例，現在你可以在所有的 Vue 元件中共用這個 ApolloClient 元件。</p>
+<p>這裡我們直接在 Vue 元件的 Created( ) Hook 中送出 GraphQL 請求。但它還有更強大的功能，能與 Vue 結合得更緊密:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;template&gt;</span><br><span class="line">  &lt;div <span class="class"><span class="keyword">class</span></span>=<span class="string">"hello"</span>&gt;</span><br><span class="line">    &lt;h1&gt;&#123;&#123; msg &#125;&#125;&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">    &lt;h1&gt;&#123;&#123; sayHello &#125;&#125;&lt;/</span>h1&gt;</span><br><span class="line">  &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">&lt;/</span>template&gt;</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">import</span> &#123; gql &#125; <span class="keyword">from</span> <span class="string">'apollo-boost'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  name: <span class="string">'HelloWorld'</span>,</span><br><span class="line">  props: &#123;</span><br><span class="line">    msg: <span class="built_in">String</span></span><br><span class="line">  &#125;,</span><br><span class="line">  apollo: &#123;</span><br><span class="line">    sayHello: &#123;</span><br><span class="line">      query: gql<span class="string">`query hello &#123;</span></span><br><span class="line"><span class="string">        sayHello</span></span><br><span class="line"><span class="string">      &#125;`</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>第 16 行我們直接在 Vue 元件中加入 apollo 屬性，然後在第 17 行中再加入一個 GraphQL query sayHello 物件，接下來在第 4 行，就可以在 Template 中綁定這個值，這就像使用 Vue 的計算屬性 (computed) 一樣，可以直接把它當成 data 物件的屬性來存取。</p>
+<p>但如果 sayHello 屬性需要初始值，也可以明確的定義在 data 物件中:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">  props: &#123;</span><br><span class="line">    msg: <span class="built_in">String</span></span><br><span class="line">  &#125;,</span><br><span class="line">  data() &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      sayHello: <span class="literal">undefined</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  apollo: &#123;</span><br><span class="line">    sayHello: &#123;</span><br><span class="line">      query: gql<span class="string">`query hello &#123;</span></span><br><span class="line"><span class="string">        sayHello</span></span><br><span class="line"><span class="string">      &#125;`</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>這裡要注意的是 Vue 的屬性名稱 sayHello 要與 GraphQL 的 Query 同名稱，但如果需要也可以變換名稱，這裡我們將 Vue 的屬性改成 helloTainan:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">data() &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      helloTainan: <span class="literal">undefined</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  apollo: &#123;</span><br><span class="line">    helloTainan: &#123;</span><br><span class="line">      query: gql<span class="string">`query hello &#123;</span></span><br><span class="line"><span class="string">        helloTainan: sayHello</span></span><br><span class="line"><span class="string">      &#125;`</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>重點在於第 10 行，不要忘記也要修改 Template 的綁定。</p>
+<p>使用 GraphQL 的其中一個好處是你可以使用一個 HTTP 請求建構 UI 所需的每一個東西，並且用一個回應來接收所有的資料，現在我們來加一個同時請求多個 GraphQL 的請求:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">  apollo: &#123;</span><br><span class="line">    helloTainan: &#123;</span><br><span class="line">      query: gql<span class="string">`query hello &#123;</span></span><br><span class="line"><span class="string">        helloTainan: sayHello</span></span><br><span class="line"><span class="string">      &#125;`</span></span><br><span class="line">    &#125;,</span><br><span class="line">    allUsers: &#123;</span><br><span class="line">      query: gql<span class="string">`query listUsers &#123;</span></span><br><span class="line"><span class="string">        totalUsers</span></span><br><span class="line"><span class="string">        allUsers &#123;</span></span><br><span class="line"><span class="string">          appLogin</span></span><br><span class="line"><span class="string">          name</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;`</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>在 apollo 中新增一個屬性 allUsers，對應到 GraphQL 的一個 query 請求，這個請求同時包含有兩個 GraphQL Query，totalUsers 與 allUsers，這裡要注意，只有 allUsers Query 名稱對應到 Vue 的屬性 allUsers，所以 Vue allUsers 的值會自動對應到 GraphQL Query allUsers 的返回值，那如何取得 totalUsers 的值? Apollo 提供了一個 result Hook:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">data() &#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    helloTainan: <span class="literal">undefined</span>,</span><br><span class="line">    totalUsers: <span class="literal">undefined</span>,</span><br><span class="line">    loading: <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br><span class="line">apollo: &#123;</span><br><span class="line">  ...</span><br><span class="line">  allUsers: &#123;</span><br><span class="line">    query: gql<span class="string">`query listUsers &#123;</span></span><br><span class="line"><span class="string">      totalUsers</span></span><br><span class="line"><span class="string">      allUsers &#123;</span></span><br><span class="line"><span class="string">        appLogin</span></span><br><span class="line"><span class="string">        name</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;`</span>,</span><br><span class="line">    result (&#123; data, loading &#125;) &#123;</span><br><span class="line">      <span class="keyword">this</span>.totalUsers = data.totalUsers;</span><br><span class="line">      <span class="keyword">this</span>.loading = loading;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+
+<p>這裡我們在第 19 行加入了一個 result Hook，他會接受一個物件當引數，其中 data 屬性就包含所有 GraphQL query 的回應資料，這裡會包含兩個 GraphQL Query totalUsers 與 allUsers 的回應資料，而 loading 屬性則告訴我們操作是否正在載入。 </p>
+<p>定義在 Vue apollo 屬性中的每個查詢都會被創建成一個智能查詢物件 (SmartQuery)，它包含了一些屬性與方法，例如上面的 loading 就是這個物件的一個屬性，還有包含一些方法可被調用:</p>
+<figure class="highlight javascript"><figcaption><span>SmartQuery</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.$apollo.queries.helloTainan.refetch();</span><br></pre></td></tr></table></figure>
+
+<p>你可以加入一個按鈕調用它，會將另一個請求送到 GraphQL 端點來重新抓取資料。</p>
+<p>輪詢 (polling) 也是 SmartQuery 物件提供的另一個選擇，當我們在 SmartQuery 物件加入輪詢時，就可以自動每隔一段指定的時間自動重複抓取資料:</p>
+<figure class="highlight javascript"><figcaption><span>startPolling and stopPolling</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.$apollo.queries.helloTainan.startPolling(<span class="number">1000</span>); <span class="comment">//ms</span></span><br><span class="line"></span><br><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.$apollo.queries.helloTainan.stopPolling();</span><br><span class="line">&#125;, <span class="number">5000</span>);</span><br></pre></td></tr></table></figure>
+
+<p>這裡每秒輪詢一次，5 秒鐘後會停止輪詢。</p>
+<p>另外你的 GraphQL 服務如果有提供分頁功能，則可以使用 fetchMore( ) 抓取下一頁的資料。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/11/13/GraphQL-Client-1/" data-id="ckcpzj95y000z80vz0wgmoscn" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/27/GraphQL-Client-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          GraphQL 用戶端 (2)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/11/11/GraphQL-API-6/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">建立 GraphQL API (6)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

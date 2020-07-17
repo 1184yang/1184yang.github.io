@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>桌面應用 Electron React Quickstart | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="之前曾經使用 NW.js 與 Vue.js 開發一套可離線應用的桌面應用程序，資料存在客戶端的 localStorege 中，這裡我則用 Electron 搭配 React 建立了一個基本的開發架構，有興趣使用此架構的同仁可以很快的開始。 這裡客戶端我使用 React 程式庫取代了 Vue.js，因為我可以用同樣的 React 元件，透過 React Native 就可打造原生移動裝置的應用程序。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="桌面應用 Electron React Quickstart">
+<meta property="og:url" content="https://1184yang.github.io/2020/05/08/Electron-React-Quickstart/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="之前曾經使用 NW.js 與 Vue.js 開發一套可離線應用的桌面應用程序，資料存在客戶端的 localStorege 中，這裡我則用 Electron 搭配 React 建立了一個基本的開發架構，有興趣使用此架構的同仁可以很快的開始。 這裡客戶端我使用 React 程式庫取代了 Vue.js，因為我可以用同樣的 React 元件，透過 React Native 就可打造原生移動裝置的應用程序。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2020/05/08/Electron-React-Quickstart/electron-051101.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/05/08/Electron-React-Quickstart/electron-051102.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/05/08/Electron-React-Quickstart/electron-051103.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/05/08/Electron-React-Quickstart/electron-051104.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/05/08/Electron-React-Quickstart/electron-051105.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:15.972Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="桌面應用 Electron React Quickstart">
+<meta name="twitter:description" content="之前曾經使用 NW.js 與 Vue.js 開發一套可離線應用的桌面應用程序，資料存在客戶端的 localStorege 中，這裡我則用 Electron 搭配 React 建立了一個基本的開發架構，有興趣使用此架構的同仁可以很快的開始。 這裡客戶端我使用 React 程式庫取代了 Vue.js，因為我可以用同樣的 React 元件，透過 React Native 就可打造原生移動裝置的應用程序。">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/05/08/Electron-React-Quickstart/electron-051101.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Electron-React-Quickstart" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/05/08/Electron-React-Quickstart/" class="article-date">
+  <time datetime="2020-05-08T06:22:22.000Z" itemprop="datePublished">2020-05-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JavaScript/">JavaScript</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      桌面應用 Electron React Quickstart
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>之前曾經使用 NW.js 與 Vue.js 開發一套可離線應用的桌面應用程序，資料存在客戶端的 localStorege 中，這裡我則用 Electron 搭配 React 建立了一個基本的開發架構，有興趣使用此架構的同仁可以很快的開始。</p>
+<p>這裡客戶端我使用 React 程式庫取代了 Vue.js，因為我可以用同樣的 React 元件，透過 <a href="https://reactnative.dev/" target="_blank" rel="noopener">React Native</a> 就可打造原生移動裝置的應用程序。React Native 僅僅需要使用一種編程語言 JavaScript ，同一個開發團隊就可以建構 Android、iOS 應用程序。其他的跨平台解決方案 PhoneGap、Cordova 和 Ionic 雖然也是可行，但在用戶體驗與性能上表現卻不佳。React Native 的亮點就在於它的性能無損，與使用 Objective-C、Swift 或 Java 建構的原生移動應用程序相比，性能沒有明顯的差異。</p>
+<p>近年來，原生移動開發變得越來越昂貴，因此能夠開發跨平台應用程序的工程師越來愈搶手，React Native 僅僅使用單一主流框架就可以開發桌面、Web 以及移動應用程序，值得讓我們思考與組織架構的調整。開發團隊使用同一種技術可以簡化協同合作和共享，因此生產力也會提升。</p>
+<p>這裡我們則先用 Electron 與 React 來建立桌上型應用程序。除了基本的架構範例可以作為專案的開始範本，我也建立了一個基本的展示範例，除了使用 Electron、React 外加 IndexDB 將資料存在客戶端。我將此兩個範例都打包成 git  Repository，因此你除了要安裝 Visual Studio Code 外，也需要安裝 Git。</p>
+<ul>
+<li>electron-react-quickstart.git</li>
+<li>electron-react-idb-sample.git</li>
+</ul>
+<p>這裡就從第一個基本架構開始。</p>
+<h3 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h3><p>首先用 Git 複製範例，打開 Visual Studio Code, 開啟一個終端螢幕，我電腦的 Z: 是指向 VOL111(\PECYKFS01)。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">I:\u01\projects&gt;git clone Z:\DBA\Git\Depot\electron-react-quickstart.git</span><br></pre></td></tr></table></figure>
+
+<p>然後用 Visual Studio Code 開啟目錄 electron-react-quickstart 開始安裝程式庫。這裡我要用 Yarn 來取代 npm 管理 JavaScript 套件。 Yarn 是 Facebook 與 Exponent、 Google、Tilde 所合作開發的套件管理工具，其功能與 npm 相同，但 npm 最為人詬病的是安裝速度很慢、安裝相依套件沒有順序性，而 Yarn 不但解決了這些問題，還加入了方便的 Cache 機制使套件均只要下載一次，多個專案若使用相同套件時不必重新下載。 官方也表示 Yarn 是快速、安全、可靠的，且能支援多系統。</p>
+<p>所以首先要先安裝 <a href="https://classic.yarnpkg.com/zh-Hant/docs/install/#windows-stable" target="_blank" rel="noopener">Yarn</a>。可以測試一下:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">I:\u01\projects\electron-react-quickstart&gt;yarn --version</span><br><span class="line">1.22.4</span><br></pre></td></tr></table></figure>
+
+<p>在你的 electron-react-quickstart 目錄下開始安裝所需要的程式庫:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">I:\u01\projects\electron-react-quickstart&gt;yarn install </span><br></pre></td></tr></table></figure>
+
+<p>安裝完成就可以開啟應用程序:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">I:\u01\projects\electron-react-quickstart&gt;yarn start </span><br></pre></td></tr></table></figure>
+
+<p>這裡是基本應用程序的畫面:</p>
+<img src="/2020/05/08/Electron-React-Quickstart/electron-051101.png" title="Hello Tainan">
+
+<p>以下則是專案的目錄結構:</p>
+<img src="/2020/05/08/Electron-React-Quickstart/electron-051102.png" title="Hello Tainan">
+
+<p>這個專案的程式碼都在 src 目錄中。使用 webpack 為開發及打包工具。簡單的來看看這幾段程式碼，可以從 package.json 的設定找到這個專案程序的入口點:</p>
+<figure class="highlight"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"fire-sale"</span>,</span><br><span class="line">  <span class="attr">"productName"</span>: <span class="string">"FireSale"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0"</span>,</span><br><span class="line">  <span class="attr">"description"</span>: <span class="string">"My Electron application description"</span>,</span><br><span class="line marked">  <span class="attr">"main"</span>: <span class="string">".webpack/main"</span>,</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"start"</span>: <span class="string">"electron-forge start"</span>,</span><br><span class="line">    <span class="attr">"package"</span>: <span class="string">"electron-forge package"</span>,</span><br><span class="line">    <span class="attr">"make"</span>: <span class="string">"electron-forge make"</span>,</span><br><span class="line">    <span class="attr">"publish"</span>: <span class="string">"electron-forge publish"</span>,</span><br><span class="line">    <span class="attr">"lint"</span>: <span class="string">"echo \"No linting configured\""</span></span><br><span class="line">  &#125;,</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+
+<p>第 6 行 “main”: “.webpack/main” 是這個專案程序的入口點，但這是經過 webpack 轉譯後的入口點，真正的入口點是對照到 src 目錄下的 main.js 程式檔。</p>
+<figure class="highlight"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">"entryPoints": [</span><br><span class="line">  &#123;</span><br><span class="line marked">    <span class="attr">"html"</span>: <span class="string">"./src/index.html"</span>,</span><br><span class="line marked">    <span class="attr">"js"</span>: <span class="string">"./src/renderer.js"</span>,</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"main_window"</span></span><br><span class="line">  &#125;</span><br><span class="line">] </span><br></pre></td></tr></table></figure>
+
+<p>package.json 的第 56,57 行則是 Electron 的習慣性基本的命名程式檔，簡單的看一下 Electron 的基本架構:</p>
+<img src="/2020/05/08/Electron-React-Quickstart/electron-051103.png" title="Electron multiprocess architecture">
+
+<blockquote>
+<p><em>The main process</em></p>
+<blockquote>
+<p>Main process 有幾個重要職責。它可以回應應用程序生命週期事件，例如啟動，退出，準備退出，進入後台，進入前台等等，Main process 還負責與本機操作系統 API 進行通信。 如果要顯示一個對話框以打開或保存文件，就得從 Main process 進行操作。 </p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p><em>Renderer processes</em></p>
+<blockquote>
+<p>Main process 可以使用 Electron 的 Browser-Window 模塊創建和銷毀 Renderer process。 Renderer process 可以加載網頁以顯示客戶端的 GUI。 每個進程都利用 Chronium 的多進程架構，並在其自己的線程(Thread)上運行。 然後，這些頁面可以加載其他 JavaScript 文件並在此線程中執行代碼。 與普通網頁不同，您可以從 Renderer process 訪問所有 Node API，從而可以使用本機模塊和較低級別的系統功能溝通。</p>
+</blockquote>
+</blockquote>
+<figure class="highlight javascript"><figcaption><span>main.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; app, BrowserWindow &#125; = <span class="built_in">require</span>(<span class="string">'electron'</span>);</span><br><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="built_in">require</span>(<span class="string">'electron-squirrel-startup'</span>)) &#123;</span><br><span class="line">  app.quit();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> createWindow = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> mainWindow = <span class="keyword">new</span> BrowserWindow(&#123;</span><br><span class="line">    width: <span class="number">800</span>,</span><br><span class="line">    height: <span class="number">600</span>,</span><br><span class="line">    webPreferences: &#123;</span><br><span class="line">      nodeIntegration: <span class="literal">true</span></span><br><span class="line">    &#125;,</span><br><span class="line">    show: <span class="literal">false</span>,</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);</span><br><span class="line"></span><br><span class="line">  mainWindow.once(<span class="string">'ready-to-show'</span>, () =&gt; &#123;</span><br><span class="line">    mainWindow.show();</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// mainWindow.webContents.openDevTools();</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">app.on(<span class="string">'ready'</span>, createWindow);</span><br><span class="line"></span><br><span class="line">app.on(<span class="string">'window-all-closed'</span>, () =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (process.platform !== <span class="string">'darwin'</span>) &#123;</span><br><span class="line">    app.quit();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.on(<span class="string">'activate'</span>, () =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (BrowserWindow.getAllWindows().length === <span class="number">0</span>) &#123;</span><br><span class="line">    createWindow();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>第 18 行的 MAIN_WINDOW_WEBPACK_ENTRY 是 webpack 特殊的全域變數，預設值是在前面 package.json 中設定的 “./src/index.html”，index.html 則會自動載入 “./src/renderer.js” </p>
+<figure class="highlight html"><figcaption><span>index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Hello Tainan!<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"application"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"loading"</span>&gt;</span>Loading…<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><figcaption><span>renderer.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; render &#125; <span class="keyword">from</span> <span class="string">'react-dom'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'./index.css'</span>;</span><br><span class="line"></span><br><span class="line">render(</span><br><span class="line">  &lt;div&gt;</span><br><span class="line">    &lt;h1&gt;💖 Hello World! Hello 台南!!&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">    &lt;p&gt;Welcome to your Electron application.&lt;/</span>p&gt;</span><br><span class="line">  &lt;<span class="regexp">/div&gt;, </span></span><br><span class="line"><span class="regexp">  document.getElementById('application')</span></span><br><span class="line"><span class="regexp">);</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">console.log('👋 此消息使用 webpack 透過 "renderer.js" 發出 👀');</span></span><br></pre></td></tr></table></figure>
+
+<p>這裡使用 React 與 ReactDOM 來渲染客戶端的 GUI，這裡使用 render 方法創建客戶端的 UI，其中使用了 React 的 JSX。JSX 是 JavaScript 的語法擴展，與 XML 有點類似。雖然不用 JSX 也可以建構 React 組件，但是 JSX 能夠使 React 更易於閱讀和維護。JSX 初看可能有些奇怪，但功能非常強大，深得廣大開發者的青睞。</p>
+<p>第 3 行使用 import 直接載入 css 檔案，這是因為透過 webpack 的轉譯，可以不用透過 html 的 link 標籤，webpack 會將 css 直接轉譯為 javascript，最終則與其它程式檔打包成為一個單一的程式檔，這通常會命名為 bundle.js。  </p>
+<p>最後我們設計的應用程序必須打包讓使用者更容易安裝使用，webpack 將負責此工作。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">I:\u01\projects\electron-react-quickstart&gt;yarn run package</span><br></pre></td></tr></table></figure>
+
+<p>完成後在專案目錄下會產生一個 out 子目錄:</p>
+<img src="/2020/05/08/Electron-React-Quickstart/electron-051104.png" title="Electron multiprocess architecture">
+
+<p>可以從檔案總管中直接執行 FireSale.exe，這個執行檔名稱也是在 package.json 中 “productName”: “FireSale” 定義的:</p>
+<img src="/2020/05/08/Electron-React-Quickstart/electron-051105.png" title="Electron multiprocess architecture">
+
+<p>因為這是 Electron 應用程序，沒有 Web 伺服器，所以你必須將整個目錄打包成 zip 檔，讓使用下載解壓縮後直接執行 exe 檔。</p>
+<p>下次再來探索另外一個範例 electron-react-idb-sample.git，將可以學到更多的 Electron 與 React。並看看如何將資料儲存在客戶端。</p>
+<p>祝 Coding 愉快，身體健康。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2020/05/08/Electron-React-Quickstart/" data-id="ckcpzj95e000780vzifbm5u9e" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/05/21/Electron-Notification-Buzzer/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Desktop 桌面應用程式 Electron-RabbitMQ Notification
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/04/24/Dotnet-core-DI/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">C# 教育訓練 .NET core 依賴注入 (Dependency Injection)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>什麼是 GraphQL ? | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="GraphQL 是一種由 Facebook 創建的開源查詢語言。在 GraphQL 於 2015 年開源之前，Facebook 自 2012 年起在其內部使用它作為移動應用程序(mobile application)常見的 REST 架構的替代方案。它允許對特定數據的請求，使客戶端能夠更好的控制發送的信息。使用 RESTful 架構時這更加困難，因為後端定義了每個 URL 上每個資源可用的數據，而">
+<meta property="og:type" content="article">
+<meta property="og:title" content="什麼是 GraphQL ?">
+<meta property="og:url" content="https://1184yang.github.io/2019/07/05/What-is-GraphQL/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="GraphQL 是一種由 Facebook 創建的開源查詢語言。在 GraphQL 於 2015 年開源之前，Facebook 自 2012 年起在其內部使用它作為移動應用程序(mobile application)常見的 REST 架構的替代方案。它允許對特定數據的請求，使客戶端能夠更好的控制發送的信息。使用 RESTful 架構時這更加困難，因為後端定義了每個 URL 上每個資源可用的數據，而">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.094Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="什麼是 GraphQL ?">
+<meta name="twitter:description" content="GraphQL 是一種由 Facebook 創建的開源查詢語言。在 GraphQL 於 2015 年開源之前，Facebook 自 2012 年起在其內部使用它作為移動應用程序(mobile application)常見的 REST 架構的替代方案。它允許對特定數據的請求，使客戶端能夠更好的控制發送的信息。使用 RESTful 架構時這更加困難，因為後端定義了每個 URL 上每個資源可用的數據，而">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-What-is-GraphQL" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/05/What-is-GraphQL/" class="article-date">
+  <time datetime="2019-07-05T05:19:35.000Z" itemprop="datePublished">2019-07-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      什麼是 GraphQL ?
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>GraphQL 是一種由 Facebook 創建的開源查詢語言。在 GraphQL 於 2015 年開源之前，Facebook 自 2012 年起在其內部使用它作為移動應用程序(mobile application)常見的 REST 架構的替代方案。它允許對特定數據的請求，使客戶端能夠更好的控制發送的信息。使用 RESTful 架構時這更加困難，因為後端定義了每個 URL 上每個資源可用的數據，而前端始終必須請求資源中的<strong>所有信息</strong>，即使只需要其中的一部分。此問題稱為過度提取(overfetch)。在最壞的情況下，客戶端應用程序必須通過多個網路請求讀取多個資源。這種過度提取，也增加了對瀑佈網路請求(waterfall network requests)的需求。 GraphQL 允許客戶端通過向服務器發出單個請求來決定所需的數據。因此，Facebook 的移動應用程序的網路使用率大幅下降，因為 GraphQL 使數據傳輸更加有效率。</p>
+<p><a href="https://www.graphql.org" target="_blank" rel="noopener">GraphQL</a> 是供 API 使用的查詢語言。它也是滿足資料查詢的運行環境(runtime)。GraphQL 服務不規定使用那種傳輸協定，但通常是透過 HTTP 來提供的。</p>
+<p>為了展示 GraphQL query 與它的回應，請看一下 <a href="https://graphql.org/swapi-graphql/" target="_blank" rel="noopener">SWAPI</a>，這是星際大戰(Star Wars) API。SWAPI 是與 GraphQL 包在一起的 REST API。我們可以用來傳送 query 及接收資料。</p>
+<p>GraphQL query 只會要求它需要的資料。以下是個 GraphQL query 範例，在 query 區塊，我們索取 Princess Leia 的個人資料。由於我們指明索取第五人的資料(PersonID:5)，所以得到 Leia Organa 的紀錄。接下來，我們指定取得資料的三個欄位(field，Google 翻譯為 “字段”): name, birthYear, created。result 區塊則是回應: 它按照 query 的外形(shape)將 JSON 資料格式化了。這個回應只含有我們需要的資料。這與 SQL 很相似，所以同樣都稱為 Query Language。</p>
+<figure class="highlight"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  person(personID:5) &#123;</span><br><span class="line">    name</span><br><span class="line">    birthYear</span><br><span class="line">    created</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"person"</span>: &#123;</span><br><span class="line">      <span class="attr">"name"</span>: <span class="string">"Leia Organa"</span>,</span><br><span class="line">      <span class="attr">"birthYear"</span>: <span class="string">"19BBY"</span>,</span><br><span class="line">      <span class="attr">"created"</span>: <span class="string">"2014-12-10T15:20:09.791000Z"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因為查詢的動作是互動的，所以我們接下來可以修改它，以查詢新的結果。如果我們加入欄位 filmConnection，就可以索取有 Leia 的電影名稱。</p>
+<figure class="highlight"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  person(personID:5) &#123;</span><br><span class="line">    name</span><br><span class="line">    birthYear</span><br><span class="line">    created</span><br><span class="line">    filmConnection &#123;</span><br><span class="line">      films &#123;</span><br><span class="line">        title</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"person"</span>: &#123;</span><br><span class="line">      <span class="attr">"name"</span>: <span class="string">"Leia Organa"</span>,</span><br><span class="line">      <span class="attr">"birthYear"</span>: <span class="string">"19BBY"</span>,</span><br><span class="line">      <span class="attr">"created"</span>: <span class="string">"2014-12-10T15:20:09.791000Z"</span>,</span><br><span class="line">      <span class="attr">"filmConnection"</span>: &#123;</span><br><span class="line">        <span class="attr">"films"</span>: [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"A New Hope"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"The Empire Strikes Back"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"Return of the Jedi"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"Revenge of the Sith"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"The Force Awakens"</span></span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個 query 是嵌套狀的，它被執行時可遍歷相關的物件，如此一來，我們就可以用單一 HTTP 請求來取得兩種類型的資料，而不需要為了查詢多個物件而反覆執行多次。我們不會收到與這些類型有關但不想要取得的資料。使用 GraphQL 時，用戶端可以用一個請求指令取得他們需要的所有資料。</p>
+<p>當你對 GraphQL 伺服器執行 query 時，它會用一種型態系統(type system)來驗證 query。每一個 GraphQL 服務都會在 GraphQL schema(綱要)裡定義許多型態。你可以將型態系統視為 API 的資料藍圖，這個藍圖的基礎是你所定義的一系列物件。例如，稍早的人物 query 的基礎是 Person 物件:</p>
+<figure class="highlight plain"><figcaption><span>Person</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">type Person &#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  name: String</span><br><span class="line">  birthYear: String</span><br><span class="line">  eyeColor: String</span><br><span class="line">  gender: String</span><br><span class="line">  hairColor: String</span><br><span class="line">  height: Int</span><br><span class="line">  mass: Float</span><br><span class="line">  skinColor: String</span><br><span class="line">  homeworld: Planet</span><br><span class="line">  species: Species</span><br><span class="line">  filmConnection: PersonFilmsConnection</span><br><span class="line">  starshipConnection: PersonStarshipConnection</span><br><span class="line">  vehicleConnection: PersonVehiclesConnection</span><br><span class="line">  created: String</span><br><span class="line">  edited: String</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Person 型態定義了所有欄位及其型態，讓你可以在查詢 Princess Leia 時取得它們。</p>
+<p>GraphQL 通常被稱為<strong>宣告式</strong>(<em>declarative</em>)資料擷取語言，意思是開發者只要跟據他們需要<strong>哪些</strong>資料來列出資料需求，而不需要把注意力放在<strong>如何</strong>取得它。市面上有供各種語言使用的 GraphQL 伺服器程式庫，包括 C#、Clojure、 Elixir、 Erlang、 Go、 Groovy、 Java、 JavaScript、 .NET、 PHP、 Python、 Scala 與 Ruby。</p>
+<h2 id="GraphQL-規格"><a href="#GraphQL-規格" class="headerlink" title="GraphQL 規格"></a>GraphQL 規格</h2><p>GraphQL 是一種用戶端 / 伺服器通信規格(spec)。規格描述了某種語言的功能與特性。我們受益於語言規格，因為它提供了共通的詞彙與最佳用法，讓語言與使用社群得以依循。</p>
+<p>ECMAScript 規格是一種著名的軟體規格。每隔一段時間，一群來自流覽器公司、科技公司與語言社群的代表都會聚在一起，討論應該在 ECMAScript 規格中加入(與移除)哪些東西。GraphQL 也是如此，有一群人會聚在一起討論應納入這種語言(或從中移除)的東西，這份規格是所有 GraphQL 實品的指南。</p>
+<p>當規格發表時，GraphQL 的創造者也會分享一個以 JavaScript 寫成的參考成品 <a href="https://github.com/graphql/graphql-js" target="_blank" rel="noopener">graphql.js</a>。你可以將這個參考成品當成藍圖，但它的目的不包括規定你一定要用某種語言來實作服務，它只是個指南。了解這種查詢語言與型態系統之後，你可以用你喜歡的任何一種語言來建立服務。</p>
+<p>規格敘述編寫 query 時應使用的語言與語法，也規定一個型態系統及型態系統的執行和驗證引擎。除了以上的規定之外，規格不限制任何東西，GraphQL 未規定該使用哪種語言、如何儲存資料、該支援哪些用戶端。查詢語言有一份<a href="https://github.com/graphql/graphql-spec" target="_blank" rel="noopener">指南</a>，但如何實際運用在你的專案完全由你自己決定。</p>
+<h2 id="GraphQL-的設計準則"><a href="#GraphQL-的設計準則" class="headerlink" title="GraphQL 的設計準則"></a>GraphQL 的設計準則</h2><p>雖然 GraphQL 不限制建構 API 的方式，但它提供了一些構思服務的指南:</p>
+<ul>
+<li><p>階層式</p>
+<p>GraphQL query 是階層式的，query 有一些欄位在其它欄位裡面，且 query 的外型類似它回傳的資料。</p>
+</li>
+<li><p>以產品為中心</p>
+<p>GraphQL 的目地是提供用戶端需要的資料，以及支援用戶端的語言和 runtime。</p>
+</li>
+<li><p>強型態</p>
+<p>GraphQL 伺服器採取 GraphQL 型態系統。在 schema 內，每一個資料點都有一種特定的型態，GraphQL 會拿它來驗證資料點。</p>
+</li>
+<li><p>由用戶端指定的 query</p>
+<p>GraphQL 伺服器提供用戶端可以使用的功能。</p>
+</li>
+<li><p>自我查詢</p>
+<p>GraphQL 語言可查詢 GraphQL 伺服器的型態系統。</p>
+</li>
+</ul>
+<h2 id="REST-的缺陷"><a href="#REST-的缺陷" class="headerlink" title="REST 的缺陷"></a>REST 的缺陷</h2><p>REST 應該是目前應用最普遍的 API 架構。這是一個資源導向的架構，可讓使用者在這個架構上執行諸如 GET、PUT、POST 與 DELETE 等動作來處理網路資源。你可將資源組成的網路當成一種<strong>虛擬狀態機</strong>，而哪些動作(GET、PUT、POST、DELETE)是這個機制的狀態改變。</p>
+<p>在 RESTful 架構中，路由(route)代表資訊。例如，向這些路由請求資訊可得到特定的回應:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/api/food/hot-dog</span><br><span class="line">/api/sport/skiing</span><br><span class="line">/api/city/Lisbon</span><br></pre></td></tr></table></figure>
+
+<p>REST 可讓我們用各種端點來建構資料模型，它提供了複雜網路環境中處理資料的方法。配合 JSON 的應用，REST 變成了廣泛使用的 API，但是隨著行動裝置及網路的發展，REST 在某些狀況下已經顯露了一些疲態了。GraphQL 正是為了緩解這些疲態而造就的。</p>
+<h3 id="Overfetch"><a href="#Overfetch" class="headerlink" title="Overfetch"></a>Overfetch</h3><p>假如我們要建立一個 app，並讓它使用 REST 版的 SWAPI 提供的資料。我們要先載入 1 號角色 Luke Skywalker 的一些資料，為了取得這項資訊，我們可以向 <em><a href="https://swapi.co/api/people/1/" target="_blank" rel="noopener">https://swapi.co/api/people/1/</a></em> 發出 GET 請求，得到的回應應該是這筆 JSON 資料:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"Luke Skywalker"</span>,</span><br><span class="line">    <span class="attr">"height"</span>: <span class="string">"172"</span>,</span><br><span class="line">    <span class="attr">"mass"</span>: <span class="string">"77"</span>,</span><br><span class="line">    <span class="attr">"hair_color"</span>: <span class="string">"blond"</span>,</span><br><span class="line">    <span class="attr">"skin_color"</span>: <span class="string">"fair"</span>,</span><br><span class="line">    <span class="attr">"eye_color"</span>: <span class="string">"blue"</span>,</span><br><span class="line">    <span class="attr">"birth_year"</span>: <span class="string">"19BBY"</span>,</span><br><span class="line">    <span class="attr">"gender"</span>: <span class="string">"male"</span>,</span><br><span class="line">    <span class="attr">"homeworld"</span>: <span class="string">"https://swapi.co/api/planets/1/"</span>,</span><br><span class="line">    <span class="attr">"films"</span>: [</span><br><span class="line">        <span class="string">"https://swapi.co/api/films/2/"</span>,</span><br><span class="line">        <span class="string">"https://swapi.co/api/films/6/"</span>,</span><br><span class="line">        <span class="string">"https://swapi.co/api/films/3/"</span>,</span><br><span class="line">        <span class="string">"https://swapi.co/api/films/1/"</span>,</span><br><span class="line">        <span class="string">"https://swapi.co/api/films/7/"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"species"</span>: [</span><br><span class="line">        <span class="string">"https://swapi.co/api/species/1/"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"vehicles"</span>: [</span><br><span class="line">        <span class="string">"https://swapi.co/api/vehicles/14/"</span>,</span><br><span class="line">        <span class="string">"https://swapi.co/api/vehicles/30/"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"starships"</span>: [</span><br><span class="line">        <span class="string">"https://swapi.co/api/starships/12/"</span>,</span><br><span class="line">        <span class="string">"https://swapi.co/api/starships/22/"</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="attr">"created"</span>: <span class="string">"2014-12-09T13:50:51.644000Z"</span>,</span><br><span class="line">    <span class="attr">"edited"</span>: <span class="string">"2014-12-20T21:17:56.891000Z"</span>,</span><br><span class="line">    <span class="attr">"url"</span>: <span class="string">"https://swapi.co/api/people/1/"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個龐大的回應，遠比 app  需要的資料還要多。我們只需要 name、mass 與 height 的資訊:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"Luke Skywalker"</span>,</span><br><span class="line">  <span class="attr">"height"</span>: <span class="number">172</span>,</span><br><span class="line">  <span class="attr">"mass"</span>: <span class="number">77</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>這是明顯的 <em>overfetch</em> (過度擷取)案例 – 取得許多不需要的資料。用戶端只需要三個資料點，卻得到包含 16 個鍵的物件，而且是透過網路傳送不需要的資料。</p>
+<p>在 GraphQL 中，這個請求又是如何?</p>
+<figure class="highlight js"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  person(personID:<span class="number">1</span>) &#123;</span><br><span class="line">    name</span><br><span class="line">    height</span><br><span class="line">    mass</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"person"</span>: &#123;</span><br><span class="line">      <span class="attr">"name"</span>: <span class="string">"Luke Skywalker"</span>,</span><br><span class="line">      <span class="attr">"height"</span>: <span class="number">172</span>,</span><br><span class="line">      <span class="attr">"mass"</span>: <span class="number">77</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>我們索取指定外形的資料，並收到那種外形的資料，不多也不少。這是比較宣告式的作法，因為不會收到無關的額外資料，所以可以更快速的得到回傳。</p>
+<h3 id="Underfetch"><a href="#Underfetch" class="headerlink" title="Underfetch"></a>Underfetch</h3><p>當我們想在我們的 Star Wars app 中加入另一個功能，除了 name、height 與 mass 之外，也要顯示有 Luke Skywalker 這位角色的電影名稱。當我們向  <em><a href="https://swapi.co/api/people/1/" target="_blank" rel="noopener">https://swapi.co/api/people/1/</a></em>  請求資料後，仍然需要發出其它的請求來取得更多資料，這代表我們 <em>underfetch</em> (擷取不足)</p>
+<p> 為了取得每部電影的名稱，我們必須向 films 陣列內的每一個路由索取資料:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&quot;films&quot;: [</span><br><span class="line">  &quot;https://swapi.co/api/films/2/&quot;,</span><br><span class="line">  &quot;https://swapi.co/api/films/6/&quot;,</span><br><span class="line">  &quot;https://swapi.co/api/films/3/&quot;,</span><br><span class="line">  &quot;https://swapi.co/api/films/1/&quot;,</span><br><span class="line">  &quot;https://swapi.co/api/films/7/&quot;</span><br><span class="line"> ]</span><br></pre></td></tr></table></figure>
+
+
+<p>我們要發出一個請求來索取 Luke Skywalker (<a href="https://swapi.co/api/people/1/" target="_blank" rel="noopener">https://swapi.co/api/people/1/</a>)，接著還要發出五個請求來取得每一部電影才能得到這一筆資料。索取每部電影時，我們也會得到一個大型的物件，但我們只想要一個值 <em>title</em>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;title&quot;: &quot;The Empire Strikes Back&quot;,</span><br><span class="line">    &quot;episode_id&quot;: 5,</span><br><span class="line">    &quot;opening_crawl&quot;: &quot;It is a dark time for the\r\nRebellion. Although the Death\r\nStar has been destroyed,\r\nImperial troops have driven the\r\nRebel forces from their hidden\r\nbase and pursued them across\r\nthe galaxy.\r\n\r\nEvading the dreaded Imperial\r\nStarfleet, a group of freedom\r\nfighters led by Luke Skywalker\r\nhas established a new secret\r\nbase on the remote ice world\r\nof Hoth.\r\n\r\nThe evil lord Darth Vader,\r\nobsessed with finding young\r\nSkywalker, has dispatched\r\nthousands of remote probes into\r\nthe far reaches of space....&quot;,</span><br><span class="line">    &quot;director&quot;: &quot;Irvin Kershner&quot;,</span><br><span class="line">    &quot;producer&quot;: &quot;Gary Kurtz, Rick McCallum&quot;,</span><br><span class="line">    &quot;release_date&quot;: &quot;1980-05-17&quot;,</span><br><span class="line">    &quot;characters&quot;: [</span><br><span class="line">        &quot;https://swapi.co/api/people/1/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/2/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/3/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/4/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/5/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/10/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/13/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/14/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/18/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/20/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/21/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/22/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/23/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/24/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/25/&quot;,</span><br><span class="line">        &quot;https://swapi.co/api/people/26/&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;planets&quot;: [</span><br><span class="line">        //... 長串的路由</span><br><span class="line">    ],</span><br><span class="line">    &quot;starships&quot;: [</span><br><span class="line">        //... 長串的路由</span><br><span class="line">    ],</span><br><span class="line">    &quot;vehicles&quot;: [</span><br><span class="line">        //... 長串的路由</span><br><span class="line">    ],</span><br><span class="line">    &quot;species&quot;: [</span><br><span class="line">        //... 長串的路由</span><br><span class="line">    ],</span><br><span class="line">    &quot;created&quot;: &quot;2014-12-12T11:26:24.656000Z&quot;,</span><br><span class="line">    &quot;edited&quot;: &quot;2017-04-19T10:57:29.544256Z&quot;,</span><br><span class="line">    &quot;url&quot;: &quot;https://swapi.co/api/films/2/&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果我們想要列出電影的每個角色，就要發出更多的請求，在這個例子中，我們要接觸 16 個路由，並產生 16 次的用戶端往返。每一個 HTTP 請求都會用到用戶端的資源，並過度攫取資料，造成更緩慢的使用者體驗，特別是使用慢速網路或裝置的使用者可能會完全無法看到內容。</p>
+<p>GraphQL 處理擷取不足的方法是定義一個嵌套式的 query，接著一次請求所有的資料。</p>
+<figure class="highlight js"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  person(personID:<span class="number">1</span>) &#123;</span><br><span class="line">    name</span><br><span class="line">    height</span><br><span class="line">    mass</span><br><span class="line">    filmConnection &#123;</span><br><span class="line">      films &#123;</span><br><span class="line">        title</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"person"</span>: &#123;</span><br><span class="line">      <span class="attr">"name"</span>: <span class="string">"Luke Skywalker"</span>,</span><br><span class="line">      <span class="attr">"height"</span>: <span class="number">172</span>,</span><br><span class="line">      <span class="attr">"mass"</span>: <span class="number">77</span>,</span><br><span class="line">      <span class="attr">"filmConnection"</span>: &#123;</span><br><span class="line">        <span class="attr">"films"</span>: [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"A New Hope"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"The Empire Strikes Back"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"Return of the Jedi"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"Revenge of the Sith"</span></span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"The Force Awakens"</span></span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>我們只用一個請求來取得想要的資料。而且一如既往，query 的外形符合所收到資料的外形。</p>
+<h3 id="管理-REST-端點"><a href="#管理-REST-端點" class="headerlink" title="管理 REST 端點"></a>管理 REST 端點</h3><p>經常有人抱怨 REST API 的另外一個地方是它缺乏彈性。當用戶需求改變時，你通常要建立新的端點，而且新端點可能會開始倍增。套句網路名言:</p>
+<blockquote><p>You get a route!You get a route!Every!Body!Gets!Gets!A!Route!</p>
+</blockquote>
+
+
+<p>使用 SWAPI REST API 時，我們必須對許多路由發出請求，大型的 app 通常會使用自訂的端點來盡量減少 HTTP 請求，你可能會開始看到 /api/character-with-movie-title 這類的端點。設置新端點通常意味著前端與後端團隊必須進一步擬定計畫與進行更多的溝通，開發速度或許會因而減緩。</p>
+<p>使用 GraphQL 時，典型的架構只有一個端點。單一端點可扮演閘道的角色並協調多個資料來源，但就算只有一個端點，我們仍然可以更輕鬆的組織資料。</p>
+<p>在討論 REST 的缺陷時，有一個需要特別注意的地方是許多機構都會同時使用 GraphQL 與 REST。設置 GraphQL 端點來從 REST 端點擷取資料是完全有效的 GraphQL 使用方式。在開始逐漸使用 GraphQL 是一種很好的做法。</p>
+<h2 id="現時世界的-GraphQL"><a href="#現時世界的-GraphQL" class="headerlink" title="現時世界的 GraphQL"></a>現時世界的 GraphQL</h2><p>許多公司都用 GraphQL 來改善它們的 app、網站與 API，GitHub 是早期就大量採用 GraphQL 的公司之一，它的 REST API 經歷三次變動，在公用 API 第 4 版時開始使用 GraphQL，GitHub 在<a href="https://developer.github.com/v4/" target="_blank" rel="noopener">官網</a>提到，他們發現 “能夠準確定義你需要的資料(而且只有你需要的)是它比 REST API v3 端點還要好的地方”。</p>
+<p>其它的公司，例如 <em>The New York Times</em>、IBM、Twitter 與 Yelp 也信任 GraphQL，這些團隊的開發者也經常在會議上宣揚 GraphQL 得好處。</p>
+<h3 id="GraphQL-用戶端"><a href="#GraphQL-用戶端" class="headerlink" title="GraphQL 用戶端"></a>GraphQL 用戶端</h3><p>GraphQL 只是一種規格。它不在乎與它一起使用的究竟是何種瀏覽器、React、Angular、Vue 或者是純 JavaScript。GraphQL 對一些特定的主題有一些意見，但除此之外，如何設計架構由你自行決定。這導致一些工具出現，讓你在規格之外的領域有一些選擇。</p>
+<p>GraphQL 用戶端旨在加速開發團隊的工作流程，並改善 app 的效率與性能。它們可處理諸如網路請求、資料快取，以及將資料注入使用者介面等工作。市面上有許多 GraphQL 用戶端選項，但這個領域的領導者是 <a href="https://facebook.github.io/relay/" target="_blank" rel="noopener">Relay</a>  與 <a href="https://www.apollographql.com/" target="_blank" rel="noopener">Apollo</a>。</p>
+<p>Relay 是 Facebook 製作的用戶端，它是與 React 和 React Native 一起運作的。Relay 是 React 元件與 GraphQL 伺服器回傳的資料之間的連接組織。Facebook、GitHub、Twitch 以及許多其它公司都使用 Relay。</p>
+<p>Apollo Client 是社群團體 Meteor Development Group 為了建立更全面的 GraphQL 週邊工具而開發的。Apollo Client 支援所有主要的前端開發平台，例如，<a href="https://vue-apollo.netlify.com/" target="_blank" rel="noopener">Vue Apollo</a>、<a href="https://www.apollographql.com/docs/angular/" target="_blank" rel="noopener">Apollo Angular</a>，不限定任何特定的框架。Apollo 開發了一些協助建構 GraphQL 服務(Apollo Server)和改善後端服務效能的開發工具，以及監控 GraphQL API 性能的工具組。Airbnb、CNBC、 <em>The New York Times</em> 與 Ticketmaster 等公司都在產品中使用 Apollo Client。</p>
+<p>GraphQL 已經是個相當穩定的標準了，也已經是個龐大且正在持續成長的生態系統。它的概念則來自於圖論(graph theory)，要了解關於圖論的點(vertice)與邊(edge)的其他知識，可參考 Vaidehi Joshi 的部落格文章 <a href="https://dev.to/vaidehijoshi/a-gentle-introduction-to-graph-theory" target="_blank" rel="noopener">A Gentle Introduction To Graph Theory</a>。</p>
+<p>接下來將會是漫長的學習，我們將從 GraphQL 的查詢語言開始，最後會實作 GraphQL API 伺服器。我們將會使用 JavaScript。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/07/05/What-is-GraphQL/" data-id="ckcpzj96p001u80vzc7g70t42" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/09/RabbitMQ-with-C/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          RabbitMQ with C#
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/01/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Hello Tainan</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

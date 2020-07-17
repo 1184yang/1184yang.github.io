@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>RabbitMQ、Oracle with C# | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="從 RabbitMQ 接收資料，只顯示在終端視窗上似乎沒甚麼意思，接下來我們要把它直接寫入我們熟悉的 Oracle 資料庫。因此我們先要了解 C# 與關連式資料庫的運作方式。 首先要學習如何連接(connection)資料庫，以及關閉與資料庫的連接。如何使用查詢，如何添加和更新紀錄。如果你已了解 Oracle Data Provider for .NET (ODP.NET)的操作，則可以跳過 Or">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ、Oracle with C#">
+<meta property="og:url" content="https://1184yang.github.io/2019/07/18/RabbitMQ-Oracle-with-C/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="從 RabbitMQ 接收資料，只顯示在終端視窗上似乎沒甚麼意思，接下來我們要把它直接寫入我們熟悉的 Oracle 資料庫。因此我們先要了解 C# 與關連式資料庫的運作方式。 首先要學習如何連接(connection)資料庫，以及關閉與資料庫的連接。如何使用查詢，如何添加和更新紀錄。如果你已了解 Oracle Data Provider for .NET (ODP.NET)的操作，則可以跳過 Or">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.074Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RabbitMQ、Oracle with C#">
+<meta name="twitter:description" content="從 RabbitMQ 接收資料，只顯示在終端視窗上似乎沒甚麼意思，接下來我們要把它直接寫入我們熟悉的 Oracle 資料庫。因此我們先要了解 C# 與關連式資料庫的運作方式。 首先要學習如何連接(connection)資料庫，以及關閉與資料庫的連接。如何使用查詢，如何添加和更新紀錄。如果你已了解 Oracle Data Provider for .NET (ODP.NET)的操作，則可以跳過 Or">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-RabbitMQ-Oracle-with-C" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/18/RabbitMQ-Oracle-with-C/" class="article-date">
+  <time datetime="2019-07-18T00:57:10.000Z" itemprop="datePublished">2019-07-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C#</a>►<a class="article-category-link" href="/categories/Oracle/">Oracle</a>►<a class="article-category-link" href="/categories/RabbitMQ/">RabbitMQ</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      RabbitMQ、Oracle with C#
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>從 RabbitMQ 接收資料，只顯示在終端視窗上似乎沒甚麼意思，接下來我們要把它直接寫入我們熟悉的 Oracle 資料庫。因此我們先要了解 C# 與關連式資料庫的運作方式。</p>
+<p>首先要學習如何連接(connection)資料庫，以及關閉與資料庫的連接。如何使用查詢，如何添加和更新紀錄。如果你已了解 Oracle Data Provider for .NET (ODP.NET)的操作，則可以跳過 Oracle 範例，直接到後面的 “整合 RabbitMQ 消費訊息與 Oracle”。</p>
+<p>ADO.NET 之前使用 OLEDB 與 ODBC 附帶不同的資料庫提供程式(Data Provider)，一個提供程式用於 SQL Server;另一個提供程式用於 Oracle。OLEDB 技術已不再獲得支援，所以這個提供程式不應該再用於新的應用程式。對於 Oracle 資料庫，微軟提供的程式也不再使用，因為來自 <a href="https://www.oracle.com/technetwork/topics/dotnet/" target="_blank" rel="noopener">Oracle</a> 所提供的程式能更好的滿足需求。我們這裡要使用的 Oracle Data Provider for .NET (ODP.NET) Core 是 <a href="https://www.nuget.org/packages/Oracle.ManagedDataAccess.Core/" target="_blank" rel="noopener">Oracle.ManagedDataAccess.Core</a>。</p>
+<h3 id="Oracle-範例"><a href="#Oracle-範例" class="headerlink" title="Oracle 範例"></a>Oracle 範例</h3><p>我們要在原先的 amqp-example 解決方案之下再開一個 OracleSample 專案來學習 Oracle 資料庫的操作，切換到你的 amqp-example 解決方案目錄:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet new console --name OracleSample</span><br></pre></td></tr></table></figure>
+
+<p>然後在 OracleSample 專案目錄下安裝 NuGet Oracle 套件。</p>
+<figure class="highlight bash"><figcaption><span>Oracle Data Provider for .NET Core</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> OracleSample</span><br><span class="line">dotnet add package Oracle.ManagedDataAccess.Core</span><br></pre></td></tr></table></figure>
+
+<p>安裝成功後，你可在 OracleSample 專案目錄下的檔案 OracleSample.csproj 發現新的資料紀錄。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ItemGroup</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">PackageReference</span> <span class="attr">Include</span>=<span class="string">"Oracle.ManagedDataAccess.Core"</span> <span class="attr">Version</span>=<span class="string">"2.19.31"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ItemGroup</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="連線-Connection"><a href="#連線-Connection" class="headerlink" title="連線 Connection"></a>連線 Connection</h4><p>我們就可以開始了。首先是資料庫的連線。在 OracleSample 目錄下開一個目錄 src 來放我們的範例，然後在 src 目錄下建立一個新的 C# 程式檔 ConnectionSample.cs。</p>
+<figure class="highlight csharp"><figcaption><span>src/ConnectionSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> Oracle.ManagedDataAccess.Client;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">OracleSample.src</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ConnectionSample</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">OpenConnection</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">string</span> connectionString = <span class="string">"User Id=demo;Password=demo426;Data Source=10.11.25.139:1522/lx26.pec.com.tw;"</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">var</span> connection = <span class="keyword">new</span> OracleConnection(connectionString);</span><br><span class="line">      connection.Open();</span><br><span class="line">      Console.WriteLine(<span class="string">"Connection opened"</span>);</span><br><span class="line">      Console.WriteLine(<span class="string">"Press [enter] to continue"</span>);</span><br><span class="line">      Console.ReadLine();</span><br><span class="line">      connection.Close();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在第 16 行我們加一個 Console.ReadLine() 讓程式暫停，我們才能從資料庫觀察連線狀況。</p>
+<p>回到 OracleSample 專案的根目錄，修改一下 Program.cs 以便測試，記得要將 OracleSample.src 命名空間加進來:</p>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> OracleSample.src;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">OracleSample</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      ConnectionSample.OpenConnection();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在專案目錄下開啟一個終端視窗來啟動程式:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet run</span><br></pre></td></tr></table></figure>
+
+<p>讓它暫停在終端機上，到資料庫觀察一下連線:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">USERNA  PID  SID MACHINE         SPID     STATUS   SERIAL# MODULE               PROGRAM                      CLIENT_INFO</span><br><span class="line">------ ---- ---- --------------- -------- -------- ------- -------------------- ---------------------------- ------------------</span><br><span class="line">DEMO     53   90 PEC\76070049P1  428      INACTIVE    3289 OracleSample.dll     OracleSample.dll</span><br></pre></td></tr></table></figure>
+
+<p>OracleConnection 類實現了 IDisposable 介面，其中包含 Dispose() 方法和 Close() 方法。這兩個方法的功能相同，都是釋放連線。這樣，就可以使用 using 語句來自動關閉資料庫連線。</p>
+<p>這個 ConnectionSample 範例使用定義好的連接字符串打開資料庫連接，一旦打開連線就可以對資料庫執行命令，完成後關閉連線。</p>
+<p>直接在程式碼設定連接字符串，不是一個很適合的方式，最好是將它設定在一個配置檔案中。在 .NET Core 中，配置文件可以是 JSON 或 XML 格式，或從環境變數中讀取。這範例我們使用 JSON 格式。</p>
+<p>首先安裝要兩個 NuGet 套件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> OracleSample</span><br><span class="line">dotnet add package Microsoft.Extensions.Configuration</span><br><span class="line">dotnet add package Microsoft.Extensions.Configuration.Json</span><br></pre></td></tr></table></figure>
+
+<p>在 OracleSample 專案根目錄下建立 config.json 配置檔:</p>
+<figure class="highlight json"><figcaption><span>config.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"Data"</span>: &#123;</span><br><span class="line">    <span class="attr">"DefaultConnection"</span>: &#123;</span><br><span class="line">      <span class="attr">"ConnectionString"</span>: <span class="string">"User Id=demo;Password=demo426;Data Source=10.11.25.139: 1522/lx26.pec.com.tw;"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然後我們要修改 ConnectionSample.cs 從 config.json 配置檔讀取資料庫連線資訊:</p>
+<figure class="highlight csharp"><figcaption><span>src/ConnectionSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> Oracle.ManagedDataAccess.Client;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration.Json;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">OracleSample.src</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ConnectionSample</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">OpenConnection</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">var</span> configurationBuilder = <span class="keyword">new</span> ConfigurationBuilder()</span><br><span class="line">        .SetBasePath(Directory.GetCurrentDirectory())</span><br><span class="line">        .AddJsonFile(<span class="string">"config.json"</span>);</span><br><span class="line">      IConfiguration config = configurationBuilder.Build();</span><br><span class="line">      <span class="keyword">string</span> connectionString = config[<span class="string">"Data:DefaultConnection:ConnectionString"</span>];</span><br><span class="line"></span><br><span class="line">      <span class="keyword">var</span> connection = <span class="keyword">new</span> OracleConnection(connectionString);</span><br><span class="line">      connection.Open();</span><br><span class="line">      Console.WriteLine(<span class="string">"Connection opened"</span>);</span><br><span class="line">      Console.WriteLine(<span class="string">"Press [enter] to continue"</span>);</span><br><span class="line">      Console.ReadLine();</span><br><span class="line">      connection.Close();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程式碼似乎變的複雜一些，但是這是必要的，這可避免為往後增加一些技術債。</p>
+<p>這裡使用 ConfigurationBuilder 創建一個實例，AddJsonFile 擴展方法添加 JSON 文件 config.json，從這個文件讀取配置信息。調用 ConfigurationBuilder 的 Build() 方法，從所添加的配置文件中建構配置，返回一個實現了 IConfiguration 介面的物件。這樣就可以檢索配置值。</p>
+<blockquote>
+<p><strong>Pooling</strong></p>
+<blockquote>
+<p>我們可以在設定連接字符串中直接設定連接池(connection pool)。選項 Pooling 設置為 false，會禁用連接池; 預設是啟用的: Pooling=true。 Min Pool Size 和 Max Pool Size 允許配置池中的連接數。預設情況下，Min Pool Size 的值為 1，Max Pool Size 的值為 100。Connection Lifetime 定義了連線在釋放前在池中保持不活躍狀態的時間。</p>
+</blockquote>
+</blockquote>
+<h4 id="命令-Command"><a href="#命令-Command" class="headerlink" title="命令 Command"></a>命令 Command</h4><p>連線到資料庫後就可以針對資料庫執行命令，就是要在資料庫上執行包含 SQL 語句的文本字符串。命令也可以是一個存儲過程 (Stored Procedure)。</p>
+<p>把 SQL 子句作為一個參數傳遞給 Command 類的建構函式，就可以建構一條命令。在 OracleSample/src 目錄下建立一個新的程式檔 CommandSample.cs:</p>
+<figure class="highlight csharp"><figcaption><span>src/CommandSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> Oracle.ManagedDataAccess.Client;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration.Json;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">OracleSample.src</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CommandSample</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CreateCommand</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">using</span> (<span class="keyword">var</span> connection = <span class="keyword">new</span> OracleConnection(GetConnectionString()))</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="keyword">string</span> sql = <span class="string">"SELECT empno, ename, hiredate, sal, deptno From emp"</span>;</span><br><span class="line">         <span class="keyword">var</span> command = <span class="keyword">new</span> OracleCommand(sql, connection);</span><br><span class="line">         connection.Open();</span><br><span class="line">         <span class="comment">//...</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetConnectionString</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">var</span> configurationBuilder = <span class="keyword">new</span> ConfigurationBuilder()</span><br><span class="line">        .SetBasePath(Directory.GetCurrentDirectory())</span><br><span class="line">        .AddJsonFile(<span class="string">"config.json"</span>);</span><br><span class="line">      IConfiguration config = configurationBuilder.Build();</span><br><span class="line">      <span class="keyword">string</span> connectionString = config[<span class="string">"Data:DefaultConnection:ConnectionString"</span>];</span><br><span class="line">      <span class="keyword">return</span> connectionString;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡我們將讀取配置檔獨立在一個靜態方法 GetConnectionString() 中，讓程式模組化一些。OracleCommand 命令的建構，也可以透過 OracleConnection 的 CreateCommand( ) 方法，把 SQL 語句賦予 CommandText 屬性:</p>
+<figure class="highlight csharp"><figcaption><span>src/CommandSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">OracleCommand command = connection.CreateCommand();</span><br><span class="line">command.CommandText = sql;</span><br></pre></td></tr></table></figure>
+
+<p>命令通常需要參數。例如，下面的 SQL 語句需要一個 deptno 參數。不要試圖使用字符串連接來建立參數，它經常被用於 SQL 注入(SQL injection)攻擊。相反的，應使用 ODP.NET 的參數特性，OracleParameter 物件會抑制這種攻擊:</p>
+<figure class="highlight csharp"><figcaption><span>src/CommandSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">string</span> sql = <span class="string">"SELECT empno, ename, hiredate, sal, deptno From emp where deptno = :deptno"</span>;</span><br><span class="line"><span class="keyword">var</span> command = <span class="keyword">new</span> OracleCommand(sql, connection);</span><br><span class="line">command.BindByName = <span class="literal">true</span>;</span><br><span class="line">OracleParameter deptno = <span class="keyword">new</span> OracleParameter(<span class="string">"deptno"</span>, <span class="number">10</span>);</span><br><span class="line">command.Parameters.Add(deptno);</span><br></pre></td></tr></table></figure>
+
+<p>定義好命令後，就需要執行它。執行語句有許多方式，這取決於要從命令中返回甚麼數據。OracleCommand 類提供了下述可執行的命令:</p>
+<ul>
+<li>ExecuteReader() : 執行命令，返回一個類型化的 IDataReader。</li>
+<li>ExecuteNonQuery() : 執行命令，但不返回任何結果。</li>
+<li>ExecuteScalar(): 執行命令，返回結果集中第一行第一列的值。</li>
+</ul>
+<h4 id="ExecuteReader-方法"><a href="#ExecuteReader-方法" class="headerlink" title="ExecuteReader( ) 方法"></a>ExecuteReader( ) 方法</h4><p>我們分別來看看這三個方法，在 src 目錄下產生 ExecuteSample.cs，首先看 ExecuteReader()，ExecuteReader( ) 方法執行命令，並返回一個 DataReader 物件，返回的物件可以用於遍歷返回的紀錄。</p>
+<figure class="highlight csharp"><figcaption><span>src/ExecuteSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> Oracle.ManagedDataAccess.Client;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration.Json;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">OracleSample.src</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ExecuteSample</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">ExecuteReader</span>(<span class="params"><span class="keyword">int</span> deptnoParameter</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">string</span> sql = <span class="string">"SELECT empno, ename, hiredate, sal, comm, deptno From emp where deptno = :deptno order by empno"</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">try</span></span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">using</span> (<span class="keyword">var</span> connection = <span class="keyword">new</span> OracleConnection(GetConnectionString()))</span><br><span class="line">        <span class="keyword">using</span> (<span class="keyword">var</span> command = <span class="keyword">new</span> OracleCommand(sql, connection))</span><br><span class="line">        &#123;</span><br><span class="line">          command.BindByName = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">          OracleParameter deptnoBind = <span class="keyword">new</span> OracleParameter(<span class="string">"deptno"</span>, OracleDbType.Int32);</span><br><span class="line">          deptnoBind.Value = deptnoParameter;</span><br><span class="line">          command.Parameters.Add(deptnoBind);</span><br><span class="line"></span><br><span class="line">          connection.Open();</span><br><span class="line">          <span class="keyword">using</span> (<span class="keyword">var</span> reader = command.ExecuteReader())</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="keyword">while</span> (reader.Read())</span><br><span class="line">            &#123;</span><br><span class="line">              <span class="keyword">short</span> empno = reader.GetInt16(<span class="number">0</span>);</span><br><span class="line">              <span class="keyword">string</span> ename = reader.GetString(<span class="number">1</span>);</span><br><span class="line">              DateTime hiredate = reader.GetDateTime(<span class="number">2</span>);</span><br><span class="line">              <span class="keyword">float</span> sal = reader.GetFloat(<span class="number">3</span>);</span><br><span class="line">              <span class="keyword">float</span>? comm = reader.IsDBNull(<span class="number">4</span>) ? (<span class="keyword">float</span>?)<span class="literal">null</span> : reader.GetFloat(<span class="number">4</span>);</span><br><span class="line">              <span class="keyword">short</span> deptno = reader.GetInt16(<span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">              Console.WriteLine(<span class="string">$"<span class="subst">&#123;empno,<span class="number">4</span>&#125;</span> <span class="subst">&#123;ename,<span class="number">-10</span>&#125;</span> <span class="subst">&#123;hiredate:yyyy-MM-dd&#125;</span> <span class="subst">&#123;sal,<span class="number">7</span>:F2&#125;</span> <span class="subst">&#123;comm,<span class="number">7</span>:F2&#125;</span> <span class="subst">&#123;deptno,<span class="number">2</span>&#125;</span>"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">catch</span> (OracleException ex)</span><br><span class="line">      &#123;</span><br><span class="line">        Console.WriteLine(ex.Message);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetConnectionString</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">var</span> configurationBuilder = <span class="keyword">new</span> ConfigurationBuilder()</span><br><span class="line">        .SetBasePath(Directory.GetCurrentDirectory())</span><br><span class="line">        .AddJsonFile(<span class="string">"config.json"</span>);</span><br><span class="line">      IConfiguration config = configurationBuilder.Build();</span><br><span class="line">      <span class="keyword">string</span> connectionString = config[<span class="string">"Data:DefaultConnection:ConnectionString"</span>];</span><br><span class="line">      <span class="keyword">return</span> connectionString;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡建構 OracleParameter 的方式與上個範例有些微的不同，我們定義了 deptno 參數的型態 OracleDbType.Int32。</p>
+<p>當調用 OracleCommand 物件的 ExecuteReader() 方法時，返回 OracleDataReader 物件。這裡要注意，OracleDataReader 使用後需要銷毀。</p>
+<p>從數據讀取器 reader 中讀取記錄時，在 while 循環中調用 Read() 方法。Read() 方法的第一次調用時會將游標 (cursor) 移動到返回的第一筆記錄上，再次調用時游標定位到下一筆記錄，如果沒有記錄了，Read() 方法就返回 false。</p>
+<p>訪問列(column)的值時，調用不同的 GetXXX() 方法讀取欄位的值，傳遞給這些方法的索引對應於用 SQL SELECT 語句檢索的列(column)，因此即使資料庫的結構有變化，該索引也保持不變 (不要用 SELECT *)。在強類型化的 GetXXX() 方法中，需要注意從資料庫返回的 null 值，GetXXX () 方法會拋出一個異常。為了避免異常，使用 C# 條件語句 ?: 和 OracleDataReader.IsDBNull() 方法，檢查值是否為 null，如果是，就把 null 分配給可空的 (Nullable Type) decimal? 變數 comm。</p>
+<blockquote>
+<blockquote>
+<p><strong>可空類型 Nullable Types</strong></p>
+<blockquote>
+<p>引用類型的變數可以為空 (null)，而值類型的變數不能。把 C# 類型映射到資料庫類型時，這是一個特殊的問題。資料庫中的值可以為 null。C# 的解決方案就是: 可空類型 Nullable Types。可空類型是可以為 null 的值類型。可空類型只需要在類型的後面添加”?”。</p>
+<p>在下面的程式碼片段中，x1 是一個普通的 int，x2 是一個可以為空的 int，所以可以把 null 分配給 x2:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int x1 = 1;</span><br><span class="line">int? x2 = null;</span><br></pre></td></tr></table></figure>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>修改 OracleSample 專案下的 Program.cs 測試:</p>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  ExecuteSample.ExecuteReader(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>對於 OracleDataReader，可以不使用 GetXXX 方法，而可以使用無類型的索引器返回一個物件，因此，需要轉換為相應的類型:</p>
+<figure class="highlight csharp"><figcaption><span>src/ExecuteSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">short</span> empno = (<span class="keyword">short</span>)reader[<span class="number">0</span>];</span><br><span class="line"><span class="keyword">string</span> ename = (<span class="keyword">string</span>)reader[<span class="number">1</span>];</span><br><span class="line">DateTime hiredate = (DateTime)reader[<span class="number">2</span>];</span><br><span class="line"><span class="keyword">float</span> sal = (<span class="keyword">float</span>)reader[<span class="number">3</span>];</span><br><span class="line"><span class="keyword">float</span>? comm = reader.IsDBNull(<span class="number">4</span>) ? (<span class="keyword">float</span>?) <span class="literal">null</span> : (<span class="keyword">float</span>?)reader[<span class="number">4</span>];</span><br><span class="line"><span class="keyword">short</span> deptno = (<span class="keyword">short</span>)reader[<span class="number">5</span>];</span><br></pre></td></tr></table></figure>
+
+<p>OracleDataReader 的索引器還允許使用 string 而不是 int 傳遞列名 (column name)。在這些不同的選項中，這是最慢的方法，但它的可讀性最佳，與發出服務調用所需的時間相比，訪問索引器所需的額外時間其實可以忽略不計。</p>
+<figure class="highlight csharp"><figcaption><span>src/ExecuteSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">short</span> empno = (<span class="keyword">short</span>)reader[<span class="string">"empno"</span>];</span><br><span class="line"><span class="keyword">string</span> ename = (<span class="keyword">string</span>)reader[<span class="string">"ename"</span>];</span><br><span class="line">DateTime hiredate = (DateTime)reader[<span class="string">"hiredate"</span>];</span><br><span class="line"><span class="keyword">float</span> sal = (<span class="keyword">float</span>)reader[<span class="string">"sal"</span>];</span><br><span class="line"><span class="keyword">float</span>? comm = reader.IsDBNull(<span class="number">4</span>) ? (<span class="keyword">float</span>?)<span class="literal">null</span> : (<span class="keyword">float</span>?)reader[<span class="string">"comm"</span>];</span><br><span class="line"><span class="keyword">short</span> deptno = (<span class="keyword">short</span>)reader[<span class="string">"deptno"</span>];</span><br></pre></td></tr></table></figure>
+
+<p>強烈型的語言有時在映對資料庫的資料型態實在是很困擾，既然是從資料庫返回的資料，不管它是否為 null，總是會有初始值，我們就直接使用 var 類型推斷。 要記得使用 var 類型推斷，一定要賦予初始值，否則它無法推斷:</p>
+<figure class="highlight csharp"><figcaption><span>src/ExecuteSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> empno = reader[<span class="string">"empno"</span>];</span><br><span class="line"><span class="keyword">var</span> ename = reader[<span class="string">"ename"</span>];</span><br><span class="line"><span class="keyword">var</span> hiredate = reader[<span class="string">"hiredate"</span>];</span><br><span class="line"><span class="keyword">var</span> sal = reader[<span class="string">"sal"</span>];</span><br><span class="line"><span class="keyword">var</span> comm = reader[<span class="string">"comm"</span>];</span><br><span class="line"><span class="keyword">var</span> deptno = reader[<span class="string">"deptno"</span>];</span><br></pre></td></tr></table></figure>
+
+<p>你會不會好奇，當 comm 欄位是 null 時，程式是不是會當掉? 或者變數 hiredate 的資料型態是甚麼? 可以使用 GetType() 方法查看它的類別型態。</p>
+<figure class="highlight csharp"><figcaption><span>src/ExecuteSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Console.WriteLine(<span class="string">$"<span class="subst">&#123;empno.GetType()&#125;</span> <span class="subst">&#123;ename.GetType()&#125;</span> <span class="subst">&#123;hiredate.GetType()&#125;</span> <span class="subst">&#123;sal.GetType()&#125;</span> <span class="subst">&#123;comm.GetType()&#125;</span> <span class="subst">&#123;deptno.GetType()&#125;</span>"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>結果應該是:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">System.Int16 System.String System.DateTime System.Single System.DBNull System.Int16</span><br></pre></td></tr></table></figure>
+
+<h4 id="ExecuteNonQuery-方法"><a href="#ExecuteNonQuery-方法" class="headerlink" title="ExecuteNonQuery( ) 方法"></a>ExecuteNonQuery( ) 方法</h4><p>ExecuteNonQuery() 方法一般用於 UPDATE、INSERT 或 DELETE 語句，其中維一返回值是受影響的紀錄筆數。但如果調用帶輸出參數的存儲過程 (Stored Procedure)，該方法就有返回值。</p>
+<p>在 ExecuteSample 類中新增一個靜態方法 ExecuteNonQuery( ):</p>
+<figure class="highlight csharp"><figcaption><span>src/ExecuteSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">ExecuteNonQuery</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">var</span> newEmployee = <span class="keyword">new</span></span><br><span class="line">  &#123;</span><br><span class="line">    empno = <span class="number">9588</span>,</span><br><span class="line">    ename = <span class="string">"C#範例"</span>,</span><br><span class="line">    job = <span class="string">"ANALYST"</span>,</span><br><span class="line">    mgr = <span class="number">7566</span>,</span><br><span class="line">    hiredate = DateTime.Now,</span><br><span class="line">    sal = <span class="number">23000</span>,</span><br><span class="line">    comm = <span class="number">111</span>,</span><br><span class="line">    deptno = <span class="number">40</span></span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">string</span> sql = <span class="string">"INSERT INTO EMP (empno, ename, job, mgr, hiredate, sal, comm, deptno) "</span> +</span><br><span class="line">    <span class="string">"VALUES (:empno, :ename, :job, :mgr, :hiredate, :sal, :comm, :deptno)"</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> connection = <span class="keyword">new</span> OracleConnection(GetConnectionString()))</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> command = <span class="keyword">new</span> OracleCommand(sql, connection))</span><br><span class="line">    &#123;</span><br><span class="line">      command.BindByName = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">      OracleParameter empnoBind = <span class="keyword">new</span> OracleParameter(<span class="string">"empno"</span>, OracleDbType.Int32);</span><br><span class="line">      empnoBind.Value = newEmployee.empno;</span><br><span class="line">      command.Parameters.Add(empnoBind);</span><br><span class="line"></span><br><span class="line">      OracleParameter enameBind = <span class="keyword">new</span> OracleParameter(<span class="string">"ename"</span>, OracleDbType.Varchar2);</span><br><span class="line">      enameBind.Value = newEmployee.ename;</span><br><span class="line">      command.Parameters.Add(enameBind);</span><br><span class="line"></span><br><span class="line">      OracleParameter jobBind = <span class="keyword">new</span> OracleParameter(<span class="string">"job"</span>, OracleDbType.Varchar2);</span><br><span class="line">      jobBind.Value = newEmployee.job;</span><br><span class="line">      command.Parameters.Add(jobBind);</span><br><span class="line"></span><br><span class="line">      OracleParameter mgrBind = <span class="keyword">new</span> OracleParameter(<span class="string">"mgr"</span>, OracleDbType.Int32);</span><br><span class="line">      mgrBind.Value = newEmployee.mgr;</span><br><span class="line">      command.Parameters.Add(mgrBind);</span><br><span class="line"></span><br><span class="line">      OracleParameter hiredateBind = <span class="keyword">new</span> OracleParameter(<span class="string">"hiredate"</span>, OracleDbType.Date);</span><br><span class="line">      hiredateBind.Value = newEmployee.hiredate;</span><br><span class="line">      command.Parameters.Add(hiredateBind);</span><br><span class="line"></span><br><span class="line">      OracleParameter salBind = <span class="keyword">new</span> OracleParameter(<span class="string">"sal"</span>, OracleDbType.Decimal);</span><br><span class="line">      salBind.Value = newEmployee.sal;</span><br><span class="line">      command.Parameters.Add(salBind);</span><br><span class="line"></span><br><span class="line">      OracleParameter commBind = <span class="keyword">new</span> OracleParameter(<span class="string">"comm"</span>, OracleDbType.Decimal);</span><br><span class="line">      commBind.Value = newEmployee.comm;</span><br><span class="line">      command.Parameters.Add(commBind);</span><br><span class="line"></span><br><span class="line">      OracleParameter deptnoBind = <span class="keyword">new</span> OracleParameter(<span class="string">"deptno"</span>, OracleDbType.Int32);</span><br><span class="line">      deptnoBind.Value = newEmployee.deptno;</span><br><span class="line">      command.Parameters.Add(deptnoBind);</span><br><span class="line"></span><br><span class="line">      connection.Open();</span><br><span class="line">      <span class="keyword">int</span> rows = command.ExecuteNonQuery();</span><br><span class="line">      Console.WriteLine(<span class="string">$"<span class="subst">&#123;rows&#125;</span> row(s) inserted"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">catch</span> (OracleException ex)</span><br><span class="line">  &#123;</span><br><span class="line">    Console.WriteLine(ex.Message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡我們使用匿名類型(Anonymous Types)產生一個 newEmployee 物件。var 與 new 關鍵字一起使用時，可以創建匿名類型。匿名類型只是一個繼承自 Object 且沒有名稱的類。該類的定義從物件初始化器中推斷，類似於隱式類型化的變數。</p>
+<p>這個程式碼大部份都是在宣告 OracleParameter 參數，注意它們對應的資料庫類型型態。ExecuteNonQuery() 方法會返回命令所影響的筆數。</p>
+<p>可以把 SQL 改成 Upsert，讓生活可以優雅一些:</p>
+<figure class="highlight csharp"><figcaption><span>src/ExecuteSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">string</span> sql = <span class="string">"MERGE INTO emp e "</span> +</span><br><span class="line">             <span class="string">"USING(select :empno as empno, "</span> +</span><br><span class="line">             <span class="string">"             :ename as ename, "</span> +</span><br><span class="line">             <span class="string">"             :job as job, "</span> +</span><br><span class="line">             <span class="string">"             :mgr as mgr, "</span> +</span><br><span class="line">             <span class="string">"             :hiredate as hiredate, "</span> +</span><br><span class="line">             <span class="string">"             :sal as sal, "</span> +</span><br><span class="line">             <span class="string">"             :comm as comm, "</span> +</span><br><span class="line">             <span class="string">"             :deptno as deptno "</span> +</span><br><span class="line">             <span class="string">"        from dual) p "</span> +</span><br><span class="line">             <span class="string">"ON(e.empno = p.empno) "</span> +</span><br><span class="line">             <span class="string">"WHEN MATCHED THEN "</span> +</span><br><span class="line">             <span class="string">"UPDATE SET e.ename = p.ename, "</span> +</span><br><span class="line">             <span class="string">"           e.job = p.job, "</span> +</span><br><span class="line">             <span class="string">"           e.mgr = p.mgr, "</span> +</span><br><span class="line">             <span class="string">"           e.hiredate = p.hiredate, "</span> +</span><br><span class="line">             <span class="string">"           e.sal = p.sal, "</span> +</span><br><span class="line">             <span class="string">"           e.comm = p.comm, "</span> +</span><br><span class="line">             <span class="string">"           e.deptno = p.deptno "</span> +</span><br><span class="line">             <span class="string">"WHEN NOT MATCHED THEN "</span> +</span><br><span class="line">             <span class="string">"  INSERT(e.empno, e.ename, e.job, e.mgr, e.hiredate, e.sal, e.comm, e.deptno) "</span> +</span><br><span class="line">             <span class="string">"  VALUES(p.empno, p.ename, p.job, p.mgr, p.hiredate, p.sal, p.comm, p.deptno)"</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="ExecuteScalar-方法"><a href="#ExecuteScalar-方法" class="headerlink" title="ExecuteScalar( ) 方法"></a>ExecuteScalar( ) 方法</h4><p>在許多情況下，需要從 SQL 語句返回一個結果，例如要查詢資料表的筆數，或者資料庫伺服器當前的日期時間。ExecuteScalar()方法就可用於這些場合。同樣在 ExecuteSample.cs 中新增一個靜態方法 ExecuteScalar():</p>
+<figure class="highlight csharp"><figcaption><span>src/ExecuteSample.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">ExecuteScalar</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">string</span> sql = <span class="string">"SELECT count(*) as count From emp"</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> connection = <span class="keyword">new</span> OracleConnection(GetConnectionString()))</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> command = <span class="keyword">new</span> OracleCommand(sql, connection))</span><br><span class="line">    &#123;</span><br><span class="line">      connection.Open();</span><br><span class="line">      <span class="keyword">object</span> count = command.ExecuteScalar();</span><br><span class="line">      Console.WriteLine(<span class="string">$"counted <span class="subst">&#123;count&#125;</span> emp records"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">catch</span> (OracleException ex)</span><br><span class="line">  &#123;</span><br><span class="line">    Console.WriteLine(ex.Message);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>該方法返回一個物件，根據需要，可以把該物件強制轉換為合適的類型。如果所調用的 SQL 只返回一列(column)，則最好使用 ExecuteScalar( ) 方法來檢索這一列。這也適合用於只返回一個值的存儲過程(Stored Procedure)。</p>
+<h4 id="整合-RabbitMQ-消費訊息與-Oracle"><a href="#整合-RabbitMQ-消費訊息與-Oracle" class="headerlink" title="整合 RabbitMQ 消費訊息與 Oracle"></a>整合 RabbitMQ 消費訊息與 Oracle</h4><p>終於來到最終的目標，將 RabbitMQ 的消費訊息寫入 Oracle 資料庫。</p>
+<p>回到 Receive 專案目錄下，首先需要安裝 3 個 NuGet 套件:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> Receive</span><br><span class="line">dotnet add package Oracle.ManagedDataAccess.Core</span><br><span class="line">dotnet add package Microsoft.Extensions.Configuration</span><br><span class="line">dotnet add package Microsoft.Extensions.Configuration.Json</span><br></pre></td></tr></table></figure>
+
+<p>將 OracleSample 專案目錄下的 config.json 檔案複製到 Receive 專案目錄下。</p>
+<p>在 Receive 專案目錄下新建一個子目錄 Services，我們要將一些後端資料庫的服務放在這個目錄下。在 Services 目錄下新建一個 C# 程式檔 OracleDemoMessage.cs:</p>
+<figure class="highlight csharp"><figcaption><span>Services/OracleDemoMessage.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.IO;</span><br><span class="line"><span class="keyword">using</span> Oracle.ManagedDataAccess.Client;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration.Json;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Receive.Services</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">OraDemoMessage</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Save</span>(<span class="params"><span class="keyword">string</span> messageParameter, <span class="keyword">string</span> createdbyParameter</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">string</span> sql = <span class="string">"INSERT INTO DEMO_MESSAGES (message, createdby) "</span> +</span><br><span class="line">                   <span class="string">"VALUES (:message, :createdby)"</span>;</span><br><span class="line">      <span class="keyword">try</span></span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">using</span> (<span class="keyword">var</span> connection = <span class="keyword">new</span> OracleConnection(GetConnectionString()))</span><br><span class="line">        <span class="keyword">using</span> (<span class="keyword">var</span> command = <span class="keyword">new</span> OracleCommand(sql, connection))</span><br><span class="line">        &#123;</span><br><span class="line">          command.BindByName = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">          OracleParameter messageBind = <span class="keyword">new</span> OracleParameter(<span class="string">"message"</span>, OracleDbType.Varchar2);</span><br><span class="line">          messageBind.Value = messageParameter;</span><br><span class="line">          command.Parameters.Add(messageBind);</span><br><span class="line"></span><br><span class="line">          OracleParameter createdbyBind = <span class="keyword">new</span> OracleParameter(<span class="string">"createdby"</span>, OracleDbType.Varchar2);</span><br><span class="line">          createdbyBind.Value = createdbyParameter;</span><br><span class="line">          command.Parameters.Add(createdbyBind);</span><br><span class="line"></span><br><span class="line">          connection.Open();</span><br><span class="line">          <span class="keyword">int</span> rows = command.ExecuteNonQuery();</span><br><span class="line">          Console.WriteLine(<span class="string">$"rowsAffected: <span class="subst">&#123;rows&#125;</span> row(s)"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">catch</span> (OracleException ex)</span><br><span class="line">      &#123;</span><br><span class="line">        Console.WriteLine(ex.Message);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetConnectionString</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">var</span> configurationBuilder = <span class="keyword">new</span> ConfigurationBuilder()</span><br><span class="line">        .SetBasePath(Directory.GetCurrentDirectory())</span><br><span class="line">        .AddJsonFile(<span class="string">"config.json"</span>);</span><br><span class="line">      IConfiguration config = configurationBuilder.Build();</span><br><span class="line">      <span class="keyword">string</span> connectionString = config[<span class="string">"Data:DefaultConnection:ConnectionString"</span>];</span><br><span class="line">      <span class="keyword">return</span> connectionString;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡有一個接受兩個參數的 Save() 靜態方法，這會將資料寫入 Oracle 資料庫的 DEMO_MESSAGES 資料表。</p>
+<p>回到 Receive 專案目錄，我們需要修改專案的入口點 Receive.cs 程式，首先要加入 Receive.Services 命名空間:</p>
+<figure class="highlight csharp"><figcaption><span>Receive.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Text;</span><br><span class="line"><span class="keyword">using</span> RabbitMQ.Client;</span><br><span class="line"><span class="keyword">using</span> RabbitMQ.Client.Events;</span><br><span class="line"><span class="keyword">using</span> Receive.Services;</span><br></pre></td></tr></table></figure>
+
+<p>再來修改消費者事件監聽器，將消費消息寫入 Oracle 資料庫:</p>
+<figure class="highlight csharp"><figcaption><span>Receive.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">consumer.Received += (model, e) =&gt;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">var</span> body = e.Body;</span><br><span class="line">  <span class="keyword">var</span> message = Encoding.UTF8.GetString(body);</span><br><span class="line"></span><br><span class="line">  Console.WriteLine(<span class="string">$" [x] Received <span class="subst">&#123;message&#125;</span>"</span>);</span><br><span class="line"></span><br><span class="line">  OraDemoMessage.Save(message, <span class="string">"RabbitMQ dotnetDemoQueue"</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>現在就可以啟動接收器 Receive:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dotnet run</span><br><span class="line"></span><br><span class="line"> Press [enter] to exit.</span><br></pre></td></tr></table></figure>
+
+<p>開啟另一個終端視窗，切換到 Send 專案目錄下送出一個訊息:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd Send</span><br><span class="line">dotnet run</span><br><span class="line"></span><br><span class="line"> [x] Send 哈囉 from C# send 消息 2019/7/17 下午 03:53:06</span><br><span class="line">Press [enter] to exit.</span><br></pre></td></tr></table></figure>
+
+<p>到 Oracle 資料庫驗證:</p>
+<figure class="highlight plain"><figcaption><span>SQL</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SQL&gt; select * from demo_messages;</span><br><span class="line"></span><br><span class="line">   ID MESSAGE                                          CREATED    CREATEDBY</span><br><span class="line">----- ------------------------------------------------ ---------- ------------------------------</span><br><span class="line"></span><br><span class="line">   23 哈囉 from C# send 消息 2019/7/17 下午 03:53:06     17-JUL-19  RabbitMQ dotnetDemoQueue</span><br></pre></td></tr></table></figure>
+
+<p>就這樣了，祝好運!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/07/18/RabbitMQ-Oracle-with-C/" data-id="ckcpzj96j001j80vzi2ljrnwq" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          跨平台桌面應用開發 NW.js and Electron
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/09/RabbitMQ-with-C/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">RabbitMQ with C#</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

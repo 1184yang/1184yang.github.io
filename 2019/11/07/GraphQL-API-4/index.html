@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>建立 GraphQL API (4) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="contextcontext 是存儲 GraphQL 伺服器全域值以供所有解析函式讀取的地方。context 很適合儲存身分驗證、資料庫細節、本地資料快取，以及任何其他需要解析 GraphQL 操作的物件。 你可以直接在解析函式裡面呼叫 REST API 與資料庫，但是我們通常會將這個邏輯放在 context 裡面的物件內，來分開關注點，以及方便稍後的重構。 你也可以使用 context 從 Ap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="建立 GraphQL API (4)">
+<meta property="og:url" content="https://1184yang.github.io/2019/11/07/GraphQL-API-4/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="contextcontext 是存儲 GraphQL 伺服器全域值以供所有解析函式讀取的地方。context 很適合儲存身分驗證、資料庫細節、本地資料快取，以及任何其他需要解析 GraphQL 操作的物件。 你可以直接在解析函式裡面呼叫 REST API 與資料庫，但是我們通常會將這個邏輯放在 context 裡面的物件內，來分開關注點，以及方便稍後的重構。 你也可以使用 context 從 Ap">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.001Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="建立 GraphQL API (4)">
+<meta name="twitter:description" content="contextcontext 是存儲 GraphQL 伺服器全域值以供所有解析函式讀取的地方。context 很適合儲存身分驗證、資料庫細節、本地資料快取，以及任何其他需要解析 GraphQL 操作的物件。 你可以直接在解析函式裡面呼叫 REST API 與資料庫，但是我們通常會將這個邏輯放在 context 裡面的物件內，來分開關注點，以及方便稍後的重構。 你也可以使用 context 從 Ap">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-API-4" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/07/GraphQL-API-4/" class="article-date">
+  <time datetime="2019-11-07T00:55:21.000Z" itemprop="datePublished">2019-11-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      建立 GraphQL API (4)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="context"><a href="#context" class="headerlink" title="context"></a>context</h3><p>context 是存儲 GraphQL 伺服器全域值以供所有解析函式讀取的地方。context 很適合儲存身分驗證、資料庫細節、本地資料快取，以及任何其他需要解析 GraphQL 操作的物件。</p>
+<p>你可以直接在解析函式裡面呼叫 REST API 與資料庫，但是我們通常會將這個邏輯放在 context 裡面的物件內，來分開關注點，以及方便稍後的重構。</p>
+<p>你也可以使用 context 從 Apollo Data Source 讀取 REST 資料。不過就這個範例的目的而言，我們要結合 context 來處理應用程序的一些限制。首先，我們目前將資料放在記憶體內，這種做法的擴展性不好。接下來要讓資料庫來處理資料儲存，我們的解析函式將會從 context 存取這個資料庫。</p>
+<h3 id="安裝資料庫-LevelDB"><a href="#安裝資料庫-LevelDB" class="headerlink" title="安裝資料庫 LevelDB"></a>安裝資料庫 LevelDB</h3><p>為了讓這個範例可以獨立運作，這裡將使用鍵-值存儲嵌入式資料庫 LevelDB，重要的是理解 context 的用法。稍後會有使用 Oracle 資料庫的範例。</p>
+<p>這裡須要使用兩個 Node.js 套件，level-sublevel 可以讓我們在同一個 LevelDB 中存儲兩組以上的資料集，你也可以將不同的資料集存入各自的 LevelDB 中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm install level --save</span><br><span class="line">npm install level-sublevel --save</span><br></pre></td></tr></table></figure>
+
+<p>首先將 levelDB 的 CRUD 操作包裝一個抽象層，在專案子目錄 models 下建立 database.js 文件:</p>
+<figure class="highlight javascript"><figcaption><span>models/database.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> timestamp = <span class="built_in">require</span>(<span class="string">'monotonic-timestamp'</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Database</span>(<span class="params">db</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>._db = db;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Database.prototype.findAll = <span class="function"><span class="keyword">function</span>(<span class="params"> opts = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> options = &#123; ...opts &#125;;</span><br><span class="line">    <span class="keyword">let</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">let</span> results = [];</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      _this._db</span><br><span class="line">        .createValueStream( options )</span><br><span class="line">        .on(<span class="string">"data"</span>, value =&gt; results.push(value))</span><br><span class="line">        .on(<span class="string">"end"</span>, () =&gt; resolve(results))</span><br><span class="line">        .on(<span class="string">"error"</span>, err =&gt; reject(err));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      reject(err);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Database.prototype.findAllwithKey = <span class="function"><span class="keyword">function</span>(<span class="params"> opts = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> options = &#123; ...opts &#125;;</span><br><span class="line">    <span class="keyword">let</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">let</span> results = [];</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      _this._db</span><br><span class="line">        .createReadStream( options )</span><br><span class="line">        .on(<span class="string">"data"</span>, data =&gt; results.push(data))</span><br><span class="line">        .on(<span class="string">"end"</span>, () =&gt; resolve(results))</span><br><span class="line">        .on(<span class="string">"error"</span>, err =&gt; reject(err));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      reject(err);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Database.prototype.findOne = <span class="function"><span class="keyword">function</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> id === <span class="string">"undefined"</span>) <span class="keyword">return</span> reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Invalid ID."</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    _this._db.get(id, (err, value) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (err) <span class="keyword">return</span> reject(err);</span><br><span class="line">      resolve(value);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Database.prototype.insert = <span class="function"><span class="keyword">function</span>(<span class="params">id, newValue</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> id === <span class="string">"undefined"</span>) <span class="keyword">return</span> reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Invalid ID"</span>));</span><br><span class="line">    <span class="keyword">if</span> (!newValue) <span class="keyword">return</span> reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Invalid input"</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 當 id 是空字串，自動產生 id</span></span><br><span class="line">    id = id.toString().length !== <span class="number">0</span> ? id : timestamp().toString();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    _this._db.get(id, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!err.notFound) <span class="keyword">return</span> reject(err);</span><br><span class="line"></span><br><span class="line">        _this._db.put(id, &#123; id, ...newValue &#125;, err =&gt; &#123;</span><br><span class="line">          <span class="keyword">if</span> (err) <span class="keyword">return</span> reject(err);</span><br><span class="line">          _this._db.get(id, (err, value) =&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (err) <span class="keyword">return</span> reject(err);</span><br><span class="line">            <span class="keyword">return</span> resolve(value);</span><br><span class="line">          &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Data already exists"</span>));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Database.prototype.update = <span class="function"><span class="keyword">function</span>(<span class="params">id, newValue</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> id === <span class="string">"undefined"</span>) <span class="keyword">return</span> reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Invalid ID"</span>));</span><br><span class="line">    <span class="keyword">if</span> (!newValue) <span class="keyword">return</span> reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Invalid input"</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> _this = <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">    _this._db.get(id, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">if</span> (err.notFound) <span class="keyword">return</span> reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Data not found"</span>));</span><br><span class="line">        <span class="keyword">return</span> reject(err);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      _this._db.put(id, newValue, err =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) <span class="keyword">return</span> reject(err);</span><br><span class="line">        _this._db.get(id, (err, value) =&gt; &#123;</span><br><span class="line">          <span class="keyword">if</span> (err) <span class="keyword">return</span> reject(err);</span><br><span class="line">          <span class="keyword">return</span> resolve(value);</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Database.prototype.delete = <span class="function"><span class="keyword">function</span>(<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> id === <span class="string">"undefined"</span>) <span class="keyword">return</span> reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Invalid ID"</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> _this = <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">    _this._db.get(id, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">if</span> (err.notFound) <span class="keyword">return</span> reject(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"Data not found"</span>));</span><br><span class="line">        <span class="keyword">return</span> reject(err);</span><br><span class="line">      &#125;</span><br><span class="line">      _this._db.del(id, err =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) <span class="keyword">return</span> reject(err);</span><br><span class="line">        resolve(<span class="string">"Data deleted"</span>);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Database.prototype.allCount = <span class="function"><span class="keyword">function</span>(<span class="params"> opts = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> options = &#123; ...opts &#125;;</span><br><span class="line">    <span class="keyword">let</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">let</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      _this._db</span><br><span class="line">        .createValueStream( options )</span><br><span class="line">        .on(<span class="string">"data"</span>, value =&gt; count += <span class="number">1</span>)</span><br><span class="line">        .on(<span class="string">"end"</span>, () =&gt; resolve(count))</span><br><span class="line">        .on(<span class="string">"error"</span>, err =&gt; reject(err));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      reject(err);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = Database;</span><br></pre></td></tr></table></figure>
+
+<p>這裡將 level 原始的 API 包裝成一般的資料庫操作，包含查詢、新增、更新與刪除，你可以用其它的資料庫 API 取代。 再來就產生實際的資料庫。在 models 目錄產生另一個檔案 dbs.js</p>
+<figure class="highlight javascript"><figcaption><span>models/dbs.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">"path"</span>);</span><br><span class="line"><span class="keyword">const</span> level = <span class="built_in">require</span>(<span class="string">"level"</span>);</span><br><span class="line"><span class="keyword">const</span> sublevel = <span class="built_in">require</span>(<span class="string">"level-sublevel"</span>);</span><br><span class="line"><span class="keyword">const</span> db = sublevel(level(path.resolve(__dirname, <span class="string">"example-db"</span>)), &#123;</span><br><span class="line">  valueEncoding: <span class="string">"json"</span></span><br><span class="line">&#125;);</span><br><span class="line"><span class="keyword">const</span> Database = <span class="built_in">require</span>(<span class="string">'./database'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> usersDb = db.sublevel(<span class="string">"users"</span>);</span><br><span class="line"><span class="keyword">const</span> photosDb = db.sublevel(<span class="string">"photos"</span>);</span><br><span class="line"><span class="keyword">const</span> tagsDb = db.sublevel(<span class="string">"tags"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  users: <span class="keyword">new</span> Database(usersDb),</span><br><span class="line">  photos: <span class="keyword">new</span> Database(photosDb),</span><br><span class="line">  tags: <span class="keyword">new</span> Database(tagsDb)</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>現在我們可以使用這個資料庫抽象層程式將原先放在記憶體的資料移入資料庫。產生一段臨時的程式碼來初始化這些資料，將程式碼放在 models 目錄下的 useful 目錄:</p>
+<figure class="highlight javascript"><figcaption><span>models/useful/dbs-init.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> db = <span class="built_in">require</span>(<span class="string">'../dbs'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; users, photos, tags &#125; = <span class="built_in">require</span>(<span class="string">"../data"</span>);</span><br><span class="line"></span><br><span class="line">users.forEach(<span class="function"><span class="params">value</span> =&gt;</span> &#123;</span><br><span class="line">  db.users.insert(value.appLogin, value);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">photos.forEach(<span class="function"><span class="params">value</span> =&gt;</span> &#123;</span><br><span class="line">  db.photos.insert(value.id, value);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">tags.forEach(<span class="function"><span class="params">value</span> =&gt;</span> &#123;</span><br><span class="line">  db.tags.insert(<span class="string">`<span class="subst">$&#123;value.photoID&#125;</span>-<span class="subst">$&#123;value.userID&#125;</span>`</span>, value);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>Database.insert 的第一個引數將被設為 Key, User 我們使用 appLogin 當 Key, 這裡要注意 tags 的 key 值設定，避免資料重複，這是多對多資料 Intersection Table 的要件，Primary Key 要包含所有的欄位。寫入資料庫後可以查詢看看資料庫內的資料。</p>
+<p>執行完 dbs-init.js 後，models 目錄下會產生一個 example-db 目錄，這就是 LevelDB 資料庫的實體位置。</p>
+<p>現在可以來看看資料庫內的資料內容:</p>
+<figure class="highlight javascript"><figcaption><span>models/useful/dbs-test.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> db = <span class="built_in">require</span>(<span class="string">"../dbs"</span>);</span><br><span class="line"></span><br><span class="line">db.users.findAll().then(<span class="function"><span class="params">value</span> =&gt;</span> <span class="built_in">console</span>.log(value));</span><br><span class="line"></span><br><span class="line">db.photos.findAll().then(<span class="function"><span class="params">value</span> =&gt;</span> <span class="built_in">console</span>.log(value));</span><br><span class="line"></span><br><span class="line">db.tags.findAllwithKey().then(<span class="function"><span class="params">value</span> =&gt;</span> <span class="built_in">console</span>.log(value));</span><br></pre></td></tr></table></figure>
+
+<h4 id="將資料庫加入-context"><a href="#將資料庫加入-context" class="headerlink" title="將資料庫加入 context"></a>將資料庫加入 context</h4><p>接下來要將 GraphQL 連接資料庫，首先建立一個 context 物件，這需要修改專案目錄的 index.js，再重新啟動 GraphQL API 伺服器:</p>
+<figure class="highlight javascript"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; ApolloServer &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-express'</span>);</span><br><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">'cors'</span>);</span><br><span class="line"><span class="keyword">const</span> typeDefs = <span class="built_in">require</span>(<span class="string">'./schema'</span>);</span><br><span class="line"><span class="keyword">const</span> resolvers = <span class="built_in">require</span>(<span class="string">'./resolvers'</span>);</span><br><span class="line"><span class="keyword">const</span> db = <span class="built_in">require</span>(<span class="string">'./models/dbs'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = express();</span><br><span class="line"></span><br><span class="line">app.use(cors());</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> context = &#123; db &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">  context</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.applyMiddleware(&#123; app &#125;);</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/'</span>, (req, res) =&gt; res.end(<span class="string">"Welcome to the GraphQL Sample API"</span>));</span><br><span class="line"></span><br><span class="line">app.listen(&#123; <span class="attr">port</span>: <span class="number">4000</span> &#125;, () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`GraphQL Server running @ http://localhost:4000<span class="subst">$&#123;server.graphqlPath&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>第 6  行將資料庫加進來</li>
+<li>第 12 行產生 context 物件</li>
+<li>第 17 行將 context 物件加入 ApolloServer</li>
+</ul>
+</blockquote>
+<p>接著我們要修改 query 解析函式，從 schema/user.js User 類型開始新增兩個 Query 欄位 totalUsers 與 allUsers。</p>
+<figure class="highlight javascript"><figcaption><span>schema/user.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">extend type Query &#123;</span><br><span class="line">  sayHello: <span class="built_in">String</span>!</span><br><span class="line">  totalUsers: Int!</span><br><span class="line">  allUsers: [User!]!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接著修改解析函式 resolvers/user.js:</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/user.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Query: &#123;</span><br><span class="line">  sayHello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">"哈囉，台南! 就從這裡開始。"</span>,</span><br><span class="line">  totalUsers: <span class="function">(<span class="params">parent, args, &#123; db &#125;</span>) =&gt;</span> db.users.allCount().then(<span class="function"><span class="params">value</span> =&gt;</span> value),</span><br><span class="line">  allUsers: <span class="function">(<span class="params">parent, args, &#123; db &#125;</span>) =&gt;</span> db.users.findAll()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意這裡解析函式引入 context 物件的方式，它是解析函式的<strong>第三個參數</strong>。GraphQL 解析函式的簽章可以是:</p>
+<figure class="highlight javascript"><figcaption><span>GraphQL resolver function signature</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(parent, args, context, info) =&gt; &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>還要注意解析函式使用 Promise 的方式。 你也可以在這裡使用 async / await。</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/user.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">allUsers: <span class="keyword">async</span> (parent, args, &#123; <span class="attr">db</span>: &#123; users &#125; &#125;) =&gt; <span class="keyword">await</span> users.findAll()</span><br></pre></td></tr></table></figure>
+
+<p>我們使用 context 物件階層式的解構賦值方式，這裡我們只需要 users 資料庫</p>
+<p>接下來修改 postedPhotos 與 inPhotos:</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/user.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">User: &#123;</span><br><span class="line">  postedPhotos: <span class="function">(<span class="params">parent, args, &#123; db: &#123; photos &#125; &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> photos.findAll().then(<span class="function"><span class="params">results</span> =&gt;</span> results.filter(<span class="function"><span class="params">value</span> =&gt;</span> value.appUser === parent.appLogin));</span><br><span class="line">  &#125;,</span><br><span class="line">  inPhotos: <span class="function">(<span class="params">parent, args, &#123; db: &#123; photos, tags &#125; &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> tags.findAll().then(<span class="function"><span class="params">tags</span> =&gt;</span> tags</span><br><span class="line">      .filter(<span class="function"><span class="params">tag</span> =&gt;</span> tag.userID === parent.appLogin)</span><br><span class="line">      .map(<span class="function"><span class="params">tag</span> =&gt;</span> photos.findOne(tag.photoID))</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在可以從 GraphQL Playground 客戶端送出一個查詢:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">query listUsers &#123;</span><br><span class="line">  allUsers &#123;</span><br><span class="line">    appLogin</span><br><span class="line">    name</span><br><span class="line">    postedPhotos &#123;</span><br><span class="line">      name</span><br><span class="line">      description</span><br><span class="line">    &#125;</span><br><span class="line">    inPhotos &#123;</span><br><span class="line">      name</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們也需要修改 Photo 的解析函式 totalPhotos、allPhotos、postedBy 與 taggedUsers:</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/photo.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">Query: &#123;</span><br><span class="line">  totalPhotos: <span class="function">(<span class="params">parent, args, &#123; db: &#123; photos &#125; &#125;</span>) =&gt;</span> photos.allCount().then(<span class="function"><span class="params">value</span> =&gt;</span> value),</span><br><span class="line">  allPhotos: <span class="function">(<span class="params">parent, args, &#123; db: &#123; photos &#125; &#125;</span>) =&gt;</span> photos.findAll()</span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">Photo: &#123;</span><br><span class="line">  url: <span class="function"><span class="params">parent</span> =&gt;</span> <span class="string">`https://fakeimg.pl/120x160/?text=<span class="subst">$&#123;parent.id&#125;</span>`</span>,</span><br><span class="line">  postedBy: <span class="function">(<span class="params">parent, args, &#123; db: &#123; users &#125; &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> users.findOne(parent.appUser).then(<span class="function"><span class="params">value</span> =&gt;</span> value);</span><br><span class="line">  &#125;,</span><br><span class="line">  taggedUsers: <span class="function">(<span class="params">parent, args, &#123; db: &#123; users, tags &#125; &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> tags.findAll().then(<span class="function"><span class="params">result</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> result</span><br><span class="line">        .filter( <span class="function"><span class="params">tag</span> =&gt;</span> tag.photoID === parent.id)</span><br><span class="line">        .map(<span class="function"><span class="params">tag</span> =&gt;</span> tag.userID)</span><br><span class="line">        .map(<span class="function"><span class="params">userID</span> =&gt;</span> users.findOne(userID));</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;,</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>到此 User 使用者型態與 Photo 照片型態的部分都只是查詢，致於要將照片加入資料庫，使用者必須先登入才能將照片加入，所以要先加入認證與授權。</p>
+<p style="text-align: right;">接續下一篇 <a href="/2019/11/07/GraphQL-API-5/" title="建立 GraphQL API (5)">建立 GraphQL API (5)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/11/07/GraphQL-API-4/" data-id="ckcpzj95q000j80vzib58rap0" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/07/GraphQL-API-5/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          建立 GraphQL API (5)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/11/06/GraplQL-API-3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">建立 GraphQL API (3)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

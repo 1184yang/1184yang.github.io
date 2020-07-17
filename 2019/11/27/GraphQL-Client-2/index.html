@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GraphQL 用戶端 (2) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="MutationMutation 會更改 Apollo 伺服器服務的數據狀態。基本的運作方式與 query 沒甚麼不同: 在實作 mutation 之前，我們先新加入一個 query 來顯示照片的變化: src/component/HelloWorld.vue12345678910111213141516...    allPhotos: &amp;#123;      query: gql`query">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GraphQL 用戶端 (2)">
+<meta property="og:url" content="https://1184yang.github.io/2019/11/27/GraphQL-Client-2/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="MutationMutation 會更改 Apollo 伺服器服務的數據狀態。基本的運作方式與 query 沒甚麼不同: 在實作 mutation 之前，我們先新加入一個 query 來顯示照片的變化: src/component/HelloWorld.vue12345678910111213141516...    allPhotos: &amp;#123;      query: gql`query">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2019/11/27/GraphQL-Client-2/apollo-mutation.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/11/27/GraphQL-Client-2/apollo-cache-1.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/11/27/GraphQL-Client-2/apollo-cache-2.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/11/27/GraphQL-Client-2/apollo-mutation-1.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.049Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GraphQL 用戶端 (2)">
+<meta name="twitter:description" content="MutationMutation 會更改 Apollo 伺服器服務的數據狀態。基本的運作方式與 query 沒甚麼不同: 在實作 mutation 之前，我們先新加入一個 query 來顯示照片的變化: src/component/HelloWorld.vue12345678910111213141516...    allPhotos: &amp;#123;      query: gql`query">
+<meta name="twitter:image" content="https://1184yang.github.io/2019/11/27/GraphQL-Client-2/apollo-mutation.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-Client-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/27/GraphQL-Client-2/" class="article-date">
+  <time datetime="2019-11-26T23:20:18.000Z" itemprop="datePublished">2019-11-27</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GraphQL 用戶端 (2)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Mutation"><a href="#Mutation" class="headerlink" title="Mutation"></a>Mutation</h3><p>Mutation 會更改 Apollo 伺服器服務的數據狀態。基本的運作方式與 query 沒甚麼不同:</p>
+<p>在實作 mutation 之前，我們先新加入一個 query 來顯示照片的變化:</p>
+<figure class="highlight javascript"><figcaption><span>src/component/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">    allPhotos: &#123;</span><br><span class="line">      query: gql<span class="string">`query listPhotos &#123;</span></span><br><span class="line"><span class="string">        totalPhotos</span></span><br><span class="line"><span class="string">        allPhotos &#123;</span></span><br><span class="line"><span class="string">          id</span></span><br><span class="line"><span class="string">          name</span></span><br><span class="line"><span class="string">          description</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;`</span>,</span><br><span class="line">      result(&#123; data, loading &#125;) &#123;</span><br><span class="line">        <span class="keyword">this</span>.totalPhotos = data.totalPhotos;</span><br><span class="line">        <span class="keyword">this</span>.loading = loading;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>現在我們在 Vue 的 methods 增加一個 addPhoto 的操作方法:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">  methods: &#123;</span><br><span class="line">    addPhoto() &#123;</span><br><span class="line">      <span class="keyword">const</span> newPhoto = &#123;</span><br><span class="line">        name: <span class="string">"範例照片 from Vue mutation !"</span>,</span><br><span class="line">        description: <span class="string">`我們資料庫的範例照片 <span class="subst">$&#123;<span class="keyword">new</span> <span class="built_in">Date</span>().toISOString()&#125;</span>`</span></span><br><span class="line">      &#125;;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">this</span>.$apollo.mutate(&#123;</span><br><span class="line">        mutation: gql<span class="string">`mutation addPhoto($input: PostPhotoInput!) &#123;</span></span><br><span class="line"><span class="string">          postPhoto(input: $input) &#123;</span></span><br><span class="line"><span class="string">            id</span></span><br><span class="line"><span class="string">            name</span></span><br><span class="line"><span class="string">            description</span></span><br><span class="line"><span class="string">          &#125;</span></span><br><span class="line"><span class="string">        &#125;`</span>,</span><br><span class="line">        variables: &#123;</span><br><span class="line">          input: newPhoto,</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;).then(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(data);</span><br><span class="line">        <span class="keyword">this</span>.$apollo.queries.allPhotos.refetch();</span><br><span class="line">      &#125;).catch(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.error(error);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;,  </span><br><span class="line">  &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 4 行的新照片，在實際運作上應該是要由用戶輸入的，這裡讓他單純化，避免失焦。</li>
+<li>第 9 行用 this.$apollo.mutate( ) 方法送出 GraphQL mutation，語法與 query 差不多，這裡我們使用一個變數 $input。this.$apollo.mutate( ) 會返回一個 Promise，他返回的值就是你在第 11 行 postPhoto 時所定義的，這裡就是 Photo 的三個屬性 id、name 與 description。</li>
+<li>第 22 行我們並重新抓取 allPhotos 的資料，Vue 則會同時更新畫面。 </li>
+</ul>
+<p>接下來我們要在使用者介面上新增一個按鈕來觸發這個 mutation，並新增一個訊息顯示照片的總數量:</p>
+<figure class="highlight html"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> @<span class="attr">click</span>=<span class="string">"addPhoto"</span>&gt;</span>Click to add new photo<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Total Users: &#123;&#123; totalUsers &#125;&#125; Total Photos: &#123;&#123; totalPhotos &#125;&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>現在可以測試看看了。</p>
+<p>先前談過 Apollo Client 支援積極 UI 更新 (optimistic UI update)，因此 mutation 也提供了一些 Hook，主要的就是 update 與 optimisticResponse Hook。我們不一定要用積極 UI 更新，但了解它可讓我們了解使用者 UI 的技術。</p>
+<blockquote>
+<blockquote>
+<h6 id="Optimistic-UI-update"><a href="#Optimistic-UI-update" class="headerlink" title="Optimistic UI update"></a>Optimistic UI update</h6><p>當我們新增或更新資料成功後，伺服器都會返回一個結果，以便我們更新使用者的介面 (UI)，但我們為了讓使用者感覺反應快速，就會使用送出的數據，樂觀的當成伺服器更新成功後返回的數據來更新使用者介面，並在伺服器真正返回結果時，再來更新錯誤。</p>
+</blockquote>
+</blockquote>
+<p>現在修改一下 mutation，加入 update 與 optimisticResponse Hook:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">      <span class="keyword">this</span>.$apollo.mutate(&#123;</span><br><span class="line">        mutation: gql<span class="string">`mutation addPhoto($input: PostPhotoInput!) &#123;</span></span><br><span class="line"><span class="string">          postPhoto(input: $input) &#123;</span></span><br><span class="line"><span class="string">            id</span></span><br><span class="line"><span class="string">            name</span></span><br><span class="line"><span class="string">            description</span></span><br><span class="line"><span class="string">          &#125;</span></span><br><span class="line"><span class="string">        &#125;`</span>,</span><br><span class="line">        variables: &#123;</span><br><span class="line">          input: newPhoto,</span><br><span class="line">        &#125;,</span><br><span class="line">        update: <span class="function">(<span class="params">store, &#123; data &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="built_in">console</span>.log(<span class="string">'mutation update begin'</span>);</span><br><span class="line">          <span class="built_in">console</span>.log(data);</span><br><span class="line">          <span class="built_in">console</span>.log(<span class="string">'mutation update end'</span>);</span><br><span class="line">        &#125;,</span><br><span class="line">        optimisticResponse: &#123;</span><br><span class="line">          __typename: <span class="string">'Mutation'</span>,</span><br><span class="line">          postPhoto: &#123;</span><br><span class="line">            __typename: <span class="string">'Photo'</span>,</span><br><span class="line">            id: <span class="number">-1</span>,</span><br><span class="line">            ...newPhoto</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;).then(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(data);</span><br><span class="line">        <span class="keyword">this</span>.$apollo.queries.allPhotos.refetch();</span><br><span class="line">      &#125;).catch(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.error(error);</span><br><span class="line">      &#125;);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 13 行加入了 update Hook，update( ) 函式這裡接受兩個引數 store 與儲存資料的物件，每一個 mutation 它總是會被調用兩次，第一次使用 optimisticResponse 返回的樂觀資料，第二次調用則會是實際返回的資料。這裡我們只是把它顯示出來，沒有做其他的處裡。store 實際上是 Apollo Client 的 cache，因此可以用這調用的時機更新 cache 的資料，可以在第二次調用時回滾 (Rollback) 第一次的樂觀資料用實際返回的資料取代。因此這個功能也必須與 Apollo Client 的快取一起使用。我們將在稍後談到 Apollo Client Cache。 </li>
+<li>第 18 行 optimisticResponse 在設定樂觀的資料，此時 id 還沒有產生，暫時用 -1。如果這裡沒有設定 optimisticResponse 屬性，則 update( ) 只會被調用一次。</li>
+</ul>
+<img src="/2019/11/27/GraphQL-Client-2/apollo-mutation.png" title="Apollo Client mutation">
+
+<p>如果你只想在完成 mutation 後執行一些操作，也不需要積極 UI 更新，使用 Promise then 就可以了。</p>
+<h3 id="使用快取-Cache"><a href="#使用快取-Cache" class="headerlink" title="使用快取 Cache"></a>使用快取 Cache</h3><p>身為開發者，我們應該盡量減少網路請求。我們不希望讓使用者被迫發出無關的請求。為了盡量減少 app 送出的網路請求數量，Apollo Client 提供了 Cache 機制。</p>
+<h4 id="抓取策略-Fetch-Policy"><a href="#抓取策略-Fetch-Policy" class="headerlink" title="抓取策略 Fetch Policy"></a>抓取策略 Fetch Policy</h4><p>在預設情況下，Apollo Client 會在一個本地的 JavaScript 變數中儲存資料。每當我們建立用戶端時，Apollo Client 就會為我們建立一個快取。每當我們傳送操作時，回應就會被存到本地快取。fetchPolicy 可告訴 Apollo Client 該去哪裡尋找解析操作所需要的資料，究竟是本地快取還是網路請求。預設的 fetchPolicy 是 cache-first。這代表用戶端會在本地的快取尋找資料來解析操作。如果用戶端可以在不傳送網路請求的情況下解析操作，它就會這樣做。但是，如果解析 query 所需的資料不在快取裡面，用戶端會傳送網路請求給 GraphQL 服務。</p>
+<p>另一種類型的 fetchPolicy 是 cache-only。這種作法要求用戶端只在快取中尋找資料，永遠不要傳送網路請求。如果快取裡面沒有滿足 query 的所有資料，就丟出錯誤。</p>
+<p>我們修改一下程式，來改變各個 query 的抓取策略:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">    allUsers: &#123;</span><br><span class="line">      query: gql<span class="string">`query listUsers &#123;</span></span><br><span class="line"><span class="string">        totalUsers</span></span><br><span class="line"><span class="string">        allUsers &#123;</span></span><br><span class="line"><span class="string">          appLogin</span></span><br><span class="line"><span class="string">          name</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;`</span>,</span><br><span class="line">      result (&#123; data, loading &#125;) &#123;       </span><br><span class="line">        <span class="keyword">this</span>.totalUsers = data.totalUsers;</span><br><span class="line">        <span class="keyword">this</span>.loading = loading;</span><br><span class="line">      &#125;,</span><br><span class="line">      fetchPolicy: <span class="string">'cache-only'</span></span><br><span class="line">    &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>第 14 行加入了 fetchPolicy，並設定為 cache-only，當你重新整理瀏覽器時應該會看不到 Users 的資料，因為 Apollo Client 只會在快取裡面尋找資料來解析 query，但是 app 啟動時，那些資料並不存在。為了清除這個錯誤，我們將抓取策略改成 cache-and-network。</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">    allUsers: &#123;</span><br><span class="line">      query: gql<span class="string">`query listUsers &#123;</span></span><br><span class="line"><span class="string">        totalUsers</span></span><br><span class="line"><span class="string">        allUsers &#123;</span></span><br><span class="line"><span class="string">          appLogin</span></span><br><span class="line"><span class="string">          name</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;`</span>,</span><br><span class="line">      result (&#123; data, loading &#125;) &#123;   </span><br><span class="line">        <span class="keyword">this</span>.totalUsers = data &amp;&amp; data.totalUsers;</span><br><span class="line">        <span class="keyword">this</span>.loading = loading;</span><br><span class="line">      &#125;,</span><br><span class="line">      fetchPolicy: <span class="string">'cache-and-network'</span></span><br><span class="line">    &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>這個 app 又可以正常運作了。 cache-and-network 策略一定會立刻用快取來解析查詢，同時也會傳送網路請求以取得最新的資料。如果本地快取不存在，例如當 app 啟動時，這個策略只會從網路接收資料。在第 11 行我們也做了一些變更，否則當抓不到快取資料時，data 值會是 undefined，瀏覽器的 console 總是會出現錯誤。這也是一個良好的習慣，當要抓取某個物件中屬性的值時，先檢查這個物件是否存在。</p>
+<p>其他的策略包括:</p>
+<ul>
+<li><p>network-only  一定會傳送網路請求來解析 query</p>
+</li>
+<li><p>no-cache 一定會傳送網路請求來解析 query，不會將回應結果存放在快取內。</p>
+</li>
+</ul>
+<h4 id="保存快取"><a href="#保存快取" class="headerlink" title="保存快取"></a>保存快取</h4><p>在預設情況下，Apollo Client 會在一個本地的 JavaScript 變數中儲存資料。每當我們建立用戶端時，Apollo Client 就會為我們建立一個快取。但我們可以在用戶端儲存快取，這可以完全發揮 cache-first 策略的威力，因為當使用者回到 app 時，永遠都會有快取。在這裡，cache-first 策略會立刻解析既有本地快取的資料，而且完全不會用網路傳送請求。</p>
+<p>為了在本地除存快取資料，我們要安裝一個 npm 套件:</p>
+<figure class="highlight shell"><figcaption><span>npm install</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install apollo-cache-persist --save</span><br></pre></td></tr></table></figure>
+
+<p>apollo-cache-persist 套件有一個函式可以改善快取，它的做法是當快取改變時，就將它存放在本地端。為了實作快取保存，我們要建立自己的 cache 物件，並且在設置 app 時將他加入 client。</p>
+<figure class="highlight javascript"><figcaption><span>src/main.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">import</span> ApolloClient, &#123; InMemoryCache &#125; <span class="keyword">from</span> <span class="string">'apollo-boost'</span></span><br><span class="line"><span class="keyword">import</span> &#123; persistCache &#125; <span class="keyword">from</span> <span class="string">'apollo-cache-persist'</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> cache = <span class="keyword">new</span> InMemoryCache();</span><br><span class="line">persistCache(&#123;</span><br><span class="line">  cache,</span><br><span class="line">  storage: localStorage</span><br><span class="line">&#125;);</span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> client = <span class="keyword">new</span> ApolloClient(&#123;</span><br><span class="line">  cache,</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">&#125;);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>第 5 行我們用 apollo-boost 提供的 InMemoryCache 建構式來建立自己的快取實例，並連同 storage 位置一起將它傳給 persistCache 方法。第 12 行將 cache 加入 ApolloClient。</p>
+<p>我們選擇將快取存放在瀏覽器的 localStorage，啟動 app 後，你可以從瀏覽器 console 中檢查它:</p>
+<img src="/2019/11/27/GraphQL-Client-2/apollo-cache-1.png" title="Apollo Client cache">
+
+<p>或者直接檢查 localStorege:</p>
+<img src="/2019/11/27/GraphQL-Client-2/apollo-cache-2.png" title="Apollo Client cache">
+
+<p>下一步是在啟動時檢查 localStorege，看看快取是否已經被儲存了。如果有，在建立用戶端之前，我們要用那些資料來初始化本地的 cache:</p>
+<figure class="highlight javascript"><figcaption><span>src/main.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">const</span> cache = <span class="keyword">new</span> InMemoryCache();</span><br><span class="line">persistCache(&#123;</span><br><span class="line">  cache,</span><br><span class="line">  storage: localStorage</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (localStorage[<span class="string">'apollo-cache-persist'</span>]) &#123;</span><br><span class="line">  <span class="keyword">let</span> cacheData = <span class="built_in">JSON</span>.parse(localStorage[<span class="string">'apollo-cache-persist'</span>]);</span><br><span class="line">  cache.restore(cacheData);</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>現在我們的 app 會在啟動前載入任何已被快取的資料。如果我們有資料存放在 Key apollo-cache-persist 之下，就要使用 cache.restore(cacheData) 方法來將它加入 cache 實例。</p>
+<p>我們已經用 Apollo Client 的快取成功的將送到 GraphQL 服務的網路請求減到最少了。再來，我們將看看如何將資料直接寫入快取。</p>
+<h4 id="更新快取"><a href="#更新快取" class="headerlink" title="更新快取"></a>更新快取</h4><p>可以直接從快取讀出資料，這是讓 cache-only 這類的策略得以執行的要素。我們也能夠與 Apollo Cache 直接互動。我們可以從快取讀出目前的資料，或將資料直接寫入快取。每當我們改變快取內的資料時，vue-apollo 就會發現那項改變，並重新喧染所有被影響的元件。我們只要修改快取，UI 就會隨著改變，自動更新。</p>
+<p>Apollo Cache 的資料是用 GraphQL query 寫入的，所以也必須用 GraphQL query 讀取，我們來看先前 allUsers 的 GraphQL query:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HolloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">    allUsers: &#123;</span><br><span class="line">      query: gql<span class="string">`query listUsers &#123;</span></span><br><span class="line"><span class="string">        totalUsers</span></span><br><span class="line"><span class="string">        allUsers &#123;</span></span><br><span class="line"><span class="string">          appLogin</span></span><br><span class="line"><span class="string">          name</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;`</span>,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>這是 allUsers 的 GraphQL query，因此目前 Apollo Cache 的資料就是用這段 GraphQL query 寫入的，我們必須用相同的 GraphQL query 從 cache 讀取。</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">created() &#123; </span><br><span class="line">  <span class="keyword">const</span> client = <span class="keyword">this</span>.$apollo.getClient();</span><br><span class="line">  <span class="keyword">const</span> &#123; totalUsers, allUsers &#125; = client.readQuery(&#123; </span><br><span class="line">    query: gql<span class="string">`query listUsers &#123;</span></span><br><span class="line"><span class="string">      totalUsers</span></span><br><span class="line"><span class="string">      allUsers &#123;</span></span><br><span class="line"><span class="string">        appLogin</span></span><br><span class="line"><span class="string">        name</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;`</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">console</span>.log(totalUsers ? totalUsers : <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">console</span>.log(allUsers ? allUsers: []);</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>第 3 行我們取得 Apollo Client 實例。<br>第 4 行用 client.readQuery( ) 讀取資料。</p>
+<p>這樣我們就取得存放在快取裡面的 totalUsers 與 allUsers 的值。</p>
+<p>我們也可以使用 cache.writeQuery 方法來將資料直接寫入這個 GraphQL query 的 totalUsers 與 allUsers 欄位:</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">methods: &#123;</span><br><span class="line">  ...</span><br><span class="line">  clearUsers() &#123;</span><br><span class="line">      <span class="keyword">const</span> client = <span class="keyword">this</span>.$apollo.getClient();</span><br><span class="line">      client.writeQuery(&#123;</span><br><span class="line">        query: gql<span class="string">`query listUsers &#123;</span></span><br><span class="line"><span class="string">          totalUsers</span></span><br><span class="line"><span class="string">          allUsers &#123;</span></span><br><span class="line"><span class="string">            appLogin</span></span><br><span class="line"><span class="string">            name</span></span><br><span class="line"><span class="string">          &#125;</span></span><br><span class="line"><span class="string">        &#125;`</span>,</span><br><span class="line">        data: &#123;</span><br><span class="line">          totalUsers: <span class="number">0</span>,</span><br><span class="line">          allUsers: []</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;,</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+
+<p>第 6 行使用 client.writeQuery( ) 方法直接更改快取，這裡清除 totalUsers 與 allUsers 欄位。</p>
+<p>現在在使用者介面增加一個按鈕來觸發 clearUsers( ):</p>
+<figure class="highlight html"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> @<span class="attr">click</span>=<span class="string">"clearUsers"</span>&gt;</span>Click to clear users<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>觸發按鈕修改快取，UI 就會隨著改變，自動更新。</p>
+<p>但是這裡要注意的是，因為我們有將 cache 存入 localStorage，當下次重新啟動 app 時，我們之前有在啟動 app 時，將 localStorege 的資料 restore 回 Apollo Cache，所以如果你使用的是預設的 fetchPolicy cache-first 資料將不會更新，會保持在被清除的狀態。所以必須將 fetchPolicy 設定為 cache-and-network。</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloTainan.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> ...</span><br><span class="line"> allUsers: &#123;</span><br><span class="line">   query: gql<span class="string">`query listUsers &#123;</span></span><br><span class="line"><span class="string">     totalUsers</span></span><br><span class="line"><span class="string">     allUsers &#123;</span></span><br><span class="line"><span class="string">       appLogin</span></span><br><span class="line"><span class="string">       name</span></span><br><span class="line"><span class="string">     &#125;</span></span><br><span class="line"><span class="string">   &#125;`</span>,</span><br><span class="line">   result (&#123; data, loading &#125;) &#123;   </span><br><span class="line">     <span class="keyword">this</span>.totalUsers = data &amp;&amp; data.totalUsers;</span><br><span class="line">     <span class="keyword">this</span>.loading = loading;</span><br><span class="line">   &#125;,</span><br><span class="line">   fetchPolicy: <span class="string">'cache-and-network'</span></span><br><span class="line"> &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>以下是有效的 fetchPolicy 值:</p>
+<ul>
+<li><p>cache-first：這是預設值，始終嘗試先從快取中讀取數據。如果滿足查詢所需的所有數據都在快取中，則返回該數據。**僅當沒有快取結果時，Apollo 才會從網絡獲取。 此抓取策略旨在最大程度地減少渲染組件時發送的網絡請求的數量。</p>
+</li>
+<li><p>cache-and-network：此抓取策略將使 Apollo 首先嘗試從快取中讀取數據。如果滿足查詢所需的所有數據都在快取中，則返回該數據。<strong>但是，無論快取中是否有完整數據，該 fetchPolicy 始終會通過網絡執行查詢，這與 cache-first 不同，後者僅在查詢數據不在快取中時才執行查詢</strong>。 此抓取策略優化了用戶的響應速度，同時還嘗試使快取的數據與服務伺服器器數據保持一致，但以額外的網絡請求為代價。</p>
+</li>
+<li><p>network-only：此抓取策略將永遠不會從快取中返回初始數據。 相反，它將始終使用網絡向服務器發出請求。這種抓取策略可優化與服務器的數據一致性，但是會以對用戶的即時響應為代價。 </p>
+</li>
+<li><p>cache-only：此抓取策略將永遠不會使用網絡執行查詢。 相反，它將始終嘗試從快取中讀取。如果用於查詢的數據在=快取中不存在，則將引發錯誤。此抓取策略僅允許與本地客戶端快取中的數據進行交互，而不會發出任何的網絡請求，以保持客戶端的組件保持快速的運行，但是這意味著本地數據可能與服務器上的數據不一致。如果只對與 ApolloClient 快取中的數據進行交互感興趣，可使用 ApolloClient 實例的 readQuery( )和 writeQuery( ) 方法。</p>
+</li>
+<li><p>no-cache：此抓取策略將永遠不會從快取中返回初始數據。相反，它將始終使用網絡向服務器發出請求。<strong>network-only 策略不同，查詢完成後，它也不會將任何數據寫入快取</strong>。</p>
+</li>
+</ul>
+<p>之前我們實作 mutation 時談到了 Optimistic UI update，現在我們可以搭配快取來實作，看看如何改善客戶端的響應。</p>
+<figure class="highlight javascript"><figcaption><span>src/components/HelloWorld.vue</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">  methods: &#123;</span><br><span class="line">    addPhoto() &#123;</span><br><span class="line">      <span class="keyword">const</span> newPhoto = &#123;</span><br><span class="line">        name: <span class="string">"範例照片 from Vue mutation !"</span>,</span><br><span class="line">        description: <span class="string">`我們資料庫的範例照片 <span class="subst">$&#123;<span class="keyword">new</span> <span class="built_in">Date</span>().toISOString()&#125;</span>`</span></span><br><span class="line">      &#125;;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">this</span>.$apollo.mutate(&#123;</span><br><span class="line">        mutation: gql<span class="string">`mutation addPhoto($input: PostPhotoInput!) &#123;</span></span><br><span class="line"><span class="string">          postPhoto(input: $input) &#123;</span></span><br><span class="line"><span class="string">            id</span></span><br><span class="line"><span class="string">            name</span></span><br><span class="line"><span class="string">            description</span></span><br><span class="line"><span class="string">          &#125;</span></span><br><span class="line"><span class="string">        &#125;`</span>,</span><br><span class="line">        variables: &#123;</span><br><span class="line">          input: newPhoto,</span><br><span class="line">        &#125;,</span><br><span class="line">        update: <span class="function">(<span class="params">store, &#123; data: &#123; postPhoto &#125;&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> LISTPHOTOS_QUERY = gql<span class="string">`query listPhotos &#123;</span></span><br><span class="line"><span class="string">              totalPhotos</span></span><br><span class="line"><span class="string">              allPhotos &#123;</span></span><br><span class="line"><span class="string">                id</span></span><br><span class="line"><span class="string">                name</span></span><br><span class="line"><span class="string">                description</span></span><br><span class="line"><span class="string">              &#125;</span></span><br><span class="line"><span class="string">            &#125;`</span>;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">const</span> cacheData = store.readQuery(&#123;</span><br><span class="line">            query: LISTPHOTOS_QUERY</span><br><span class="line">          &#125;);</span><br><span class="line"></span><br><span class="line">          cacheData.totalPhotos += <span class="number">1</span>;</span><br><span class="line">          cacheData.allPhotos.push(postPhoto);</span><br><span class="line">          </span><br><span class="line">          store.writeQuery(&#123;</span><br><span class="line">            query: LISTPHOTOS_QUERY,</span><br><span class="line">            data: cacheData</span><br><span class="line">          &#125;);</span><br><span class="line">          </span><br><span class="line">          <span class="built_in">console</span>.log(postPhoto);</span><br><span class="line">          <span class="built_in">console</span>.log(cacheData);</span><br><span class="line">        &#125;,</span><br><span class="line">        optimisticResponse: &#123;</span><br><span class="line">          __typename: <span class="string">'Mutation'</span>,</span><br><span class="line">          postPhoto: &#123;</span><br><span class="line">            __typename: <span class="string">'Photo'</span>,</span><br><span class="line">            id: <span class="number">-1</span>,</span><br><span class="line">            ...newPhoto</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;).then(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(data);</span><br><span class="line">        <span class="comment">//this.$apollo.queries.allPhotos.refetch();</span></span><br><span class="line">      &#125;).catch(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.error(error);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;,</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>這裡需要花一些時間理解。我們在  this.$apollo.mutate( ) 方法中加入了兩個 hook，分別是 update 與 optimisticResponse。</p>
+<p>第 20 行 update 是一個函式，第一個引數 store 就是 Apollo Cache 實例，第二個引數則是執行 mutation 時被回傳的資料。<br>第 30 行從快取中讀取資料，34、35 直接修改讀出來的資料。<br>第 37 行把修改後的資料寫回 Apollo Cache 快取中。<br>第 42、43 把它顯示在 console，我們可以來觀察它們的操作。<br>第 45 行 optimisticResponse 用來提供樂觀的資料。<br>第 55 行我們不再需要從伺服器抓取資料來刷新。</p>
+<p>現在可以新增一張新照片，然後從瀏覽器的 console 觀察看看:</p>
+<img src="/2019/11/27/GraphQL-Client-2/apollo-mutation-1.png" title="Opitimistic UI">
+
+<p>之前談過，如果 update 與 optimisticResponse 一起用，則 update 會被調用兩次，但是再第二次調用時，第一次調用的資料會被回滾 (rollback)，這裡我們做了兩次 cache 的變動，但第一次的資料自動被回滾了!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/11/27/GraphQL-Client-2/" data-id="ckcpzj95x000w80vzeeu6of3q" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/28/GraphQL-Client-3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          GraphQL 用戶端 (3)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/11/13/GraphQL-Client-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GraphQL 用戶端 (1)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

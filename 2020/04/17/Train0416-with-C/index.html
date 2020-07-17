@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>C# 教育訓練 using Visual Studio Code | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="終於開始今年的技術性教育訓練了，有了新的學習標的總是讓我很興奮，有幸王智民老師有了精闢的講解，收穫良多。 我是老派的軟體工程師，也因為工作環境，文書編輯器一直是必備的工具，有時需要用到 GUI 介面的開發工具光安裝就讓人頭痛。 Oracle SQL Developer 如非必要總不會打開，至今 Oracle SQL Developer 對我還是很陌生，SQL Plus 是我的最愛。 安裝一個 Vi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C# 教育訓練 using Visual Studio Code">
+<meta property="og:url" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="終於開始今年的技術性教育訓練了，有了新的學習標的總是讓我很興奮，有幸王智民老師有了精闢的講解，收穫良多。 我是老派的軟體工程師，也因為工作環境，文書編輯器一直是必備的工具，有時需要用到 GUI 介面的開發工具光安裝就讓人頭痛。 Oracle SQL Developer 如非必要總不會打開，至今 Oracle SQL Developer 對我還是很陌生，SQL Plus 是我的最愛。 安裝一個 Vi">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-080914.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-095625.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-095626.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-095627.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-095630.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-095628.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-095629.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-095631.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-080908.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-080909.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-080910.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-080911.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-080912.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-080913.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.077Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C# 教育訓練 using Visual Studio Code">
+<meta name="twitter:description" content="終於開始今年的技術性教育訓練了，有了新的學習標的總是讓我很興奮，有幸王智民老師有了精闢的講解，收穫良多。 我是老派的軟體工程師，也因為工作環境，文書編輯器一直是必備的工具，有時需要用到 GUI 介面的開發工具光安裝就讓人頭痛。 Oracle SQL Developer 如非必要總不會打開，至今 Oracle SQL Developer 對我還是很陌生，SQL Plus 是我的最愛。 安裝一個 Vi">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/04/17/Train0416-with-C/train-080914.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Train0416-with-C" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/04/17/Train0416-with-C/" class="article-date">
+  <time datetime="2020-04-17T00:28:32.000Z" itemprop="datePublished">2020-04-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C#</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      C# 教育訓練 using Visual Studio Code
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>終於開始今年的技術性教育訓練了，有了新的學習標的總是讓我很興奮，有幸王智民老師有了精闢的講解，收穫良多。</p>
+<p>我是老派的軟體工程師，也因為工作環境，文書編輯器一直是必備的工具，有時需要用到 GUI 介面的開發工具光安裝就讓人頭痛。 Oracle SQL Developer 如非必要總不會打開，至今 Oracle SQL Developer 對我還是很陌生，SQL Plus 是我的最愛。</p>
+<p>安裝一個 Visual Studio 需要 20-50 GB 的可用空間，喔! 也許有人的硬碟就爆掉了，在 Windows 環境 C 硬碟千萬要留大一些，如果可以選擇就不要將軟體工具裝在 C 槽。這裡是使用 Visual Studio Code 開發 .NET 專案的簡介，希望能對各位有些幫助。</p>
+<p>這裡就用 Visual Studio Code 將王智民老師第一堂課的程式碼走一次，但我使用的是較新的版本 .NET Core 3.1。因為 .NET Core 2.2 已於去年就 EOL 了。</p>
+<h2 id="安裝"><a href="#安裝" class="headerlink" title="安裝"></a>安裝</h2><p>首先要安裝  <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">Visual Studio Code</a> 與 <a href="https://dotnet.microsoft.com/download" target="_blank" rel="noopener">.Net Code SDK</a>。 記得要安裝 SDK 版。</p>
+<p>這裡有一些快速指引 Visual Studio Code <a href="https://code.visualstudio.com/docs/languages/csharp" target="_blank" rel="noopener">Working with C#</a>，最好也把 VS Code 的兩個 C# Extensions 安裝起來: </p>
+<img src="/2020/04/17/Train0416-with-C/train-080914.png" title="MyWeb 專案目錄">
+
+<p>安裝完成後，開啟 VSCode，打開一個終端視窗或命令提示字元輸入: </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet --version</span><br></pre></td></tr></table></figure>
+
+<p>如果一卻正常會返回 .NET Code 的版本訊息，那我們就可以開始了。</p>
+<p>往後我們常會用到 donnet 指令，例如建立解決方案、建立專案、安裝 NuGet Packages、或顯示本機的一些 .NET 設定例如:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet nuget locals all --list</span><br></pre></td></tr></table></figure>
+
+<p>可以顯示本機安裝 NuGet Packages 的目錄。</p>
+<h4 id="解決方案與專案設定"><a href="#解決方案與專案設定" class="headerlink" title="解決方案與專案設定"></a>解決方案與專案設定</h4><p>我們先在電腦裡面用一個空的資料夾建立 TrainSample 的 .NET 解決方案。然後使用 VSCode 打開解決方案資料夾 TrainSample，開啟一個終端視窗，我們需要用 dotnet 初始化解決方案，確定位於 TrainSample 目錄中:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet new sln</span><br></pre></td></tr></table></figure>
+
+<p>範本 “Solution File” 建立成功後，目錄下會產生一個 TrainSample.sln 檔案。</p>
+<p>接著我們要在這個解決方案目錄下產生專案 MyWeb。你可以使用 <strong>dotnet new –help</strong> 查詢 SDK 所提供的各類專案的基本初始範本，這裡我們會建立一個空的 web 基本範本: </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet new web --name MyWeb </span><br></pre></td></tr></table></figure>
+
+<p>這會在解決方案目錄下產生 MyWeb 專案目錄，接下來我們就要切換到 MyWeb 目錄，開始我們的程式旅途了。</p>
+<img src="/2020/04/17/Train0416-with-C/train-095625.png" title="MyWeb 專案目錄">
+
+<p>這是 MyWeb 專案目錄初始的目錄架構，包含專案的設定檔 MyWeb.csproj 及基本範例的程式碼，就從這裡開始。首先啟動專案看看這個範例的結果。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet run </span><br></pre></td></tr></table></figure>
+
+<p>啟動後有一些訊息</p>
+<img src="/2020/04/17/Train0416-with-C/train-095626.png" title="MyWeb 專案目錄">
+
+<p>打開瀏覽器看看結果:</p>
+<img src="/2020/04/17/Train0416-with-C/train-095627.png" title="MyWeb 專案目錄">
+
+<p>這裡當執行 <strong>dotnet run</strong> 時，其實 .NET 事先會執行 <strong>dotnet build</strong> 打包的工作，會產生編譯後的執行檔，可以在專案目錄的 bin 子目錄下發現 MyWeb.exe、MyWeb.dll 等檔案，你可以從檔案總管中直接打開 MyWeb.exe。</p>
+<img src="/2020/04/17/Train0416-with-C/train-095630.png" title="MyWeb 專案目錄">
+
+<p>首先看一下專案設定檔 MyWeb.csproj。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;Project Sdk=&quot;Microsoft.NET.Sdk.Web&quot;&gt;</span><br><span class="line"></span><br><span class="line">  &lt;PropertyGroup&gt;</span><br><span class="line">    &lt;TargetFramework&gt;netcoreapp3.1&lt;/TargetFramework&gt;</span><br><span class="line">  &lt;/PropertyGroup&gt;</span><br><span class="line"></span><br><span class="line">&lt;/Project&gt;</span><br></pre></td></tr></table></figure>
+
+<p>目前就這樣，紀錄的東西不多，往後如果專案需要安裝 Packages，將會記錄在這裡。 第一堂課所需要 Packages 都已內含不用再另行安裝。</p>
+<p>我們就先把未來會用到的 Oracle Package 安裝起來看看。我們可以到 <a href="https://www.nuget.org/" target="_blank" rel="noopener">NuGet Gallery</a> 尋找需要的 Packages。</p>
+<img src="/2020/04/17/Train0416-with-C/train-095628.png" title="MyWeb 專案目錄">
+
+<p>這裡需要 .NET Core 的版本。</p>
+<img src="/2020/04/17/Train0416-with-C/train-095629.png" title="MyWeb 專案目錄">
+
+<p>將指令複製到你的 VS Code 終端螢幕:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet add package Oracle.ManagedDataAccess.Core --version 2.19.60</span><br></pre></td></tr></table></figure>
+
+<p>安裝成功後將會更新 MyWeb.csproj，多了一個 ItemGroup。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;ItemGroup&gt;</span><br><span class="line">  &lt;PackageReference Include=&quot;Oracle.ManagedDataAccess.Core&quot; Version=&quot;2.19.60&quot; /&gt;</span><br><span class="line">&lt;/ItemGroup&gt;</span><br></pre></td></tr></table></figure>
+
+<p>可以觀察一下安裝 Package 的訊息。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">  Writing C:\Users\76070049\AppData\Local\Temp\tmpBD4F.tmp</span><br><span class="line">info : 正在將套件 &apos;Oracle.ManagedDataAccess.Core&apos; 的 PackageReference 新增至專案 &apos;I:\C#\TrainSample\MyWeb\MyWeb.csproj&apos;。</span><br><span class="line">info : 正在還原 I:\C#\TrainSample\MyWeb\MyWeb.csproj 的封裝...</span><br><span class="line">info :   GET https://api.nuget.org/v3-flatcontainer/oracle.manageddataaccess.core/index.json</span><br><span class="line">info :   OK https://api.nuget.org/v3-flatcontainer/oracle.manageddataaccess.core/index.json 710 毫秒</span><br><span class="line">info :   GET https://api.nuget.org/v3-flatcontainer/oracle.manageddataaccess.core/2.19.60/oracle.manageddataaccess.core.2.19.60.nupkge.2.19.60.nupkg                                                                                                       .2.19.60.nupkg 720 毫秒</span><br><span class="line">info :   OK https://api.nuget.org/v3-flatcontainer/oracle.manageddataaccess.core/2.19.60/oracle.manageddataaccess.core.2.19.60.nupkg 720 毫秒</span><br><span class="line">info : 正在安裝 Oracle.ManagedDataAccess.Core 2.19.60。                                                               \MyWeb.csproj&apos;。</span><br><span class="line">info : 套件 &apos;Oracle.ManagedDataAccess.Core&apos; 與專案 &apos;I:\C#\TrainSample\MyWeb\MyWeb.csproj&apos; 中的所有架構相容。</span><br><span class="line">info : 已將套件 &apos;Oracle.ManagedDataAccess.Core&apos; 版本 &apos;2.19.60&apos; 的 PackageReference 新增至檔案 &apos;I:\C#\TrainSample\MyWeb\MyWeb.csproj&apos;。</span><br><span class="line">info : 正在認可還原...</span><br><span class="line">info : 正在將資產檔案寫入磁碟。路徑: I:\C#\TrainSample\MyWeb\obj\project.assets.json</span><br><span class="line">log  : I:\C#\TrainSample\MyWeb\MyWeb.csproj 的還原於 3.98 sec 完成。</span><br></pre></td></tr></table></figure>
+
+<p>注意這裡會直接上網下載安裝，如果你無法安裝，有可能是你的電腦被禁止上網，注意最近<strong>資訊部的 SSL 政策</strong>。</p>
+<p>有沒有發覺 Packages 的原始碼並沒有安裝在專案目錄中，這與 Node.js 不同，你可以用先前提到的 <strong>dotnet nuget locals all –list</strong> 查詢 NuGet Packages 的目錄。</p>
+<h3 id="開始"><a href="#開始" class="headerlink" title="開始"></a>開始</h3><p>當我們下了 <strong>dotnet run</strong>，.NET 會搜尋有 Main 方法的程式碼，這就是專案的入口點，慣例都會是 Program.cs。修改之前你可以看一下，比較特別的是使用泛型 <em>webBuilder.UseStartup&lt;Startup&gt;( );</em> 來啟動 Web Server。</p>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.Linq;</span><br><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Hosting;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Configuration;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Hosting;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Logging;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyWeb</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            MyOutput(<span class="string">"(Main) Application start..."</span>);</span><br><span class="line">            </span><br><span class="line">            CreateHostBuilder(args).Build().Run();</span><br><span class="line">            </span><br><span class="line">            MyOutput(<span class="string">"(Main) Application end..."</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IHostBuilder <span class="title">CreateHostBuilder</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span> =&gt;</span><br><span class="line">            Host.CreateDefaultBuilder(args)</span><br><span class="line">                .ConfigureWebHostDefaults(webBuilder =&gt;</span><br><span class="line">                &#123;</span><br><span class="line">                    webBuilder.UseStartup&lt;Startup&gt;();</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">MyOutput</span>(<span class="params"><span class="keyword">string</span> message</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            Console.WriteLine(<span class="string">$"[<span class="subst">&#123;DateTime.Now.ToString(<span class="string">"yyyy/MM/dd HH:mm:ss"</span>)&#125;</span>] <span class="subst">&#123;message&#125;</span>"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 30 行加入 MyOutput 靜態方法，這裡沒有使用 Debug 模組，在 VS Code 中開啟 Debug output 比較麻煩，這裡直接使用系統的終端螢幕顯示。</li>
+<li>第 27 行使用泛型啟動 Web Server 比較特殊，也因此可以用同一個方法啟動不同類型的 Web Server。也可以直接使用方法鏈接改變預設的的 Web Server 與監聽的 Port。</li>
+</ul>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IHostBuilder <span class="title">CreateHostBuilder</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span> =&gt;</span><br><span class="line">    Host.CreateDefaultBuilder(args)</span><br><span class="line">        .ConfigureWebHostDefaults(webBuilder =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            webBuilder</span><br><span class="line">              .UseStartup&lt;Startup&gt;()</span><br><span class="line">              .UseKestrel()</span><br><span class="line">              .UseUrls(<span class="string">"http://localhost:3000"</span>);</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 7 行可以不要，預設值本來就是 Kestrel。</li>
+<li>第 8 行直接改變監聽的 Port。</li>
+</ul>
+<p>這裡直接使用泛型啟動 Startup 類別，現在來看看 Startup.cs。</p>
+<figure class="highlight csharp"><figcaption><span>Startup.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.Linq;</span><br><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Builder;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Hosting;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Http;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.DependencyInjection;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Hosting;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyWeb</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Startup</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// This method gets called by the runtime. Use this method to add services to the container.</span></span><br><span class="line">        <span class="comment">// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ConfigureServices</span>(<span class="params">IServiceCollection services</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IWebHostEnvironment env</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            <span class="keyword">if</span> (env.IsDevelopment())</span><br><span class="line">            &#123;</span><br><span class="line">                app.UseDeveloperExceptionPage();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            app.UseRouting();</span><br><span class="line"></span><br><span class="line">            app.UseEndpoints(endpoints =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                endpoints.MapGet(<span class="string">"/"</span>, <span class="keyword">async</span> context =&gt;</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello World!"</span>);</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡使用的方法與上課的程式碼有些不同，但觀念是一樣的。</p>
+<ul>
+<li>第 22 行使用了不同的 IWebHostEnvironment Interface，但用法一樣。</li>
+<li>第 31 行用 app.UseEndPoints 定義 HTTP Endpoints，可以直接在此加入另外一個端點。</li>
+</ul>
+<figure class="highlight csharp"><figcaption><span>Startup.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">app.UseEndpoints(endpoints =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        endpoints.MapGet(<span class="string">"/"</span>, <span class="keyword">async</span> context =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello World!"</span>);</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        endpoints.MapGet(<span class="string">"/tainan"</span>, <span class="keyword">async</span> context =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello Tainan! 哈囉，台南!"</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/04/17/Train0416-with-C/train-095631.png" title="MyWeb 專案目錄">
+
+<p>這是最基本的端點設定，稍後再來看 Middlewares。現在則來看看 Application LifeTime 流程。以下是加入 Application Lifttime 的程式碼，試著自己 Coding，不要用複製/貼上，否則你不會發現魔鬼。</p>
+<figure class="highlight csharp"><figcaption><span>Startup.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Collections.Generic;</span><br><span class="line"><span class="keyword">using</span> System.Linq;</span><br><span class="line"><span class="keyword">using</span> System.Threading;</span><br><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Builder;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Hosting;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Http;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.DependencyInjection;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.Hosting;</span><br><span class="line"><span class="keyword">using</span> IHostApplicationLifetime = Microsoft.Extensions.Hosting.IHostApplicationLifetime;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyWeb</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Startup</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Startup</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">            Program.MyOutput(<span class="string">"Startup Contructor called."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// This method gets called by the runtime. Use this method to add services to the container.</span></span><br><span class="line">        <span class="comment">// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ConfigureServices</span>(<span class="params">IServiceCollection services</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            Program.MyOutput(<span class="string">"Startup.ConfigureServices called."</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime appLifetime</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            <span class="keyword">if</span> (env.IsDevelopment())</span><br><span class="line">            &#123;</span><br><span class="line">                app.UseDeveloperExceptionPage();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            appLifetime.ApplicationStarted.Register(() =&gt;</span><br><span class="line">            &#123;               </span><br><span class="line">                Program.MyOutput(<span class="string">"ApplicationLifetime - Started."</span>);</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            appLifetime.ApplicationStopping.Register(() =&gt;</span><br><span class="line">            &#123;   </span><br><span class="line">                Program.MyOutput(<span class="string">"ApplicationLifetime - Stopping."</span>);</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            appLifetime.ApplicationStopped.Register(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                Thread.Sleep(<span class="number">5</span> * <span class="number">1000</span>);   </span><br><span class="line">                Program.MyOutput(<span class="string">"ApplicationLifetime - Stopped."</span>);</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            app.UseRouting();</span><br><span class="line"></span><br><span class="line">            app.UseEndpoints(endpoints =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                endpoints.MapGet(<span class="string">"/"</span>, <span class="keyword">async</span> context =&gt;</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello World!"</span>);</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">                endpoints.MapGet(<span class="string">"/tainan"</span>, <span class="keyword">async</span> context =&gt;</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello Tainan! 哈囉，台南!"</span>);</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">var</span> thread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> ThreadStart(() =&gt;</span><br><span class="line">            &#123;</span><br><span class="line">                Thread.Sleep(<span class="number">5</span> * <span class="number">1000</span>);</span><br><span class="line">                Program.MyOutput(<span class="string">"Trigger stop WebHost."</span>);</span><br><span class="line">                appLifetime.StopApplication();</span><br><span class="line">            &#125;));</span><br><span class="line">            </span><br><span class="line">            thread.Start();</span><br><span class="line"></span><br><span class="line">            Program.MyOutput(<span class="string">"Startup Configure - Called."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 4 行加入 System.Threading 命名空間，因為第 66 行會用到 Thread 類別。</li>
+<li>第 11 行加入了一個別名(Alias) IHostApplicationLifetime 因舊的 IApplicationLifetime 已遭廢棄，這裡又同時有兩個 Package 都含有 IHostApplicationLifetime 介面，這裡用一個 Alias 直接指名。IHostApplicationLifetime 會用在第 28 行。 </li>
+<li>第 28 行加入新的 IWebHostEnvironment 與 Microsoft.Extensions.Hosting.IHostApplicationLifetime 介面，舊的 IHostingEnvironment 與 IApplicationLifetime 已遭廢棄。</li>
+<li>第 35 ~ 49 行、66 ~ 73 行沒有不同。</li>
+</ul>
+<p>執行結果應該會是:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[2020/04/17 15:19:54] (Main) Application start...</span><br><span class="line">[2020/04/17 15:19:54] Startup Contructor called.</span><br><span class="line">[2020/04/17 15:19:54] Startup.ConfigureServices called.</span><br><span class="line">[2020/04/17 15:19:54] Startup Configure - Called</span><br><span class="line">[2020/04/17 15:19:54] ApplicationLifetime - Started</span><br><span class="line">info: Microsoft.Hosting.Lifetime[0]</span><br><span class="line">      Now listening on: http://localhost:3000</span><br><span class="line">info: Microsoft.Hosting.Lifetime[0]</span><br><span class="line">      Application started. Press Ctrl+C to shut down.</span><br><span class="line">info: Microsoft.Hosting.Lifetime[0]</span><br><span class="line">      Hosting environment: Development</span><br><span class="line">info: Microsoft.Hosting.Lifetime[0]</span><br><span class="line">      Content root path: I:\C#\TrainSample\MyWeb</span><br><span class="line">[2020/04/17 15:19:59] Trigger stop WebHost</span><br><span class="line">[2020/04/17 15:19:59] ApplicationLifetime - Stopping</span><br><span class="line">info: Microsoft.Hosting.Lifetime[0]</span><br><span class="line">      Application is shutting down...</span><br><span class="line">[2020/04/17 15:20:04] ApplicationLifetime - Stopped</span><br><span class="line">[2020/04/17 15:20:04] (Main) Application end...</span><br></pre></td></tr></table></figure>
+
+<p>接著就要來看 Middlewares，在這之前將 66 ~ 73 行程式碼加上註解，否則每次啟動後 5 秒鐘 Web Server 就自動下架了。</p>
+<figure class="highlight csharp"><figcaption><span>Startup.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// var thread = new Thread(new ThreadStart(() =&gt;</span></span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//     Thread.Sleep(5 * 1000);</span></span><br><span class="line"><span class="comment">//     Program.MyOutput("Trigger stop WebHost.");</span></span><br><span class="line"><span class="comment">//     appLifetime.StopApplication();</span></span><br><span class="line"><span class="comment">// &#125;));</span></span><br><span class="line">        </span><br><span class="line"><span class="comment">// thread.Start();</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Middlewares"><a href="#Middlewares" class="headerlink" title="Middlewares"></a>Middlewares</h3><p>使用 Middlewares 可讓程式碼更有彈性及模組化，可以使用 IApplicationBuilder 介面的 Use 方法註冊。首先我們使用 app.Use( ) 直接在 Startup.cs 中註冊一個 Middleware，但直接在 Startup.cs 中加入 Middleware 程式碼不是好的習慣，會讓程式碼太過龐大很難維護，稍後我們會將 Middlewares 模組化。但我們先來了解 Middlewares 的基本概念。</p>
+<figure class="highlight csharp"><figcaption><span>Startup.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">app.Use(<span class="keyword">async</span> (context, next) =&gt; </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (context.Request.Path == <span class="string">"/tainan"</span>)</span><br><span class="line">          <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"ASP.Net Core Rocks! Tainan! \n"</span>);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">await</span> next();</span><br><span class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Powered by ASP.NET Core \n"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    app.UseRouting();</span><br><span class="line"></span><br><span class="line">    app.UseEndpoints(endpoints =&gt;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>在第 50 行的地方插入這幾行程式碼註冊一個 Middleware，這裡插在 app.UseEndpoints 之前。使用 HttpContext.Request 物件的 Path 屬性取得 Url Path，如果是 /tainan 就回應一段字串，否則執行 next( ) 然後再返回一段字串。現在可以實際來看看它的結果。</p>
+<img src="/2020/04/17/Train0416-with-C/train-080908.png" title="MyWeb Middlewares">
+
+<p>先看左邊的圖示 Url Path 是 /tainan，它的結果如我們程式碼返回的字串，然後就結束了。後面的 endpoints.MapGet(“/tainan” …) 並沒有執行，因為我們沒有呼叫 next( ) 繼續往下執行。</p>
+<p>右邊則是 / 根 Path，因為呼叫 next( )，所以先執行 endpoints.MapGet(“/“ …) 返回 “Hello World!”, 然後返回呼叫它的地方繼續往下執行，返回 “Powered by ASP.NET Core” 字串。</p>
+<p>Middlewares 的位置順序很重要，我們將這段 Middleware 程式碼移到 app.UseEndpoints(endpoints =&gt; …) 後面，然後重新啟動。</p>
+<figure class="highlight csharp"><figcaption><span>Startup.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">app.UseEndpoints(endpoints =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        endpoints.MapGet(<span class="string">"/"</span>, <span class="keyword">async</span> context =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello World!"</span>);</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        endpoints.MapGet(<span class="string">"/tainan"</span>, <span class="keyword">async</span> context =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Hello Tainan! 哈囉，台南!"</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    app.Use(<span class="keyword">async</span> (context, next) =&gt; </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (context.Request.Path == <span class="string">"/tainan"</span>)</span><br><span class="line">          <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"ASP.Net Core Rocks! Tainan! \n"</span>);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">await</span> next();</span><br><span class="line">            <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Powered by ASP.NET Core \n"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/04/17/Train0416-with-C/train-080909.png" title="MyWeb Middlewares">
+
+<p>現在這個 Middleware 毫無作用。</p>
+<p>將它回復到原地方。先前談過將所有 Middlewares 都放在同一個程式碼將很難維護，也很難重複利用，通常都必須模組化程式碼，就來加入一段模組化的 Middleware。</p>
+<p>首先在專案目錄下建立子目錄 Middlewares，然後在 Middlewares 目錄按滑鼠右鍵，選擇 “New C# Class”， 你必須安裝 VS Code C# 與 C# Extensions 的 EXTENSIONS。</p>
+<img src="/2020/04/17/Train0416-with-C/train-080910.png" title="MyWeb Middlewares">
+
+<p>這兩個 Extensions 是在安裝 .NET 時就會建議的套件。</p>
+<img src="/2020/04/17/Train0416-with-C/train-080911.png" title="MyWeb Middlewares">
+
+<p>以下是新的 FirstMiddleware 型態。</p>
+<figure class="highlight csharp"><figcaption><span>FirstMiddleware.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System.Threading.Tasks;</span><br><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Http;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyWeb.Middlewares</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">FirstMiddleware</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">private</span> <span class="keyword">readonly</span> RequestDelegate _next; </span><br><span class="line"></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="title">FirstMiddleware</span>(<span class="params">RequestDelegate next</span>) </span></span><br><span class="line"><span class="function"></span>      &#123;</span><br><span class="line">        _next = next;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">Invoke</span>(<span class="params">HttpContext context</span>)</span></span><br><span class="line"><span class="function"></span>      &#123;</span><br><span class="line">        <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">$"<span class="subst">&#123;<span class="keyword">nameof</span>(FirstMiddleware)&#125;</span> IN. \n"</span>);</span><br><span class="line">        <span class="keyword">await</span> _next(context);</span><br><span class="line">        <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">$"<span class="subst">&#123;<span class="keyword">nameof</span>(FirstMiddleware)&#125;</span> OUT. \n"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>程式碼與上課的教材沒甚麼差異。現在可以將它加入 Startup.cs。</p>
+<figure class="highlight csharp"><figcaption><span>FirstMiddleware.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">using</span> MyWeb.Middlewares;</span><br><span class="line">...</span><br><span class="line">            app.UseMiddleware&lt;FirstMiddleware&gt;();</span><br><span class="line"></span><br><span class="line">            app.Use(<span class="keyword">async</span> (context, next) =&gt; </span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (context.Request.Path == <span class="string">"/tainan"</span>)</span><br><span class="line">                  <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"ASP.Net Core Rocks! Tainan! \n"</span>);</span><br><span class="line">                <span class="keyword">else</span></span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">await</span> next();</span><br><span class="line">                    <span class="keyword">await</span> context.Response.WriteAsync(<span class="string">"Powered by ASP.NET Core \n"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>第 4 行使用 app.UseMiddleware( ) 泛型加入 FirstMiddleware，注意它的位置，將它放在先前 Middleware 之前。</p>
+<img src="/2020/04/17/Train0416-with-C/train-080912.png" title="MyWeb Middlewares">
+
+<p>也可以用 C# 擴充方法將 FirstMiddleware 包裝成靜態方法。新建一個子目錄來擺這些  Extensions，然後在這個目錄下建一個新的類別 CustomMiddlewareExtension。</p>
+<figure class="highlight csharp"><figcaption><span>CustomMiddlewareExtension.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> Microsoft.AspNetCore.Builder;</span><br><span class="line"><span class="keyword">using</span> MyWeb.Middlewares;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyWeb.Extensions</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">CustomMiddlewareExtension</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IApplicationBuilder <span class="title">UseFirstMiddleware</span>(<span class="params"><span class="keyword">this</span> IApplicationBuilder builder</span>)</span></span><br><span class="line"><span class="function"></span>      &#123;</span><br><span class="line">        <span class="keyword">return</span> builder.UseMiddleware&lt;FirstMiddleware&gt;();</span><br><span class="line">      &#125;        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在修改 Startup.cs 改用 CustomMiddlewareExtension。</p>
+<figure class="highlight csharp"><figcaption><span>CustomMiddlewareExtension.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="comment">// using MyWeb.Middlewares;</span></span><br><span class="line"><span class="keyword">using</span> MyWeb.Extensions;</span><br><span class="line">...</span><br><span class="line">            <span class="comment">// app.UseMiddleware&lt;FirstMiddleware&gt;();</span></span><br><span class="line">            app.UseFirstMiddleware();</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>這將會有相同的結果，最後的 VS Code 專案目錄結構如下，注意對照一下 namespace 的習慣命名，你也可以將所有的 namespace 都改為與 Program.cs 一樣的 MyWeb，這樣你就不用使用 using import MyWeb.Middlewares namespace，但這似乎不是好的模組命名架構。</p>
+<img src="/2020/04/17/Train0416-with-C/train-080913.png" title="MyWeb Middlewares">
+
+<p>祝 有個愉快的 Coding 與學習!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2020/04/17/Train0416-with-C/" data-id="ckcpzj96o001s80vz5uyiw6vk" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/04/24/Dotnet-core-DI/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          C# 教育訓練 .NET core 依賴注入 (Dependency Injection)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/17/GraphQL-API-9/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">建立 GraphQL API (9)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

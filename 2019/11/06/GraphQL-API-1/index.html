@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>建立 GraphQL API (1) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="瞭解了 query 與 schema 後，我們要開始建立一個 GraphQL 服務。這可以採用各種不同的技術來完成，但是接下來我們要使用 JavaScript。因為它可以同時使用在伺服器端(Node.js)與客戶端(Browser JavaScript)。 當 GraphQL 在 2015 年發表規格時，它把焦點放在 “明確地解釋查詢語言與型態系統”，刻意不講明伺服器的實作細節，允許具備各種語言背">
+<meta property="og:type" content="article">
+<meta property="og:title" content="建立 GraphQL API (1)">
+<meta property="og:url" content="https://1184yang.github.io/2019/11/06/GraphQL-API-1/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="瞭解了 query 與 schema 後，我們要開始建立一個 GraphQL 服務。這可以採用各種不同的技術來完成，但是接下來我們要使用 JavaScript。因為它可以同時使用在伺服器端(Node.js)與客戶端(Browser JavaScript)。 當 GraphQL 在 2015 年發表規格時，它把焦點放在 “明確地解釋查詢語言與型態系統”，刻意不講明伺服器的實作細節，允許具備各種語言背">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:15.999Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="建立 GraphQL API (1)">
+<meta name="twitter:description" content="瞭解了 query 與 schema 後，我們要開始建立一個 GraphQL 服務。這可以採用各種不同的技術來完成，但是接下來我們要使用 JavaScript。因為它可以同時使用在伺服器端(Node.js)與客戶端(Browser JavaScript)。 當 GraphQL 在 2015 年發表規格時，它把焦點放在 “明確地解釋查詢語言與型態系統”，刻意不講明伺服器的實作細節，允許具備各種語言背">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-API-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/06/GraphQL-API-1/" class="article-date">
+  <time datetime="2019-11-06T00:36:46.000Z" itemprop="datePublished">2019-11-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      建立 GraphQL API (1)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>瞭解了 query 與 schema 後，我們要開始建立一個 GraphQL 服務。這可以採用各種不同的技術來完成，但是接下來我們要使用 JavaScript。因為它可以同時使用在伺服器端(Node.js)與客戶端(Browser JavaScript)。</p>
+<p>當 GraphQL 在 2015 年發表規格時，它把焦點放在 “明確地解釋查詢語言與型態系統”，刻意不講明伺服器的實作細節，允許具備各種語言背景的開發者使用他們最熟悉的語言。Facebook 的團隊則以 JavaScript 寫了一個參考作品，稱為 <a href="https://graphql.org/" target="_blank" rel="noopener">GraphQL.js</a>，並且與它一起發表了 <a href="https://graphql.org/graphql-js/running-an-express-graphql-server/" target="_blank" rel="noopener">express-graphql</a>；它是以 Express 建構 GraphQL 伺服器的簡單做法，值得特別強調的是，它是第一個可協助開發者完成工作的程式庫。</p>
+<p>介紹了用 JavaScript 製作 GraphQL 伺服器後，我們選擇使用 <a href="https://www.apollographql.com/docs/apollo-server/" target="_blank" rel="noopener">Apollo Server</a>，它是 Apollo 團隊提供的開放原始碼解決方案。Apollo Server 相當容易設定，且提供一系列的準產品功能，包括訂閱支援、檔案上傳、可快速連接既有服務的資料來源 API ，及立即可用的 Apollo Engine 集成。它也包含 GraphQL Playground，可讓你直接在瀏覽器內編寫 query。</p>
+<h2 id="Node-js-with-GraphQL-and-Apollo-Server"><a href="#Node-js-with-GraphQL-and-Apollo-Server" class="headerlink" title="Node.js with GraphQL and Apollo Server"></a>Node.js with GraphQL and Apollo Server</h2><p>Apollo Server 可以與 Express、Koa、Hapi 等 Node.js 的架構一起使用。 它與類別庫無關，因此可以將其與客戶端和服務器端應用程序中的許多不同的第三方程式庫連接。在此應用程序中，我們將使用 Express，因為它是Node.js 中最流行和最常見的中間件庫套件(Middleware library)。這是我們的 <a href="/useful/nodejs.pdf" target="_blank">Node.js 教育訓練文件</a>，第 253 頁開始有詳細談到 Express。</p>
+<h3 id="設定專案"><a href="#設定專案" class="headerlink" title="設定專案"></a>設定專案</h3><p>首先在電腦裡面用一個空的資料夾建立 <strong>graphql-sample-api</strong> 專案。然後切換到 graphql-sample-api 目錄，在終端視窗或命令提示字元使用 <em>npm init -y</em> 命令在這個資料夾裡面建立一個新的 npm 專案。這個工具程式會產生一個 package.json 檔案，因為我們使用 -y 旗標，所有的選項都會被設成預設值。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd graphql-sample-api</span><br><span class="line"></span><br><span class="line">npm init -y</span><br></pre></td></tr></table></figure>
+
+<p>接著安裝兩個專案套件: apollo-server 與 apollo-server-express</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install apollo-server apollo-server-express --save</span><br></pre></td></tr></table></figure>
+
+<p>正如在程式庫名稱中所看到的，你可以使用任何其他中間件解決方案（例如，Koa 或 Hapi）來補充獨立的 Apollo 服務器。你不一定要使用 Express 與 Apollo Server Express，但它可以整合 Express 與 Apollo Server，這樣你除了可以使用 Apollo Server 的所有功能，也可以使用 Express 中介軟體，設定更客製化的組態。</p>
+<p>除了Apollo Server 的這些程式庫之外，還需要 Express 和 GraphQL 的核心程式庫：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install express graphql --save</span><br></pre></td></tr></table></figure>
+
+<p>你也可以選擇性的加入 CORS 套件。因為同源準則的限制，當你要跨域向服務器執行 HTTP 請求，需要設定同源準則策略，否則，您可能會遇到 GraplQL 伺服器的跨域資源共享錯誤。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install cors --save</span><br></pre></td></tr></table></figure>
+
+<p>除此之外，我們還可以安裝 nodemon。nodemon 將監視檔案的變更，並且在我們做出更改時重新啟動伺服器。如此一來，我們就不用在每次更改時都要停止並重新啟動伺服器。但這應該只用在開發階段，避免用在正式上線時。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install nodemon --save-dev</span><br></pre></td></tr></table></figure>
+
+<p>然後我們在 package.json 的 scripts 鍵加入 nodemon 命令:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">"scripts": &#123;</span><br><span class="line">  "start": "nodemon -e js,json,graphql"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在當我們使用 npm start 啟動專案後，nodemon 會監視副檔名為 js、json 或 graphql 的任何檔案的異動。此外，我們要在專案根目錄建立一個 index.js 檔案。並確定 package.json 裡面的 main 鍵值指向 index.js，這會是這個專案的入口點:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">"main": "index.js"</span><br></pre></td></tr></table></figure>
+
+<p>現在我們可以開始在 index.js 建立我們的程式碼了:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; ApolloServer, gql &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-express'</span>);</span><br><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">'cors'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = express();</span><br><span class="line"></span><br><span class="line">app.use(cors());</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    sayHello: String!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    sayHello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">"哈囉，台南! 就從這裡開始。"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.applyMiddleware(&#123; app &#125;);</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/'</span>, (req, res) =&gt; res.end(<span class="string">"Welcome to the GraphQL Sample API"</span>));</span><br><span class="line"></span><br><span class="line">app.listen(&#123; <span class="attr">port</span>: <span class="number">4000</span> &#125;, () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`GraphQL Server running @ http://localhost:4000<span class="subst">$&#123;server.graphqlPath&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>第 21 行使用 ApolloServer 建構式建立一個新的伺服器實例，傳送含有兩個值 typeDefs 與 resolvers 的物件給建構式。 </p>
+</blockquote>
+<blockquote>
+<p>第 9 行 typeDefs 是定義 GraphQL schema 的地方，這只是個字串。</p>
+</blockquote>
+<blockquote>
+<p>第 15 行 resolvers 是定義 GraphQL resolver 的地方。截至目前為止，我們則還未談到解析函式 (resolver)，稍後我們再談。</p>
+</blockquote>
+<blockquote>
+<p>第 26 行我們呼叫 applyMiddleWare 將 Express 加進來，這樣我們就可以使用 Express 框架提供的所有中介函式了。</p>
+</blockquote>
+<p>現在使用 npm start 啟動 GraphQL API，然後就可以用瀏覽器造訪我們的 <a href="http://localhost:4000/graphql" target="_blank" rel="noopener">GraphQL API</a> 了。 試試這個 query:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  sayHello</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>瀏覽器的右半邊回傳:</p>
+<figure class="highlight json"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"sayHello"</span>: <span class="string">"哈囉，台南! 就從這裡開始。"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>好了，你已經建立了一個 GraphQL API 伺服器。</p>
+<p>繼續往下之前，我們需要來了解甚麼是解析函式 (resolver)。</p>
+<h3 id="解析函式-Resolver"><a href="#解析函式-Resolver" class="headerlink" title="解析函式 Resolver"></a>解析函式 Resolver</h3><p>截至目前為止，我們在討論 GraphQL 時將重點都放在 query 上。schema 定義了用戶端可執行的查詢操作，以及各種型態之間的關係。 schema 描述了資料需求，但不會執行取得該資料的的工作，這是解析函式的工作。</p>
+<p><strong>解析函式</strong> (<em>resolver</em>) 是回傳特定欄位(field)資料的函式。解析函式會以 schema 定義的型態與外形來回傳資料。解析函式可非同步執行，也可以從 REST API、資料庫或任何其它服務抓取或上傳資料。</p>
+<p>我們來看一下根 Query (Root Query) 的解析函式長得如何。在上述 index.js 中，typeDefs 變數是定義 schema 的地方，這只是個<strong>字串</strong>，resolvers 變數則是個<strong>物件</strong>:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = <span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    sayHello: String!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    sayHello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">"哈囉，台南! 就從這裡開始。"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>這裡 sayHello 是根 Query 的一個<strong>欄位 (field)</strong>，當我們建立 sayHello 這類的 query 時，必須提供一個<strong>名稱相同</strong>的解析函式來支援它。我們用型態定義來描述該欄位(sayHello)應回傳那一種型態。解析函式會從某處回傳該型態的值，在此只是個靜態字串值 “哈囉，台南! 就從這裡開始。”。</p>
+<p>另外要特別注意的是，你必須在 “typename 與 schema 內物件相同的物件” 底下定義解析函式。sayHello 欄位是 schema 中 <strong>Query</strong> 型態物件的一部份，這個欄位的解析函式也必須在 <strong>Query</strong> 物件裡面。</p>
+<p>現在可以定義第二個 query，看看如何運作:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = <span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    sayHello: String!</span></span><br><span class="line"><span class="string">    totalPhotos: Int!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    sayHello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">"哈囉，台南! 就從這裡開始。"</span>,</span><br><span class="line">    totalPhotos: <span class="function"><span class="params">()</span> =&gt;</span> <span class="number">42</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>現在試試從 GraphQL Playground 查詢:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  totalPhotos</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"totalPhotos"</span>: <span class="number">42</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>解析函式是製作 GraphQL 的關鍵。每個欄位(field)都要有個對應的解析函式。解析函式必須遵守 schema 的規則。它的名稱必須和在 schema 內定義的欄位名稱一樣，而且它必須回傳在 schema 定義的資料型態。</p>
+<h3 id="根解析函式"><a href="#根解析函式" class="headerlink" title="根解析函式"></a>根解析函式</h3><p>之前談過，GraphQL API 有 Query、Mutation 與 Subscription 根型態。這些型態位於最頂層，代表 API 的所有入口。到目前為止，我們已經在 Query 型態加入了 sayHello 與 totalPhotos 兩個欄位了，代表 API 可以查詢這些欄位。</p>
+<p>我們來為 Mutation 建立根型態。這個 mutation 欄位稱為 postPhoto，它可接收 String 型態的 name 與 description 引數。當 mutation 被送出時，它必須回傳一個 Boolean:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">const typeDefs = `</span><br><span class="line">  type Query &#123;</span><br><span class="line">    sayHello: String!</span><br><span class="line">    totalPhotos: Int!</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  type Mutation &#123;</span><br><span class="line">    postPhoto(name: String! description: String): Boolean!</span><br><span class="line">  &#125;</span><br><span class="line">`;</span><br></pre></td></tr></table></figure>
+
+<p>建立 postPhoto mutation 之後，我們要在 resolvers 物件內加入對應的解析函式:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> photos = [];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    sayHello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">"哈囉，台南! 就從這裡開始。"</span>,</span><br><span class="line">    totalPhotos: <span class="function"><span class="params">()</span> =&gt;</span> photos.length</span><br><span class="line">  &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    postPhoto(parent, args) &#123;</span><br><span class="line">      photos.push(args);</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>為了不要失去目前的學習焦點，我們建立一個 photos 變數，用來將照片的細節儲存在陣列中，稍後會將照片資料存放到資料庫內。</p>
+<p>接著，我們修改第 6 行的 totalPhotos 解析函式，讓它回傳 photos 陣列的長度。當這個欄位被查詢時，它會回傳目前在陣列中的照片數量。</p>
+<p>接著加入 postPhoto 解析函式。我們這一次在 postPhoto 函式中使用引數。第一個引數是父物件 (parent) 的參考。在本例，postPhoto 解析函式的父物件是 Mutation，目前我們不會使用父物件的資料，但它必定是解析函式的第一個引數，因此，我們要加入一個預留的 parent 引數，這樣才可以使用解析函式的第二個引數: mutation 的引數。</p>
+<p>傳送給 postPhoto 解析函式的第二個引數是傳給這項操作(Operation) 的 GraphQL 引數: name 以及可選的 description。 args 變數是個含有 { name, description } 這兩個屬性的物件，目前這引數代表一個照片物件，所以我們直接將它們傳給 photos 陣列。</p>
+<p>接下來我們要在 GraphQL Playground 中測試 postPhoto mutation，傳送一個字串給 name 引數:</p>
+<figure class="highlight plain"><figcaption><span>mutation</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mutation newPhoto &#123;</span><br><span class="line">  postPhoto(name: &quot;sample photo&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個 mutation 會將照片細節加入陣列，並回傳 true。</p>
+<p>接著使用查詢變數(Query Variables)來修改這個 mutation:</p>
+<figure class="highlight plain"><figcaption><span>mutation</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mutation newPhoto($name: String!, $description: String) &#123;</span><br><span class="line">  postPhoto(name: $name, description: $description)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>將變數加入 mutation 後( 這裡的變數是 $name 與 $description)，我們必須傳送資料來提供字串變數。我們在 Playground 的左下角將 name 與 description 的值加到 Query Variables 視窗:</p>
+<figure class="highlight json"><figcaption><span>Query Variables</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"sample photo A"</span>,</span><br><span class="line">  <span class="attr">"description"</span>: <span class="string">"我們數據集的示例照片"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="型態解析函式"><a href="#型態解析函式" class="headerlink" title="型態解析函式"></a>型態解析函式</h3><p>當你執行 GraphQL query、mutation 或 subscription 時，它會回傳外形與 query 相同的結果。我們知道解析函式可回傳純量型態(scalar type)值，例如整數、字串與布林，但解析函式也可以回傳物件。</p>
+<p>我們要在此應用中建立一個 Photo 型態與一個將會回傳一串 Photo 物件的 allPhotos query 欄位:</p>
+<figure class="highlight js"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = <span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    sayHello: String!</span></span><br><span class="line"><span class="string">    totalPhotos: Int!</span></span><br><span class="line"><span class="string">    allPhotos: [Photo!]!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Mutation &#123;</span></span><br><span class="line"><span class="string">    postPhoto(name: String! description: String): Photo!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Photo &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    url: String!</span></span><br><span class="line"><span class="string">    name: String!</span></span><br><span class="line"><span class="string">    description: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<p>因為我們在第 12 行型態定義中加入 Photo 物件與第 5 行加入了 allPhotos query，所以必須在解析函式中做對應的調整。</p>
+<p>postPhoto mutation 原來回傳一個布林值，現在將它改為回傳一個外形為 Photo 型態的資料。 allPhotos query  則回傳一串外形與 Photo 型態的物件陣列: </p>
+<figure class="highlight js"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> photos = [];</span><br><span class="line"><span class="keyword">let</span> _id = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    sayHello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">"哈囉，台南! 就從這裡開始。"</span>,</span><br><span class="line">    totalPhotos: <span class="function"><span class="params">()</span> =&gt;</span> photos.length,</span><br><span class="line">    allPhotos: <span class="function"><span class="params">()</span> =&gt;</span> photos</span><br><span class="line">  &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    postPhoto(parent, args) &#123;</span><br><span class="line">      <span class="keyword">let</span> newPhoto = &#123;</span><br><span class="line">        id: _id++,</span><br><span class="line">        ...args</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      photos.push(newPhoto);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> newPhoto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>因為 Photo 型態需要一個 ID，所以我們建立一個變數來儲存 ID。我們會在 postPhoto 解析函式裡面遞增這個值來產生 ID。args 變數提供照片的 name 與 description 欄位，但我們也需要 ID。是否建立代碼與時戳之類的變數通常則是由伺服器決定的。</p>
+<p>postPhoto mutation 除了會在 photos 加入照片物件外，也會回傳一個外形符合 Photo 型態的物件，而不是回傳布林值。這個物件是用自動產生的 ID 及以 args 傳入的 name 和 description 欄位來建構的。這些物件的外形都符合在 schema 中定義的 Photo 型態的外形，所以我們可以從 allPhotos query 回傳整個 photos 組成的陣列。</p>
+<p>我們可以調整 mutation 來確認 postPhoto 可正確的運作。因為回傳的 Photo 是一種型態，我們必須在 mutation 中加入一個選擇組 (第 3、 4、 5 行):</p>
+<figure class="highlight plain"><figcaption><span>mutation</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mutation newPhoto($name: String!, $description: String) &#123;</span><br><span class="line">  postPhoto(name: $name, description: $description) &#123;</span><br><span class="line">    id</span><br><span class="line">    name</span><br><span class="line">    description</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用 mutation 加入一些照片後，使用 allPhotos query 可回傳一個包含所有新增的 Photo 物件的陣列:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query listPhotos &#123;</span><br><span class="line">  allPhotos &#123;</span><br><span class="line">    id</span><br><span class="line">    name</span><br><span class="line">    description</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們也曾經在 Photo 型態中加入一個不可為 null 的 url 欄位。當我們現在在選擇組加入 url 時會發生甚麼事情?</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">query listPhotos &#123;</span><br><span class="line">  allPhotos &#123;</span><br><span class="line">    id</span><br><span class="line">    name</span><br><span class="line">    description</span><br><span class="line">    url</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>當我們在 query 的選擇組加入 url 時，會顯示一個錯誤: <strong>Cannot return null for non-nullable field Photo.url</strong>。我們並未在 postPhoto mutation 的資料集中加入 url 欄位，我們不需要儲存 url，我們<strong>只需要在 query 時產生 url 的資料即可</strong>。schema 的每一個欄位都會對應一個解析函式。我們只要在解析函式清單加入一個 Photo 物件，並定義想要對應解析函式的欄位即可。在本例中，我們想要使用一個函式來協助解析 url:</p>
+<figure class="highlight js"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123; ... &#125;,</span><br><span class="line">  Mutation: &#123; ... &#125;,</span><br><span class="line">  Photo: &#123;</span><br><span class="line">    url: <span class="function"><span class="params">parent</span> =&gt;</span> <span class="string">`https://fakeimg.pl/120x160/?text=<span class="subst">$&#123;parent.id&#125;</span>`</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>因為我們要使用 Photo url 的解析函式，所以在解析函式中加入一個 Photo 物件。這個在根部加入的 Photo 解析函式稱為 <em>trivial</em>  <strong>解析函式</strong>。我們會在 resolvers 物件的最頂層加入 trivial 解析函式。如果你沒有指定 trivial 解析函式，GraphQL 會使用<strong>預設</strong>的解析函式，回傳與欄位同名的特性 (例如, Photo.name、Photo.description) 。</p>
+<p>在 query 中選擇 Photo 的 url 時會呼叫對應的解析函式。解析函式的第一個引數一定是 parent 物件。在本例中，parent 代表目前被解析的 Photo 物件。假設我們的服務只能處裡 JPEG 圖像，這些圖像是用他們的 Photo ID 來命名的，可以用 <a href="http://yoursite.com/img/${parent.id}.jpg" target="_blank" rel="noopener">http://yoursite.com/img/${parent.id}.jpg</a>  路由來找到(我們這裡沒有實作可以放範例照片的伺服器，所以用一個假圖片的網址)。因為 parent 是 Photo 物件，我們可以透過這個引數來取得照片的 ID，並用它來自動產生當前照片的 URL。</p>
+<p>當我們定義 GraphQL schema 時，就是在描述 application 的資料需求。使用解析函式可讓我們有充分的能力與彈性滿足這個需求。函式提供這些能力與彈性。<strong>函式可以是非同步的、可以回傳純量型態和物件，也可以從各種來源回傳資料。解析函式只是個函式，GraphQL schema 的每一個欄位 (field) 都可以對應一個解析函式</strong>。</p>
+<h3 id="使用-input-與-enum"><a href="#使用-input-與-enum" class="headerlink" title="使用 input 與 enum"></a>使用 input 與 enum</h3><p>接下來我們要在 typeDefs 加入一種 <strong>enum</strong> 型態: PhotoCategory，以及一種 <strong>input</strong> 型態: PostPhotoInput:</p>
+<figure class="highlight javascript"><figcaption><span>typeDefs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">enum PhotoCategory &#123;</span><br><span class="line">  SELFIE</span><br><span class="line">  PORTRAIT</span><br><span class="line">  ACTION</span><br><span class="line">  LANDSCAPE</span><br><span class="line">  GRAPHIC</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Photo &#123;</span><br><span class="line">  ...</span><br><span class="line">  category: PhotoCategory!</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">input PostPhotoInput &#123;</span><br><span class="line">  name: <span class="built_in">String</span>!</span><br><span class="line">  category: PhotoCategory=PORTRAIT</span><br><span class="line">  description: <span class="built_in">String</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Mutation &#123;</span><br><span class="line">  postPhoto(input: PostPhotoInput!): Photo!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在解析 Photo 時，我們必須確保照片分類 (它是個字串，應符合在 enum 內定義的值) 是有效的。我們也要在使用者貼出新照片時接收分類。</p>
+<p>我們在單一物件下加入一個 PostPhotoInput 型態來整合 postPhoto mutation 的引數。這個 input 型態有個 category 欄位，就算使用者沒有提供引數給 category 欄位，也會使用預設的 PORTRAIT。</p>
+<p>我們也必須稍微修改 postPhoto 解析函式。我們將 Photo 的細節，包括 name、description 與 category 放在 input 欄位裡面。我們必須從 args.input 存取這些值，而不是 args:</p>
+<figure class="highlight js"><figcaption><span>resolvers</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">postPhoto(parent, args) &#123;</span><br><span class="line">  <span class="keyword">let</span> newPhoto = &#123;</span><br><span class="line">    id: _id++,</span><br><span class="line">    ...args.input</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  photos.push(newPhoto);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> newPhoto;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接著我們用新的 input 型態執行 mutation:</p>
+<figure class="highlight plain"><figcaption><span>mutation</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mutation newPhoto($input: PostPhotoInput!) &#123;</span><br><span class="line">  postPhoto(input: $input) &#123;</span><br><span class="line">    id</span><br><span class="line">    name</span><br><span class="line">    url</span><br><span class="line">    description</span><br><span class="line">    category</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們必須在 Query Variables 面板中傳送對應的 JSON:</p>
+<figure class="highlight json"><figcaption><span>Query Variables</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"input"</span>: &#123;</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"sample photo A"</span>,</span><br><span class="line">    <span class="attr">"description"</span>: <span class="string">"我們數據集的示例照片"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果用戶端沒有提供 category，它會使用預設的 PORTRAIT。或者，如果用戶端提供 category 的值，我們就用 enum 型態來驗證它，再將操作送給伺服器。當它是有效的 category 時，我們用引數將它傳給解析函式。</p>
+<p>藉由 input 型態，我們更容易重複使用 “由用戶端傳遞引數給 mutation” 的操作，且較不容易出錯。藉由結合 input 型態與 enum，我們可以更了解特定欄位可用的輸入型態有哪些。input 與 enum 是很棒的功能，且同時使用可發揮更好的效果。</p>
+<p style="text-align: right;">接續下一篇 <a href="/2019/11/06/GraphQL-API-2/" title="建立 GraphQL API (2)">建立 GraphQL API (2)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/11/06/GraphQL-API-1/" data-id="ckcpzj95i000a80vzeyonfnkt" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/06/GraphQL-API-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          建立 GraphQL API (2)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/11/06/GraphQL-Schema-Design-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GraphQL Schema 設計 (2)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

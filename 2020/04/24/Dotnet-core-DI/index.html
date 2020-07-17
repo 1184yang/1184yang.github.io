@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>C# 教育訓練 .NET core 依賴注入 (Dependency Injection) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content=".NET Core 支援依賴注入(Dependency Injection, DI)的設計模式，這是一種用於在類(Class)及其依賴項之間實現控制反轉（IoC）的技術。 依賴項注入允許從類的外部注入依賴項，因此注入依賴項的類只需要知道一個協定(通常是 C# 介面，Interface)。這個類可以遵守這個介面的協議而獨立於其物件的創建。 依賴注入並不一定需要依賴注入容器(Dependency In">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C# 教育訓練 .NET core 依賴注入 (Dependency Injection)">
+<meta property="og:url" content="https://1184yang.github.io/2020/04/24/Dotnet-core-DI/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content=".NET Core 支援依賴注入(Dependency Injection, DI)的設計模式，這是一種用於在類(Class)及其依賴項之間實現控制反轉（IoC）的技術。 依賴項注入允許從類的外部注入依賴項，因此注入依賴項的類只需要知道一個協定(通常是 C# 介面，Interface)。這個類可以遵守這個介面的協議而獨立於其物件的創建。 依賴注入並不一定需要依賴注入容器(Dependency In">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2020/04/24/Dotnet-core-DI/dotnet-di-113328.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:15.956Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C# 教育訓練 .NET core 依賴注入 (Dependency Injection)">
+<meta name="twitter:description" content=".NET Core 支援依賴注入(Dependency Injection, DI)的設計模式，這是一種用於在類(Class)及其依賴項之間實現控制反轉（IoC）的技術。 依賴項注入允許從類的外部注入依賴項，因此注入依賴項的類只需要知道一個協定(通常是 C# 介面，Interface)。這個類可以遵守這個介面的協議而獨立於其物件的創建。 依賴注入並不一定需要依賴注入容器(Dependency In">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/04/24/Dotnet-core-DI/dotnet-di-113328.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Dotnet-core-DI" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/04/24/Dotnet-core-DI/" class="article-date">
+  <time datetime="2020-04-24T02:37:37.000Z" itemprop="datePublished">2020-04-24</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/C/">C#</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      C# 教育訓練 .NET core 依賴注入 (Dependency Injection)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>.NET Core 支援依賴注入(Dependency Injection, DI)的設計模式，這是一種用於在類(Class)及其依賴項之間實現控制反轉（IoC）的技術。</p>
+<p>依賴項注入允許從類的外部注入依賴項，因此注入依賴項的類只需要知道一個協定(通常是 C# 介面，Interface)。這個類可以遵守這個介面的協議而獨立於其物件的創建。</p>
+<p>依賴注入並不一定需要依賴注入容器(Dependency Injection Container)，但使用容器有助於管理依賴項。當依賴注入容器管理的服務列表越來越長時，就可以看到容器的優點。ASP.NET Core 和 Entity Framework Core 使用 Microsoft.Extensions.DependencyInjection 作為容器來管理所有的依賴項，以此管理數百個服務。所以王智民老師才會特別講解依賴注入。</p>
+<p>儘管依賴注入和依賴注入容器在非常小的應用程序中會增加複雜性，但是一旦應用程序變得更大，需要多個服務，依賴注入就會顯示它的效益，降低應用程序的複雜性，並促進非緊密綁定的實現(鬆散耦合)。</p>
+<p>到此，觀念還是很抽象，這裡就從一個<strong>不使用依賴注入</strong>的小應用程式開始；隨後將它轉換為使用依賴注入並使用注入依賴容器的應用程序。</p>
+<h3 id="使用沒有依賴注入的服務"><a href="#使用沒有依賴注入的服務" class="headerlink" title="使用沒有依賴注入的服務"></a>使用沒有依賴注入的服務</h3><p>開啟 VS Code，首先建立一個 .NET Core Console 專案</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet new console --name MyDI</span><br></pre></td></tr></table></figure>
+
+<p>使用 VS Code 切換到新建立的 .NET Core 專案目錄 MyDI。開啟一個終端螢幕輸入 <strong>dotnet run</strong> 測試一下。我們就可以開始了。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet run</span><br><span class="line">Hello World!</span><br></pre></td></tr></table></figure>
+
+<p>先在專案目錄下開兩個子目錄 Services 與 Controllers 分別擺放不同功能型態的程式碼。在 Services 下建立 GreetingService.cs，在 Controllers 下是 HomeController.cs。 程式碼都很短，不要用複製貼上，自己 Coding，享受一下 Coding 的樂趣。</p>
+<img src="/2020/04/24/Dotnet-core-DI/dotnet-di-113328.png" title="MyDI 專案目錄">
+
+<p>這個 GreetingService 類定義了返回字符串的 Greet 方法。</p>
+<figure class="highlight csharp"><figcaption><span>Services/GreetingService.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI.Services</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">GreetingService</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">Greet</span>(<span class="params"><span class="keyword">string</span> name</span>)</span> =&gt; <span class="string">$"Hello Tainan, 哈囉，<span class="subst">&#123;name&#125;</span>"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>HomeController 類使用了這個 GreetingService 服務。</p>
+<figure class="highlight csharp"><figcaption><span>Controllers/HomeController.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> MyDI.Services;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI.Controllers</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">HomeController</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">Hello</span>(<span class="params"><span class="keyword">string</span> name</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            <span class="keyword">var</span> service = <span class="keyword">new</span> GreetingService();</span><br><span class="line">            <span class="keyword">return</span> service.Greet(name); </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在看看 Program 類的 Main( ) 方法。</p>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> MyDI.Controllers;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            <span class="keyword">var</span> controller = <span class="keyword">new</span> HomeController();</span><br><span class="line">            <span class="keyword">string</span> result = controller.Hello(<span class="string">"Emily"</span>);</span><br><span class="line">            Console.WriteLine(result);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在跑跑看。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet run</span><br><span class="line"></span><br><span class="line">Hello Tainan, 哈囉，Emily</span><br></pre></td></tr></table></figure>
+
+<p>這有甚麼問題嗎? HomeController 與 GreetingService 是緊密耦合的。要用不同的實現取代 HomeController 中的 GreetingService 並不容易。</p>
+<p>現在用另一個 SayHelloService 服務來取代原先的 GreetingService 看看會需要動到哪些程式碼。</p>
+<p>在目錄 Services 下建立 SayHelloService 類，這裡用 SayHello 方法返回一個字符串。</p>
+<figure class="highlight csharp"><figcaption><span>Services/SayHelloService.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI.Services</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SayHelloService</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">SayHello</span>(<span class="params"><span class="keyword">string</span> name</span>)</span> =&gt; <span class="string">$"Say 哈囉，<span class="subst">&#123;name&#125;</span>, Hello Tainan!"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>要用 SayHelloService 取代 GreetingService 現在必需要直接修改 HomeController。</p>
+<figure class="highlight csharp"><figcaption><span>Controllers/HomeController.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> MyDI.Services;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI.Controllers</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">HomeController</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">Hello</span>(<span class="params"><span class="keyword">string</span> name</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            <span class="keyword">var</span> service = <span class="keyword">new</span> SayHelloService();</span><br><span class="line">            <span class="keyword">return</span> service.SayHello(name); </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡修改了第 9 與 10 行，改使用 SayHelloService 服務。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet run</span><br><span class="line"></span><br><span class="line">Say 哈囉，Emily, Hello Tainan!</span><br></pre></td></tr></table></figure>
+
+<p>在這個簡單的例子中看起來也還好，並不是很複雜。 但這裡的服務都只是返回字符串的簡單服務，一般的應用程序通常更複雜，要修改的也更多，有些還會有一些相互的牽扯，最怕的是有些還不知道藏在哪裡，要等到出問題才會知道。現在改用依賴注入，看看會有甚麼不同。</p>
+<h3 id="使用依賴注入"><a href="#使用依賴注入" class="headerlink" title="使用依賴注入"></a>使用依賴注入</h3><p>現在要讓 HomeController 獨立於 GreetingService 與 SayHelloService 的實現，當要變更服務時，不用再直接修改 HomeController 類。為此，我們必須訂立一個協定，讓這些服務遵守，這裡要用一個 IGreetingService 介面(Interface)來定義 HomeController 所需要的功能，IGreetingService 介面就是一個協定。在專案目錄下建一個子目錄 Interfaces 擺放介面程式碼 IGreetingService.cs  </p>
+<figure class="highlight csharp"><figcaption><span>Interfaces/IGreetingService.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI.Interfaces</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IGreetingService</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">string</span> <span class="title">Greet</span>(<span class="params"><span class="keyword">string</span> name</span>)</span>; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在這個 IGreetingService 介面中，目前只有一個協議 Greet 方法。現在 GreetingService 與 SayHelloService 都必須遵守這個協定，也就是都要實現這個 Greet 方法。</p>
+<figure class="highlight csharp"><figcaption><span>Services/GreetingService.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> MyDI.Interfaces;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI.Services</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">GreetingService</span> : <span class="title">IGreetingService</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">Greet</span>(<span class="params"><span class="keyword">string</span> name</span>)</span> =&gt; <span class="string">$"Hello Tainan, 哈囉，<span class="subst">&#123;name&#125;</span>"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight csharp"><figcaption><span>Services/SayHelloService.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> MyDI.Interfaces;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI.Services</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SayHelloService</span> : <span class="title">IGreetingService</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">Greet</span>(<span class="params"><span class="keyword">string</span> name</span>)</span> =&gt; <span class="string">$"Say 哈囉，<span class="subst">&#123;name&#125;</span>, Hello Tainan!"</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">SayHello</span>(<span class="params"><span class="keyword">string</span> name</span>)</span> =&gt; <span class="string">$"Say 哈囉，<span class="subst">&#123;name&#125;</span>, Hello Tainan!"</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>SayHelloService 原先並沒有 Greet 方法，因此必須實作，這裡將舊的 SayHello( ) 方法留著，萬一有人使用了緊密耦合。</p>
+<p>HomeController 現在只需要對一個物件的引用，該物件會實現介面 IGreetingService 中的所有協議。這個物件會用 HomeController 的建構式函式(Constructor)注入，分配給私有字段(private filed)，通過方法 Hello 來使用。</p>
+<figure class="highlight csharp"><figcaption><span>Controllers/HomeController.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> MyDI.Interfaces;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI.Controllers</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">class</span> <span class="title">HomeController</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">readonly</span> IGreetingService _greetingService;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">HomeController</span>(<span class="params">IGreetingService greetingService</span>)</span> &#123;</span><br><span class="line">            _greetingService = greetingService ?? <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentNullException(<span class="keyword">nameof</span>(greetingService));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">Hello</span>(<span class="params"><span class="keyword">string</span> name</span>)</span> =&gt; _greetingService.Greet(name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第 10 行是 HomeController 的建構函式，參數型態是 IGreetingService 介面，因此只要能實現 IGreetingService 介面的物件都可以由此注入。HomeController 則透過 Hello 方法來使用這個注入物件的 Greet 方法。　</p>
+<p>在這個實現中，HomeController 類利用了控制反轉(Inversion of Control, IoC)的設計原理。HomeController 並沒有像以前那樣直接實例化 GreetingService 或 SayHelloService。相反的，定義由 HomeController 使用具體類的控件從外部注入，也就是透過 HomeController 的建構函式從外部注入。換句話說，控制是反轉的。HomeController 不能直接決定自己要用哪個服務，而是由外界決定 HomeController 該用哪個服務。反轉控制也被稱為好萊塢原則：不要給我們打電話，我們會給你打電話(don’t call us, we’ll call you)。</p>
+<p>HomeController 類並沒有依賴 IGreetingService 介面的具體實作，而是可以使用實現了介面 IGreetingService 的任何類。所以這裡可以使用 GreetingService 與 SayHelloService 類，因這兩個類都具體實作了 IGreetingService 介面。</p>
+<p>現在，需要從外部注入依賴項，將具體的實現傳遞給 HomeController 類的建構函式。</p>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> MyDI.Controllers;</span><br><span class="line"><span class="keyword">using</span> MyDI.Services;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            <span class="keyword">var</span> controller = <span class="keyword">new</span> HomeController(<span class="keyword">new</span> GreetingService());</span><br><span class="line">            <span class="keyword">string</span> result = controller.Hello(<span class="string">"Emily"</span>);</span><br><span class="line">            Console.WriteLine(result);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第 11 行使用建構函式注入的依賴注入模式實現了控制反轉的設計原則。這稱為建構函式注入，因為介面是在建構函式中注入的。所以這裡需要注入一個依賴項物件來創建一個 HomeController 實例。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet run</span><br><span class="line"></span><br><span class="line">Hello Tainan, 哈囉，Emily</span><br></pre></td></tr></table></figure>
+
+<p>現在注入不同的服務，更改第 11 行注入不同的依賴項:</p>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">            <span class="keyword">var</span> controller = <span class="keyword">new</span> HomeController(<span class="keyword">new</span> SayHelloService());</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet run</span><br><span class="line"></span><br><span class="line">Say 哈囉，Emily, Hello Tainan!</span><br></pre></td></tr></table></figure>
+
+<p>到此，我們已完成了依賴注入的改寫。這個範例程序非常小，唯一需要注入的是一個實現協定 IGreetingService 介面的類。 這個類在實例化的同時實例化了 HomeController。</p>
+<p>到目前為止我們已經實現了依賴注入，但還沒有使用容器來管理這些依賴項。在實際應用程序中，需要處理許多介面與實現，還需要共享實例，最好的方法還是使用依賴注入容器來管理所有的依賴項。</p>
+<h3 id="使用-NET-Core-DI-容器"><a href="#使用-NET-Core-DI-容器" class="headerlink" title="使用 .NET Core DI 容器"></a>使用 .NET Core DI 容器</h3><p>依賴注入不一定需要使用依賴注入容器，但容器有助於管理依賴項，這裡要使用 Microsoft.Extensions.DependencyInjection 作為容器來管理所有依賴項。</p>
+<p>首先需要安裝 Microsoft.Extensions.DependencyInjection。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet add package Microsoft.Extensions.DependencyInjection</span><br></pre></td></tr></table></figure>
+
+<p>在依賴注入容器中，可以在應用程式中有一個位置，在其中定義甚麼協定(介面 Interface)映射到哪個特定的實現(具體的類 Class)上。還可以指定是應該將服務作為一個單例(Singleton)來使用，還是應該在每次使用時創建一個新實例(Transient)。</p>
+<p>首先在 Program 類中定義 RegisterService 方法。在這裡，實例化一個新的 ServiceCollection 物件，ServiceCollection 就在 Microsoft.Extensions.DependencyInjection 名稱空間中，使用 ServiceCollection 的擴展方法 AddSingleton 與 AddTransient 來註冊 DI 容器需要知道的類型，範例中我們將 GreetingService 與 HomeController 都註冊在容器中，這樣允許從容器中檢索 HomeController。</p>
+<p>當請求 IGreetingService 介面時，會實例化 GreetingService 類。HomeController 本身沒有實現介面。通過這個 DI 容器配置，當請求 HomeController 時，DI 容器會時例化 HomeController。</p>
+<p>DI 容器配置還定義了服務的生命週期，使用 AddSingleton 與 AddTransient 方法指定服務的生命週期信息。對於 GreetingService，使用 AddSingleton 註冊，因此請求 IGreetingService 時總是返回相同的實例。這和 HomeController 不同， HomeControler，使用 AddTransient 註冊，每次請求檢索 HomeController 時，則都會創建一個新的實例。</p>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> Microsoft.Extensions.DependencyInjection;</span><br><span class="line"><span class="keyword">using</span> MyDI.Controllers;</span><br><span class="line"><span class="keyword">using</span> MyDI.Services;</span><br><span class="line"><span class="keyword">using</span> MyDI.Interfaces;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">MyDI</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>        &#123;</span><br><span class="line">            <span class="keyword">using</span> (ServiceProvider container = RegisterServices())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">var</span> controller = container.GetRequiredService&lt;HomeController&gt;();</span><br><span class="line">                <span class="keyword">string</span> result = controller.Hello(<span class="string">"Emily"</span>);</span><br><span class="line">                Console.WriteLine(result);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">static</span> ServiceProvider <span class="title">RegisterServices</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">            <span class="keyword">var</span> services = <span class="keyword">new</span> ServiceCollection();</span><br><span class="line">            services.AddSingleton&lt;IGreetingService, GreetingService&gt;();</span><br><span class="line">            services.AddTransient&lt;HomeController&gt;();</span><br><span class="line">            <span class="keyword">return</span> services.BuildServiceProvider();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第 21 行新增靜態方法 RegisterService( )。<br>第 23、24 行註冊 GreetingService 與 HomeController。<br>第 25 行調用 BuildServiceProvider，這會返回一個 ServiceProvider 物件，該物件可以用來訪問已註冊的服務。</p>
+<p>再來要修改 Main 方法來調用 RegisterService 方法以便在容器中註冊。</p>
+<p>第 13 行允許直接訪問 ServiceProvider 的 Dispose 方法，所以這裡使用 using 語句。<br>第 15 行調用 ServiceProvider 的 GetRequiredService 方法來取得對 HomeController 實例的引用。</p>
+<p>啟動應用程序時，在 GetRequiredService 方法的請求下，DI 容器將創建 HomeController 類的實例。HomeController 的建構函式需要一個實現 IGreetingService 的物件。這個介面 IGreetingService 也有在容器中註冊，在此它會返回 GreetingService 物件。GreetingService 類有一個預設的建構函式，因此容器可以創建一個實例，並將該實例傳遞給 HomeController 的建構函式。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet run</span><br><span class="line"></span><br><span class="line">Hello Tainan, 哈囉，Emily</span><br></pre></td></tr></table></figure>
+
+<p>現在改註冊另外一個 SayHelloService 服務。</p>
+<figure class="highlight csharp"><figcaption><span>Program.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"> ...</span><br><span class="line"> <span class="function"><span class="keyword">static</span> ServiceProvider <span class="title">RegisterServices</span>(<span class="params"></span>)</span> &#123;</span><br><span class="line">     <span class="keyword">var</span> services = <span class="keyword">new</span> ServiceCollection();</span><br><span class="line">     <span class="comment">// services.AddSingleton&lt;IGreetingService, GreetingService&gt;();</span></span><br><span class="line">     services.AddSingleton&lt;IGreetingService, SayHelloService&gt;();</span><br><span class="line">     services.AddTransient&lt;HomeController&gt;();</span><br><span class="line">     <span class="keyword">return</span> services.BuildServiceProvider();</span><br><span class="line"> &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ dotnet run</span><br><span class="line"></span><br><span class="line">Say 哈囉，Emily, Hello Tainan!</span><br></pre></td></tr></table></figure>
+
+<p>如果同時註冊 GreetingService 與 SayHelloService 那又會如何? 如果多次將相同的介面協議添加到服務集合(ServiceCollection)中，最後一個註冊的介面協議就會從容器中獲得介面。</p>
+<h3 id="ASP-NET-Core-Startup"><a href="#ASP-NET-Core-Startup" class="headerlink" title="ASP.NET Core Startup"></a>ASP.NET Core Startup</h3><p>ASP.NET Core 提供內建服務容器 IServiceProvider。服務會在應用程式的 Startup.ConfigureServices 方法中註冊。</p>
+<p>ASP.NET Core 的應用程式啟動使用 Startup 類別，其依慣例命名為 Startup。 Startup 類別可設定服務和應用程式的要求管線。</p>
+<p>Startup 類別選擇性地包含 ConfigureServices 方法來設定應用程式的服務，服務透過依賴項注入 (DI)，在應用中使用 ConfigureServices 來註冊和使用。 </p>
+<p>另外 Startup 類也包含 Configure 方法來建立應用程式的要求處理管線(Pipeline，Middlewares)。</p>
+<p>瞭解了依賴注入 (Dependency Injection) 與依賴注入容器，應該可以更理解王智民老師的教育訓練課程中的有關 MVC 控制器內依賴注入。</p>
+<p>祝，Coding 快樂!</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2020/04/24/Dotnet-core-DI/" data-id="ckcpzj95d000580vz12x4eu9d" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/05/08/Electron-React-Quickstart/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          桌面應用 Electron React Quickstart
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/04/17/Train0416-with-C/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">C# 教育訓練 using Visual Studio Code</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

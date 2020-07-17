@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GraphQL 查詢語言 (2) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Fragment你可以將操作的定義及 fragment 放入 GraphQL 查詢文件。fragment 是可在多個操作中重複使用的選擇組(SelectionSet)。我們回到 Snowtooth 的 GraphQL Playground 介面，看一下這個 query: 123456789101112131415161718192021222324query &amp;#123;  Lift(id: &amp;q">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GraphQL 查詢語言 (2)">
+<meta property="og:url" content="https://1184yang.github.io/2019/08/16/GraphQL-Query-Language-2/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="Fragment你可以將操作的定義及 fragment 放入 GraphQL 查詢文件。fragment 是可在多個操作中重複使用的選擇組(SelectionSet)。我們回到 Snowtooth 的 GraphQL Playground 介面，看一下這個 query: 123456789101112131415161718192021222324query &amp;#123;  Lift(id: &amp;q">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.054Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GraphQL 查詢語言 (2)">
+<meta name="twitter:description" content="Fragment你可以將操作的定義及 fragment 放入 GraphQL 查詢文件。fragment 是可在多個操作中重複使用的選擇組(SelectionSet)。我們回到 Snowtooth 的 GraphQL Playground 介面，看一下這個 query: 123456789101112131415161718192021222324query &amp;#123;  Lift(id: &amp;q">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-Query-Language-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/16/GraphQL-Query-Language-2/" class="article-date">
+  <time datetime="2019-08-15T23:49:36.000Z" itemprop="datePublished">2019-08-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GraphQL 查詢語言 (2)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Fragment"><a href="#Fragment" class="headerlink" title="Fragment"></a>Fragment</h3><p>你可以將操作的定義及 <strong>fragment</strong> 放入 GraphQL 查詢文件。fragment 是可在多個操作中重複使用的選擇組(SelectionSet)。我們回到 <a href="http://snowtooth.moonhighway.com" target="_blank" rel="noopener">Snowtooth 的 GraphQL Playground 介面</a>，看一下這個 query:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  Lift(id: &quot;jazz-cat&quot;) &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">    capacity</span><br><span class="line">    night</span><br><span class="line">    elevationGain</span><br><span class="line">    trailAccess &#123;</span><br><span class="line">      name</span><br><span class="line">      difficulty</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  Trail(id: &quot;river-run&quot;) &#123;</span><br><span class="line">    name</span><br><span class="line">    difficulty</span><br><span class="line">    accessedByLifts &#123;</span><br><span class="line">      name</span><br><span class="line">      status</span><br><span class="line">      capacity</span><br><span class="line">      night</span><br><span class="line">      elevationGain</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個查詢請求的是 Jazz Cat 纜車與 River Run 雪道的資訊。Lift 的選擇組裡有 name、status、capacity、night 與 elevationGain。我們想要取得的 River Run 雪道資訊有一些欄位與 Lift 型態的欄位相同。我們可以建立一個 fragment 來協助減少 query 重複的地方:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">fragment liftInfo on Lift &#123;</span><br><span class="line">  name</span><br><span class="line">  status</span><br><span class="line">  capacity</span><br><span class="line">  night</span><br><span class="line">  elevationGain</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們用 fragment 關鍵字來建立 fragment。fragment 是屬於特定型態的選擇組，所以你必須在 fragment 的定義中指定它所屬的型態。這個範例的 fragment 稱為 liftInfo，它是 Lift 型態的選擇組。</p>
+<p>當我們要在另一個選擇組中加入 liftInfo fragment 欄位時，可在 fragment 名詞前面加上三個句點:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  Lift(id: &quot;jazz-cat&quot;) &#123;</span><br><span class="line">    ...liftInfo</span><br><span class="line">    trailAccess &#123;</span><br><span class="line">      name</span><br><span class="line">      difficulty</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  Trail(id: &quot;river-run&quot;) &#123;</span><br><span class="line">    name</span><br><span class="line">    difficulty</span><br><span class="line">    accessedByLifts &#123;</span><br><span class="line">      ...liftInfo</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fragment liftInfo on Lift &#123;</span><br><span class="line">  name</span><br><span class="line">  status</span><br><span class="line">  capacity</span><br><span class="line">  night</span><br><span class="line">  elevationGain</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這種語法類似 JavaScript 的 spread 運算子。這三個句點可讓 GraphQL 將 fragment 的欄位指派給當前的選擇組。在這個範例中，我們在 query 的兩個地方使用同一個 fragment 來選擇 name、status、capacity、night 與 elevationGain。</p>
+<p>我們無法將 liftInfo fragment 加入 Trail 選擇組，因為 liftInfo 只定義了 Lift 型態的欄位。我們可以加入另一個雪道 Trail 型態欄位的 fragment trailInfo:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  Lift(id: &quot;jazz-cat&quot;) &#123;</span><br><span class="line">    ...liftInfo</span><br><span class="line">    trailAccess &#123;</span><br><span class="line">      ...trailInfo</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  Trail(id: &quot;river-run&quot;) &#123;</span><br><span class="line">    ...trailInfo</span><br><span class="line">    groomed</span><br><span class="line">    trees</span><br><span class="line">    night</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fragment trailInfo on Trail &#123;</span><br><span class="line">  name</span><br><span class="line">  difficulty</span><br><span class="line">  accessedByLifts &#123;</span><br><span class="line">    ...liftInfo</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fragment liftInfo on Lift &#123;</span><br><span class="line">  name</span><br><span class="line">  status</span><br><span class="line">  capacity</span><br><span class="line">  night</span><br><span class="line">  elevationGain</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在這個範例中，我們建立了一個稱為 trailInfo 的 fragment，並在 query 的兩個地方使用它。我們也在 trailInfo fragment 中使用 liftInfo fragment 來選擇與它連接的纜椅資料。你可以視需求建立任意數量的 fragment，並交換使用它們。在 River Run Trail query 使用的選擇組中，我們將 fragment 與想要選擇的、關於 River Run 雪道的其他資料結合。你可以一併使用 fragment 與選擇組的其他欄位，也可以在單個選擇組中結合多個屬於同樣型態的 fragment:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  allTrails &#123;</span><br><span class="line">    ...trailStatus</span><br><span class="line">    ...trailDetails</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fragment trailStatus on Trail &#123;</span><br><span class="line">  name</span><br><span class="line">  status</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fragment trailDetails on Trail &#123;</span><br><span class="line">  groomed</span><br><span class="line">  trees</span><br><span class="line">  night</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>fragment 有個很棒的優點在於，你只需要修改一個 fragment，就可以修改在許多不同的 query 裡面的選擇組:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fragment liftInfo on Lift &#123;</span><br><span class="line">  name</span><br><span class="line">  status</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這樣修改 liftInfo fragment 的選擇組會讓使用這個 fragment 的每一個 query 選擇較少的資料。</p>
+<h3 id="變動-Mutation"><a href="#變動-Mutation" class="headerlink" title="變動 Mutation"></a>變動 Mutation</h3><p>到目前為止，我們已討論許多關於讀取資料的事情了。我們用 query 來描述在 GraphQL 中發生的所有讀取。若要寫入新資料，就要使用 <em>mutation</em> (變動)。mutation 的定義類似 query ，它們都有名稱，也可以擁有 “可回傳物件型態或純量型態的選擇組” ，不同之處在於 mutation 可執行一些影響後端資料狀態的修改。</p>
+<p>例如，這是個很危險的 mutation:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mutation burnItDown &#123;</span><br><span class="line">  deleteAllData</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Mutation 是一種根物件型態</strong>。API 的 schema 定義了這個型態可用的欄位 (field)。上述的 Mutation API 擁有強大的威力，可清除所有的資料，它實作了一個 deleteAllData 的欄位，當所有資料都被成功的刪除，這個欄位會回傳一個純量型態: true，或者如果出錯了，會回傳 false。資料究竟會不會被刪除是藉由實作這個 API 來決定。</p>
+<p>我們來看另外一個範例，這次我們要創造一些東西，而不是摧毀東西:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mutation createSong &#123;</span><br><span class="line">  addSong(title: &quot;No Scrubs&quot;, numberOne: true, performerName: &quot;TLC&quot;) &#123;</span><br><span class="line">    id</span><br><span class="line">    title</span><br><span class="line">    numberOne</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們可以使用這個範例來創建新歌曲，利用引數將 title、numberOne 狀態與 performerName 傳給這個 mutation 之後，它會將這首新歌加入資料庫。如果這個 mutation 欄位 addSong 會回傳物件，你就要在這個 mutation 後面加入一個選擇組。在本例中，mutation 完成後會回傳 Song 型態的物件，裡面有剛才創建的歌曲的資料。我們可以在 mutation 後面選擇新歌的 id、title 與 numberOne 狀態的選擇組:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"addSong"</span>: &#123;</span><br><span class="line">      <span class="attr">"id"</span>: <span class="string">"Saca534f4bb1de07cb6d73ae"</span>,</span><br><span class="line">      <span class="attr">"title"</span>: <span class="string">"No Scrubs"</span>,</span><br><span class="line">      <span class="attr">"numberOne"</span>: <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面是這個 mutation 可能的回應。如果出錯，這個 mutation 會在 JSON 回應裡面回傳錯誤，而不是新建的 Song 物件。</p>
+<p>我們也可以使用 mutation 來更改既有的資料。當我們想要更改 Snowtooth 的纜椅狀態時，也可以使用 mutation:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mutation closeLift &#123;</span><br><span class="line">  setLiftStatus(id: &quot;jazz-cat&quot; status: CLOSED) &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個 mutation 將 Jazz Cat 纜椅的狀態從 open 改成 closed。我們可以在 mutation 後面的選擇組裡面選擇被更改的 Lift 的欄位。在此，我們取得被改變的纜椅的 name，以及更新後的 status。</p>
+<h3 id="使用查詢變數"><a href="#使用查詢變數" class="headerlink" title="使用查詢變數"></a>使用查詢變數</h3><p>現在我們已經會使用 mutation 引數傳送新字串值來更改資料了，另一種做法是使用輸入<strong>變數</strong>，以變數取代 query 內的靜態值可讓我們可以傳入動態值。在 addSong mutation，我們要用變數名稱來取代字串，在 GraphQL 中，變數必定以 <strong>$</strong> 字元開頭:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mutation createSong($title:String! $numberOne:Boolean $by:String!) &#123;</span><br><span class="line">  addSong(title:$title, numberOne:$numberOne, performerName:$by) &#123;</span><br><span class="line">    id</span><br><span class="line">    title</span><br><span class="line">    numberOne</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們將靜態值換成 $variable，接著宣告的 mutation 可接收 $variable。GraphiQL 與 Playground 都有一個 Query Variables 視窗 (左下角，可把空間往上拉大)，我們在這裡用 JSON 物件來傳送輸入資料，務必用正確的變數名稱作為 JSON 鍵:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"title"</span>: <span class="string">"No Scrubs"</span>,</span><br><span class="line">  <span class="attr">"numberOne"</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"by"</span>: <span class="string">"TLC"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>當你傳送引數資料時，變數的功能很強大，它不但可讓你的 mutation 在測試的過程中更有條理，當你連接用戶端介面時，使用動態輸入也有很大的幫助。</p>
+<h3 id="訂閱-Subscription"><a href="#訂閱-Subscription" class="headerlink" title="訂閱 Subscription"></a>訂閱 Subscription</h3><p>GraphQL 的第三種操作類型是訂閱 (<em>subscription</em>)。有時用戶端想要取得伺服器傳送的即時更新。訂閱可讓我們監聽 GraphQL API 的即時資料變更。</p>
+<p>GraphQL 的訂閱功能來自 Facebook 的實際使用案例。這個團隊想要在不重新整理網頁的情況下，顯示關於貼文獲得的贊 (Live Likes)數量的即時資訊。Live Likes 是以訂閱來製作的及時使用案例。每一個用戶端都會訂閱 like 事件，並即時看到 like 的更新。</p>
+<p>如同 mutation 與 query，<strong>subscription 是一種根型態</strong>。你必須在 API schema 的 subscription 型態下的欄位中定義用戶端可以監聽的資料變更。編寫 GraphQL query 來監聽 subscription 的做法類似定義其它操作的方式。</p>
+<p>例如，在 Snowtooth 中，我們可以用 subscription 監聽任何纜椅狀態的變動:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">subscription &#123;</span><br><span class="line">  liftStatusChange &#123;</span><br><span class="line">    name</span><br><span class="line">    capacity</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>當我們執行這個 subscription 時，會用 WebSocket 來監聽纜椅狀態的改變。請留意，在 GraphQL Playground 按下播放按鈕後不會立刻收到回傳的資料。當 subscription 被送到伺服器時，這個 subscription 會監聽資料的任何改變。</p>
+<p>如果你想要看到 subscription 收到資料，就必須做出改變。你必須打開一個新視窗或標籤，用 mutation 來傳送改變。 如果使用的是 GraphQL Playground，視窗上端可以直接打開一個新標簽來加入 mutation。 我們在新視窗或標籤送一個改變纜椅狀態的 mutation:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mutation closeLift &#123;</span><br><span class="line">  setLiftStatus(id: &quot;astra-express&quot; status: HOLD) &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>回到 subscription 的視窗，將會收到被更新的資料，以及資料被送到 subscription 的時間。</p>
+<p>與 query 和 mutation 不同的是，subscription 會保持開啟。接下來每當有纜椅的狀態改變時，新的資料就會被推送到這個 subscription。若要停止監聽狀態的變動，你必須取消 subscription。當你使用 GraphQL Playground 時，只要按下停止按鈕即可。不幸的是，用 GraphiQL 來取消 subscription 唯一的做法是關閉運行該 subscription 的瀏覽器標籤。</p>
+<h3 id="自我查詢-Introspection"><a href="#自我查詢-Introspection" class="headerlink" title="自我查詢 Introspection"></a>自我查詢 Introspection</h3><p>自我查詢 (introspection)是 GraphQL 最強大的功能之一。自我查詢是指查詢目前的 API 的 schema。自我查詢是將這些精心建構的 GraphQL 文件加入 GraphiQL 與 Playground 介面的方式。</p>
+<p>你可以傳送 query 給每一個 “可回傳特定 API 的 schema 資料” 的 GraphQL API。例如，如果你要知道可在 Snowtooth 中使用哪種 GraphQL 型態，可以執行 __schema query 來查看該資訊:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  __schema &#123;</span><br><span class="line">    types &#123;</span><br><span class="line">      name</span><br><span class="line">      description</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>當你執行這個 query 時，可以看到這個 API 可用的每一個型態，包括根型態、自訂型態，甚至純量型態。如果你想要查看特定型態的資料，可執行 __type query，並用引數來傳送想要查詢的型態名稱:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">query liftDetails &#123;</span><br><span class="line">  __type(name:&quot;Lift&quot;) &#123;</span><br><span class="line">    name</span><br><span class="line">    fields &#123;</span><br><span class="line">      name</span><br><span class="line">      description</span><br><span class="line">      type &#123;</span><br><span class="line">        name</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這種自我查詢功能可讓你看到 Lift 型態可供查詢的所有欄位。當你想要瞭解新的 GraphQL API 時，找出根型態提供哪些欄位是很好的做法:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">query roots &#123;</span><br><span class="line">  __schema &#123;</span><br><span class="line">    queryType &#123;</span><br><span class="line">      ...typeFields</span><br><span class="line">    &#125;</span><br><span class="line">    mutationType &#123;</span><br><span class="line">      ...typeFields</span><br><span class="line">    &#125;</span><br><span class="line">    subscriptionType &#123;</span><br><span class="line">      ...typeFields</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fragment typeFields on __Type &#123;</span><br><span class="line">  name</span><br><span class="line">  fields &#123;</span><br><span class="line">    name</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>自我查詢會遵循 GraphQL 查詢語言的規則。我們用 fragment 來簡化上述的 query，並查詢每個根型態的名稱與它們提供的欄位。自我查詢可讓用戶端知道目前的 API schema 如何運作。</p>
+<h3 id="抽象語法樹-Abstract-syntax-tree-AST"><a href="#抽象語法樹-Abstract-syntax-tree-AST" class="headerlink" title="抽象語法樹 (Abstract syntax tree, AST)"></a>抽象語法樹 (Abstract syntax tree, AST)</h3><p>query 文件是個字串。當我們傳送 query 給 GraphQL API 時，字串會被解析成<strong>抽象語法樹</strong>，並在操作執行之前進行驗證。抽象語法樹 AST 是一種代表 query 的階層式物件，是個含有內嵌欄位的物件，裡面的欄位代表 GraphQL query 的細節。</p>
+<p>解析程序的第一個步驟是將字串解析成一堆較小的片段，這個步驟包括將關鍵字、引數，甚至括號與冒號解析成單獨的標記，這個程序稱為<strong>詞法分析</strong> (lexing 或 lexical analysis)。接下來將詞法分析後的 query 解析成 AST。使用 AST 可讓動態修改與驗證 query 的工作輕鬆許多。</p>
+<p>例如，你的 query 一開始是 GraphQL 文件。文件至少有一個<strong>定義</strong>，也可能有一串定義。定義只有可能是兩種型態之一: <strong>OperationDefinition</strong> 與 <strong>FragmentDefinition</strong>。下面的文件範例有三個定義: 兩項操作 (Operation) 與一個 fragment:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">query jazzCatStatus &#123;</span><br><span class="line">  Lift(id: &quot;jazz-cat&quot;) &#123;</span><br><span class="line">    name</span><br><span class="line">    night</span><br><span class="line">    elevationGain</span><br><span class="line">    trailAccess &#123;</span><br><span class="line">      name</span><br><span class="line">      difficulty</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">mutation closeLift($lift: ID!) &#123;</span><br><span class="line">  setLiftStatus(id: $lift, status: CLOSED) &#123;</span><br><span class="line">    ...liftStatus</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">fragment liftStatus on Lift &#123;</span><br><span class="line">  name</span><br><span class="line">  status</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一個 OperationDefinition 只能含有三種操作型態之一: <strong>mutation</strong>、<strong>query</strong> 或 <strong>subscription</strong>。每一個操作定義都有 <strong>OperationType</strong> 與 <strong>SelectionSet</strong>。</p>
+<p>在每一個操作後面的大括號內都有該操作的 SelectionSet，它們就是我們用引數來查詢的欄位。例如，Lift 欄位是 jazzCatStatus query 的 SelectionSet，而 setLiftStatus 欄位是 closeLift mutation 的選擇組。</p>
+<p>選擇組可嵌套在另一個選擇組裡。jazzCatStatus query 有三個嵌套的選擇組。第一個 SelectionSet 含有 Lift 欄位。在它裡面有個 SelectionSet 含有 name、night、elevationGain 與 trailAccess 欄位。在 trailAccess 欄位內有另一個 SelectionSet，含有每個雪道的 name 與 difficulty 欄位。</p>
+<p>GraphQL 可遍歷這個 AST 並且用 GraphQL 語言與目前的 schema 來驗證它的細節。如果查詢語言的語法是正確的，且 schema 含有我們請求的欄位與型態，該操作就會執行。如果情況不是如此，就會回傳特定的錯誤。</p>
+<p>AST 是 GraphQL 很重要的成分。每一項操作都會被解析成 AST，以便對它進行驗證並最終執行它。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/08/16/GraphQL-Query-Language-2/" data-id="ckcpzj963001680vzzb3obgc2" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/08/21/GraphQL-Schema-Design-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          GraphQL Schema 設計 (1)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/06/GraphQL-Query-Language-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GraphQL 查詢語言 (1)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

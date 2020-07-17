@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>建立 GraphQL API (9) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Cache 伺服端快取在高負載的應用程式中，快取經常扮演著關鍵性的角色，而且幾乎在網路上四處可見。從網頁、圖片與樣式表等靜態資源，以及資料庫查詢結果這類純粹的資料，都經常會涉及到快取的使用。 快取模式在伺服器端，可以緩解硬體 I/O 問題，在客戶端則可緩解網路 I/O 問題。我們在 Node.js 教育訓練中學到的伺服器端的快取機制，就可以拿來應用。 首先我們來看看會產生效能問題的地方，我們看下面">
+<meta property="og:type" content="article">
+<meta property="og:title" content="建立 GraphQL API (9)">
+<meta property="og:url" content="https://1184yang.github.io/2019/12/17/GraphQL-API-9/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="Cache 伺服端快取在高負載的應用程式中，快取經常扮演著關鍵性的角色，而且幾乎在網路上四處可見。從網頁、圖片與樣式表等靜態資源，以及資料庫查詢結果這類純粹的資料，都經常會涉及到快取的使用。 快取模式在伺服器端，可以緩解硬體 I/O 問題，在客戶端則可緩解網路 I/O 問題。我們在 Node.js 教育訓練中學到的伺服器端的快取機制，就可以拿來應用。 首先我們來看看會產生效能問題的地方，我們看下面">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.048Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="建立 GraphQL API (9)">
+<meta name="twitter:description" content="Cache 伺服端快取在高負載的應用程式中，快取經常扮演著關鍵性的角色，而且幾乎在網路上四處可見。從網頁、圖片與樣式表等靜態資源，以及資料庫查詢結果這類純粹的資料，都經常會涉及到快取的使用。 快取模式在伺服器端，可以緩解硬體 I/O 問題，在客戶端則可緩解網路 I/O 問題。我們在 Node.js 教育訓練中學到的伺服器端的快取機制，就可以拿來應用。 首先我們來看看會產生效能問題的地方，我們看下面">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-API-9" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/17/GraphQL-API-9/" class="article-date">
+  <time datetime="2019-12-17T01:14:16.000Z" itemprop="datePublished">2019-12-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      建立 GraphQL API (9)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Cache-伺服端快取"><a href="#Cache-伺服端快取" class="headerlink" title="Cache 伺服端快取"></a>Cache 伺服端快取</h3><p>在高負載的應用程式中，快取經常扮演著關鍵性的角色，而且幾乎在網路上四處可見。從網頁、圖片與樣式表等靜態資源，以及資料庫查詢結果這類純粹的資料，都經常會涉及到快取的使用。</p>
+<p>快取模式在伺服器端，可以緩解硬體 I/O 問題，在客戶端則可緩解網路 I/O 問題。我們在 <a href="/useful/nodejs.pdf" target="_blank">Node.js 教育訓練</a>中學到的伺服器端的快取機制，就可以拿來應用。</p>
+<p>首先我們來看看會產生效能問題的地方，我們看下面這個 GraphQL query:</p>
+<figure class="highlight"><figcaption><span>GraphQL query listEmployees</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">query listEmployees &#123;</span><br><span class="line">  totalEmployees</span><br><span class="line">  allEmployees &#123;</span><br><span class="line">    empno</span><br><span class="line">    ename</span><br><span class="line">    hiredate</span><br><span class="line">    income</span><br><span class="line">    department &#123;</span><br><span class="line">      dname</span><br><span class="line">      loc</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在這個 GraphQL query listEmployees 中的 allEmployees 你會發覺問題應會出現在 department 的邊(edge)連結上，看一下他的解析函式，我們在第 7 行它從資料庫實際返回資料的地方加入一個 console.log 來偵測它的行為:</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/employee.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">Employee: &#123;</span><br><span class="line">  department: <span class="function">(<span class="params">parent, args, &#123; orademo &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> orademo.department</span><br><span class="line">      .findByDeptno(parent.deptno)</span><br><span class="line">      .then(<span class="function"><span class="params">result</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(result.rows[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">return</span> result.rows[<span class="number">0</span>]</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;,</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+
+<p>現在重新從客戶端的 GraphQL Playground 執行 listEmployees query，你可以從伺服器端的終端螢幕上看到:</p>
+<figure class="highlight javascript"><figcaption><span>GraphQL Server console.log</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">10</span>, <span class="attr">dname</span>: <span class="string">'會計部'</span>, <span class="attr">loc</span>: <span class="string">'紐約'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">30</span>, <span class="attr">dname</span>: <span class="string">'SALES'</span>, <span class="attr">loc</span>: <span class="string">'CHICAGO'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">10</span>, <span class="attr">dname</span>: <span class="string">'會計部'</span>, <span class="attr">loc</span>: <span class="string">'紐約'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">20</span>, <span class="attr">dname</span>: <span class="string">'RESEARCH'</span>, <span class="attr">loc</span>: <span class="string">'DALLAS'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">20</span>, <span class="attr">dname</span>: <span class="string">'RESEARCH'</span>, <span class="attr">loc</span>: <span class="string">'DALLAS'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">20</span>, <span class="attr">dname</span>: <span class="string">'RESEARCH'</span>, <span class="attr">loc</span>: <span class="string">'DALLAS'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">30</span>, <span class="attr">dname</span>: <span class="string">'SALES'</span>, <span class="attr">loc</span>: <span class="string">'CHICAGO'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">20</span>, <span class="attr">dname</span>: <span class="string">'RESEARCH'</span>, <span class="attr">loc</span>: <span class="string">'DALLAS'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">30</span>, <span class="attr">dname</span>: <span class="string">'SALES'</span>, <span class="attr">loc</span>: <span class="string">'CHICAGO'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">40</span>, <span class="attr">dname</span>: <span class="string">'OPERATIONS'</span>, <span class="attr">loc</span>: <span class="string">'BOSTON'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">30</span>, <span class="attr">dname</span>: <span class="string">'SALES'</span>, <span class="attr">loc</span>: <span class="string">'CHICAGO'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">20</span>, <span class="attr">dname</span>: <span class="string">'RESEARCH'</span>, <span class="attr">loc</span>: <span class="string">'DALLAS'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">10</span>, <span class="attr">dname</span>: <span class="string">'會計部'</span>, <span class="attr">loc</span>: <span class="string">'紐約'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">30</span>, <span class="attr">dname</span>: <span class="string">'SALES'</span>, <span class="attr">loc</span>: <span class="string">'CHICAGO'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">70</span>, <span class="attr">dname</span>: <span class="string">'資訊部'</span>, <span class="attr">loc</span>: <span class="string">'永康 B4'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">70</span>, <span class="attr">dname</span>: <span class="string">'資訊部'</span>, <span class="attr">loc</span>: <span class="string">'永康 B4'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">40</span>, <span class="attr">dname</span>: <span class="string">'OPERATIONS'</span>, <span class="attr">loc</span>: <span class="string">'BOSTON'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">70</span>, <span class="attr">dname</span>: <span class="string">'資訊部'</span>, <span class="attr">loc</span>: <span class="string">'永康 B4'</span> &#125;</span><br><span class="line">&#123; <span class="attr">deptno</span>: <span class="number">10</span>, <span class="attr">dname</span>: <span class="string">'會計部'</span>, <span class="attr">loc</span>: <span class="string">'紐約'</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡有 19 筆員工，因此對資料庫送出了 19 次的要求，資料庫執行了 19 次的查詢，但我們其實只有 5 個部門，所以有 14 次的資料庫讀取操作是重複的，如果你有幾萬個員工，那會怎麼樣? 這是利用快取模式最好的地方，讓我們將快取機制加進來。</p>
+<p>首先將 <a href="/useful/nodejs.pdf" target="_blank">Node.js 教育訓練文件</a>拿出來複習一下，這裡會用到文件第 98 頁的 Promise 快取模式。為了保留原始的程式碼，我們產生一個新的 resolvers/employee-cache.js 程式檔，把快取機制加進來。</p>
+<p>在非同步控制流程模式裡，承諾(Promise)能夠大幅簡化非同步程式碼，不過在處理批次及快取處理時，它也能夠提供不錯的助益。若回想一下，承諾有兩項特性能夠讓我們加以應用</p>
+<blockquote>
+<ul>
+<li>多個 then( ) 監聽器可附加至相同的承諾。</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>then( ) 監聽器保證只會被呼叫一次，並且即便是在承諾已解析(resolved)後才附加，也依然可以運作。不僅如此，then() 也保證一定以非同步的方式被呼叫。</li>
+</ul>
+</blockquote>
+<p>前述的第一項特性便是在批次處理請求時所需要的，而第二項特性即表示承諾已經是已解析值的快取，也就能夠自然以一致的非同步方式，回傳快取值。基於以上設想，這就表示以承諾來實現批次及快取處理，是相當簡單明瞭的。</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/employee-cache.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> cache = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    totalEmployees: <span class="function">(<span class="params">parent, args, &#123; orademo &#125;</span>) =&gt;</span></span><br><span class="line">      orademo.employee.findAll().then(<span class="function"><span class="params">result</span> =&gt;</span> result.rows.length),</span><br><span class="line">    allEmployees: <span class="function">(<span class="params">parent, args, &#123; orademo &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> orademo.employee.findAll()</span><br><span class="line">        .then(<span class="function"><span class="params">result</span> =&gt;</span> result.rows );</span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;, </span><br><span class="line">  Employee: &#123;</span><br><span class="line">    department: <span class="function">(<span class="params">parent, args, &#123; orademo &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (cache[parent.deptno]) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">`cache hit =&gt; <span class="subst">$&#123;parent.deptno&#125;</span>:<span class="subst">$&#123;parent.empno&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">return</span> cache[parent.deptno];</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      cache[parent.deptno] = orademo.department</span><br><span class="line">        .findByDeptno(parent.deptno)</span><br><span class="line">        .then(<span class="function"><span class="params">result</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="built_in">console</span>.log(<span class="string">`<span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(result.rows[<span class="number">0</span>])&#125;</span> =&gt; <span class="subst">$&#123;parent.deptno&#125;</span>:<span class="subst">$&#123;parent.empno&#125;</span>`</span>);</span><br><span class="line">          setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="keyword">delete</span> cache[parent.deptno] &#125;, <span class="number">30</span> * <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">          <span class="keyword">return</span> result.rows[<span class="number">0</span>]</span><br><span class="line">        &#125;).catch (<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">delete</span> cache[parent.deptno];</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> cache[parent.deptno];</span><br><span class="line">    &#125;,</span><br><span class="line">    income: <span class="function">(<span class="params">parent</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> sal = !<span class="built_in">isNaN</span>(<span class="built_in">parseFloat</span>(parent.sal)) ? <span class="built_in">parseFloat</span>(parent.sal) : <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">let</span> comm = !<span class="built_in">isNaN</span>(<span class="built_in">parseFloat</span>(parent.comm)) ? <span class="built_in">parseFloat</span>(parent.comm) : <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">return</span> sal + comm;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>在這個例子中我們將使用記憶體存儲快取，第一行我們使用一個物件 cache 當成快取。</p>
+</li>
+<li><p>我們在第 13 行 department 解析函式中我們加入了快取模式。第 19 行我們對相同部門的資料庫查詢(使用 Promise)存入快取中，這在第 14 行中檢查這個相同部門的 Promise 快取是否已存在，如果存在，則可直接使用這個相同的 Promise，不用再對資料庫提出相同的要求。</p>
+</li>
+<li><p>第 23 行加入了一個到期時間機制，30 秒後會自動刪除快取。</p>
+</li>
+</ul>
+<p>在這裡，當承諾解析時，設定快取清除時間為 30 秒，並回傳資料庫返回的結果 ，將這個結果傳遞給附加在承諾上的其它 then( ) 監聽器。</p>
+<p>然後要修改 resolvers/index.js 改用 employee-cache.js 解析函式。</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">const</span> employeeResolvers = <span class="built_in">require</span>(<span class="string">'./employee-cache'</span>);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>重新啟動 GraphQL 伺服器後，重新執行 query listEmployees，伺服器端的終端螢幕將可以看到快取機制的運作。</p>
+<figure class="highlight"><figcaption><span>query allEmployees GraphQL server console</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cache hit =&gt; 10:7782</span><br><span class="line">cache hit =&gt; 20:7788</span><br><span class="line">cache hit =&gt; 20:7902</span><br><span class="line">cache hit =&gt; 20:7369</span><br><span class="line">cache hit =&gt; 30:7499</span><br><span class="line">cache hit =&gt; 30:7654</span><br><span class="line">cache hit =&gt; 30:7844</span><br><span class="line">cache hit =&gt; 20:7876</span><br><span class="line">cache hit =&gt; 30:7900</span><br><span class="line">cache hit =&gt; 10:7934</span><br><span class="line">cache hit =&gt; 70:7607</span><br><span class="line">cache hit =&gt; 70:7609</span><br><span class="line">cache hit =&gt; 40:9011</span><br><span class="line">cache hit =&gt; 10:8907</span><br><span class="line">&#123; deptno: 10, dname: '會計部', loc: '紐約' &#125;</span><br><span class="line">&#123; deptno: 30, dname: 'SALES', loc: 'CHICAGO' &#125;</span><br><span class="line">&#123; deptno: 20, dname: 'RESEARCH', loc: 'DALLAS' &#125;</span><br><span class="line">&#123; deptno: 40, dname: 'OPERATIONS', loc: 'BOSTON' &#125;</span><br><span class="line">&#123; deptno: 70, dname: '資訊部', loc: '永康 B4' &#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡我們只對資料庫讀取了 5 次，其他則來自快取。</p>
+<p>這種快取方便又優雅，但是它是使用記憶體來儲存快取，與 GraphQL 伺服器共用約 1.5G 的記憶體，如果你的快取非常大，就不適合了。要想辦法將快取移出伺服器，最佳的選擇就是 <a href="https://redis.io/" target="_blank" rel="noopener">Redis</a>。</p>
+<h4 id="使用-Redis-實作快取模式"><a href="#使用-Redis-實作快取模式" class="headerlink" title="使用 Redis 實作快取模式"></a>使用 Redis 實作快取模式</h4><p>使用 Redis 實作快取可以解決記憶體的問題，也可以跨不同的 GraphQL 伺服器共享快取機制。最好在專案開始就要考慮效能的問題，將快取模式加進來。當然最好的選擇就是 Redis。</p>
+<p>我們要新增一個解析函式檔來實作 Redis Cache 模式，resolvers/employee-redis.js。但在這之前我們要先做一個 Redis 操作的抽象層。</p>
+<p>首先要安裝 node_redis 套件，這是一個 Redis 客戶端套件:</p>
+<figure class="highlight shell"><figcaption><span>redis install</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install redis --save</span><br></pre></td></tr></table></figure>
+
+<p>在 models 子目錄下新建程式檔 models/redisCache.js:</p>
+<figure class="highlight javascript"><figcaption><span>models/redisCache.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> redis = <span class="built_in">require</span>(<span class="string">"redis"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> client = redis.createClient(&#123;</span><br><span class="line">  host: <span class="string">"10.11.25.137"</span>,</span><br><span class="line">  port: <span class="number">6379</span>,</span><br><span class="line">  password: <span class="string">"iscat"</span>,</span><br><span class="line">  db: <span class="number">0</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> cachePrefix = <span class="string">"graphql:orademo:cache:"</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">RedisCache</span>(<span class="params">cacheName, expire = <span class="number">30</span></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>._cache = cachePrefix + cacheName + <span class="string">':'</span>;</span><br><span class="line">  <span class="keyword">this</span>._expire = expire;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">RedisCache.prototype.set = <span class="function"><span class="keyword">function</span>(<span class="params">item, value</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    client.set(_this._cache + item, value, <span class="string">"EX"</span>, _this._expire, (err, result ) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (err) <span class="keyword">return</span> reject(err);</span><br><span class="line">       </span><br><span class="line">      <span class="keyword">return</span> resolve(result);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">RedisCache.prototype.get = <span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    client.get(_this._cache + item, (err, result) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (err) <span class="keyword">return</span> reject(err);</span><br><span class="line">  </span><br><span class="line">      <span class="keyword">return</span> resolve(result);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">RedisCache.prototype.quit = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  client.quit();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = RedisCache;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>第 10 行將會是 Redis key 的一部分，稍後我們會看實際存儲到 Redis 時 key 樣子。在 Redis 生態圈習慣上使用冒號 ( : ) 來分隔名稱的不同部分，以此來構建命名空間 (namespace)。</p>
+</li>
+<li><p>第 12 行 RedisCache 是一個建構式，expire 引數可以訂到期时间，預設值是 30 秒。30 秒一到 Redis 將自動清除資料。</p>
+</li>
+<li><p>第 17 行 set 方法會將資料存入 Redis。如果原來的鍵(key)已存在，則會將舊資料(value)蓋掉。存入時可同時設定到期時間。</p>
+</li>
+<li><p>第 28 行 get 方法可以從 Redis 依鍵(key)取出資料，如果資料不存在(鍵不存在)會返回 null 值。</p>
+</li>
+</ul>
+<p>接著我們將這個抽象層應用在 resolvers/employee-redis.js 中。</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/employee-redis.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> RedisCache = <span class="built_in">require</span>(<span class="string">"../models/redisCache"</span>);</span><br><span class="line"><span class="keyword">const</span> cache = <span class="keyword">new</span> RedisCache(<span class="string">'department'</span>, <span class="number">30</span>);</span><br><span class="line"><span class="keyword">const</span> queues = &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    totalEmployees: <span class="function">(<span class="params">parent, args, &#123; orademo &#125;</span>) =&gt;</span></span><br><span class="line">      orademo.employee.findAll().then(<span class="function"><span class="params">result</span> =&gt;</span> result.rows.length),</span><br><span class="line">    allEmployees: <span class="function">(<span class="params">parent, args, &#123; orademo &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> orademo.employee.findAll()</span><br><span class="line">        .then(<span class="function"><span class="params">result</span> =&gt;</span> result.rows );</span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;, </span><br><span class="line">  Employee: &#123;</span><br><span class="line">    department: <span class="keyword">async</span> (&#123; deptno, empno &#125;, args, &#123; orademo &#125;) =&gt; &#123;</span><br><span class="line">      <span class="keyword">let</span> value = <span class="keyword">await</span> cache.get(deptno);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (value) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">`cache hit:  <span class="subst">$&#123;value&#125;</span> =&gt; <span class="subst">$&#123;deptno&#125;</span>:<span class="subst">$&#123;empno&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">JSON</span>.parse(value);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (queues[deptno]) &#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">`Batching operation: <span class="subst">$&#123;deptno&#125;</span>:<span class="subst">$&#123;empno&#125;</span>:queues:<span class="subst">$&#123;<span class="built_in">Object</span>.keys(queues).length&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">return</span> queues[deptno];</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      queues[deptno] = orademo.department</span><br><span class="line">        .findByDeptno(deptno)</span><br><span class="line">        .then(<span class="function"><span class="params">result</span> =&gt;</span> &#123;</span><br><span class="line">          cache.set(deptno, <span class="built_in">JSON</span>.stringify(result.rows[<span class="number">0</span>]))</span><br><span class="line">            .then(<span class="function">(<span class="params">ack</span>) =&gt;</span> &#123;</span><br><span class="line">              <span class="built_in">console</span>.log(<span class="string">`<span class="subst">$&#123;ack&#125;</span>: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(result.rows[<span class="number">0</span>])&#125;</span>`</span>);</span><br><span class="line">              process.nextTick(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">                <span class="keyword">delete</span> queues[deptno];</span><br><span class="line">              &#125;);</span><br><span class="line">            &#125;);</span><br><span class="line">          <span class="keyword">return</span> result.rows[<span class="number">0</span>];</span><br><span class="line">        &#125;).catch (<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">delete</span> queues[deptno];</span><br><span class="line">        &#125;);</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">return</span> queues[deptno];</span><br><span class="line">    &#125;,</span><br><span class="line">    income: <span class="function">(<span class="params">parent</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> sal = !<span class="built_in">isNaN</span>(<span class="built_in">parseFloat</span>(parent.sal)) ? <span class="built_in">parseFloat</span>(parent.sal) : <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">let</span> comm = !<span class="built_in">isNaN</span>(<span class="built_in">parseFloat</span>(parent.comm)) ? <span class="built_in">parseFloat</span>(parent.comm) : <span class="number">0</span>;</span><br><span class="line">      <span class="keyword">return</span> sal + comm;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>第 2 行使用 RedisCache 建構式建立一個 department 快取，這是個 Redis cache。</p>
+</li>
+<li><p>第 3 行我們要搭配記憶體快取一起使用。這會在記憶體中存儲一些 Promise 的快取。<br>在非同步控制流程模式裡，對資料庫發出的請求，併不會等待資料的回覆，所以當 GraphQL 伺服器對資料庫發出所有的請求時，有可能資料庫都尚未回覆，Redis 中也不會有快取的資料，所以如果不將已經請求過的相同請求(相同部門的請求)存入記憶體快取，就會造成資料庫的重複請求，所以這裡要搭配前面例子記憶體的 Promise 快取，攔截對資料庫的重複請求。一旦資料從資料庫返回並存入 Redis 快取，就會將記憶體中的 Promise 快取消除，之後的請求就會從 Redis 快取取得資料。使用變數 queues 當成記憶體快取。</p>
+</li>
+<li><p>第 16 行第一優先從 Redis 快取取得資料，如果快取不存在 Redis 會返回 null 值。</p>
+</li>
+<li><p>第 23 行則是攔截已經送出但尚未回覆的相同資料庫請求，如果存在則直接返回 queues 記憶體快取中相同的 Promise。</p>
+</li>
+<li><p>第 28 行則是實際對資料庫發出請求的地方，31 行在實際資料返回後將資料存入 Redis 快取中，接著在 35 行刪除記憶體中的 Promise 快取。</p>
+</li>
+</ul>
+<p>現在修改 resolvers/index.js :</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">const</span> employeeResolvers = <span class="built_in">require</span>(<span class="string">'./employee-redis'</span>);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>從新啟動 GraphQL 伺服器後，重新送出先前的 GraphQL listEmployees query:</p>
+<figure class="highlight"><figcaption><span>GraphQL query listEmployees</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">query listEmployees &#123;</span><br><span class="line">  totalEmployees</span><br><span class="line">  allEmployees &#123;</span><br><span class="line">    empno</span><br><span class="line">    ename</span><br><span class="line">    hiredate</span><br><span class="line">    income</span><br><span class="line">    department &#123;</span><br><span class="line">      dname</span><br><span class="line">      loc</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在可從 GraphQL 伺服器終端螢幕上看到:</p>
+<figure class="highlight javascript"><figcaption><span>GraphQL Server console</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Batching operation: <span class="number">10</span>:<span class="number">7782</span>:queues:<span class="number">2</span></span><br><span class="line">Batching operation: <span class="number">20</span>:<span class="number">7788</span>:queues:<span class="number">3</span></span><br><span class="line">Batching operation: <span class="number">20</span>:<span class="number">7902</span>:queues:<span class="number">3</span></span><br><span class="line">Batching operation: <span class="number">20</span>:<span class="number">7369</span>:queues:<span class="number">3</span></span><br><span class="line">Batching operation: <span class="number">30</span>:<span class="number">7499</span>:queues:<span class="number">3</span></span><br><span class="line">Batching operation: <span class="number">30</span>:<span class="number">7654</span>:queues:<span class="number">4</span></span><br><span class="line">Batching operation: <span class="number">30</span>:<span class="number">7844</span>:queues:<span class="number">4</span></span><br><span class="line">Batching operation: <span class="number">20</span>:<span class="number">7876</span>:queues:<span class="number">4</span></span><br><span class="line">Batching operation: <span class="number">30</span>:<span class="number">7900</span>:queues:<span class="number">4</span></span><br><span class="line">Batching operation: <span class="number">10</span>:<span class="number">7934</span>:queues:<span class="number">4</span></span><br><span class="line">Batching operation: <span class="number">70</span>:<span class="number">7607</span>:queues:<span class="number">5</span></span><br><span class="line">Batching operation: <span class="number">70</span>:<span class="number">7609</span>:queues:<span class="number">5</span></span><br><span class="line">Batching operation: <span class="number">40</span>:<span class="number">9011</span>:queues:<span class="number">5</span></span><br><span class="line">Batching operation: <span class="number">10</span>:<span class="number">8907</span>:queues:<span class="number">5</span></span><br><span class="line">OK: &#123;<span class="string">"deptno"</span>:<span class="number">10</span>,<span class="string">"dname"</span>:<span class="string">"會計部"</span>,<span class="string">"loc"</span>:<span class="string">"紐約"</span>&#125;</span><br><span class="line">OK: &#123;<span class="string">"deptno"</span>:<span class="number">30</span>,<span class="string">"dname"</span>:<span class="string">"SALES"</span>,<span class="string">"loc"</span>:<span class="string">"CHICAGO"</span>&#125;</span><br><span class="line">OK: &#123;<span class="string">"deptno"</span>:<span class="number">40</span>,<span class="string">"dname"</span>:<span class="string">"OPERATIONS"</span>,<span class="string">"loc"</span>:<span class="string">"BOSTON"</span>&#125;</span><br><span class="line">OK: &#123;<span class="string">"deptno"</span>:<span class="number">20</span>,<span class="string">"dname"</span>:<span class="string">"RESEARCH"</span>,<span class="string">"loc"</span>:<span class="string">"DALLAS"</span>&#125;</span><br><span class="line">OK: &#123;<span class="string">"deptno"</span>:<span class="number">70</span>,<span class="string">"dname"</span>:<span class="string">"資訊部"</span>,<span class="string">"loc"</span>:<span class="string">"永康 B4"</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因為我們只有 5 個不同的部門，所以只有最後 5 個 OK 是實際從資料庫返回併寫入 Redis 快取時發出的訊息，前面 14 個 Batching operation 則是從記憶體快取中發出的，這裡都沒有用到 Redis 快取，因為資料還來不及寫入 Redis 快取，GraphQL 伺服器就都已經發出所有的請求了。</p>
+<p>但是你如果在 30 秒鐘內再從 GraphQL Playground 發出第二次 listEmployees query，則 GraphQL 伺服器的終端螢幕會是:</p>
+<figure class="highlight javascript"><figcaption><span>GraphQL Server console</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">10</span>,<span class="string">"dname"</span>:<span class="string">"會計部"</span>,<span class="string">"loc"</span>:<span class="string">"紐約"</span>&#125; =&gt; <span class="number">10</span>:<span class="number">7839</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">30</span>,<span class="string">"dname"</span>:<span class="string">"SALES"</span>,<span class="string">"loc"</span>:<span class="string">"CHICAGO"</span>&#125; =&gt; <span class="number">30</span>:<span class="number">7698</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">10</span>,<span class="string">"dname"</span>:<span class="string">"會計部"</span>,<span class="string">"loc"</span>:<span class="string">"紐約"</span>&#125; =&gt; <span class="number">10</span>:<span class="number">7782</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">20</span>,<span class="string">"dname"</span>:<span class="string">"RESEARCH"</span>,<span class="string">"loc"</span>:<span class="string">"DALLAS"</span>&#125; =&gt; <span class="number">20</span>:<span class="number">7566</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">20</span>,<span class="string">"dname"</span>:<span class="string">"RESEARCH"</span>,<span class="string">"loc"</span>:<span class="string">"DALLAS"</span>&#125; =&gt; <span class="number">20</span>:<span class="number">7788</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">20</span>,<span class="string">"dname"</span>:<span class="string">"RESEARCH"</span>,<span class="string">"loc"</span>:<span class="string">"DALLAS"</span>&#125; =&gt; <span class="number">20</span>:<span class="number">7902</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">20</span>,<span class="string">"dname"</span>:<span class="string">"RESEARCH"</span>,<span class="string">"loc"</span>:<span class="string">"DALLAS"</span>&#125; =&gt; <span class="number">20</span>:<span class="number">7369</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">30</span>,<span class="string">"dname"</span>:<span class="string">"SALES"</span>,<span class="string">"loc"</span>:<span class="string">"CHICAGO"</span>&#125; =&gt; <span class="number">30</span>:<span class="number">7499</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">40</span>,<span class="string">"dname"</span>:<span class="string">"OPERATIONS"</span>,<span class="string">"loc"</span>:<span class="string">"BOSTON"</span>&#125; =&gt; <span class="number">40</span>:<span class="number">7608</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">30</span>,<span class="string">"dname"</span>:<span class="string">"SALES"</span>,<span class="string">"loc"</span>:<span class="string">"CHICAGO"</span>&#125; =&gt; <span class="number">30</span>:<span class="number">7654</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">30</span>,<span class="string">"dname"</span>:<span class="string">"SALES"</span>,<span class="string">"loc"</span>:<span class="string">"CHICAGO"</span>&#125; =&gt; <span class="number">30</span>:<span class="number">7844</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">20</span>,<span class="string">"dname"</span>:<span class="string">"RESEARCH"</span>,<span class="string">"loc"</span>:<span class="string">"DALLAS"</span>&#125; =&gt; <span class="number">20</span>:<span class="number">7876</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">30</span>,<span class="string">"dname"</span>:<span class="string">"SALES"</span>,<span class="string">"loc"</span>:<span class="string">"CHICAGO"</span>&#125; =&gt; <span class="number">30</span>:<span class="number">7900</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">10</span>,<span class="string">"dname"</span>:<span class="string">"會計部"</span>,<span class="string">"loc"</span>:<span class="string">"紐約"</span>&#125; =&gt; <span class="number">10</span>:<span class="number">7934</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">70</span>,<span class="string">"dname"</span>:<span class="string">"資訊部"</span>,<span class="string">"loc"</span>:<span class="string">"永康 B4"</span>&#125; =&gt; <span class="number">70</span>:<span class="number">9006</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">70</span>,<span class="string">"dname"</span>:<span class="string">"資訊部"</span>,<span class="string">"loc"</span>:<span class="string">"永康 B4"</span>&#125; =&gt; <span class="number">70</span>:<span class="number">7607</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">70</span>,<span class="string">"dname"</span>:<span class="string">"資訊部"</span>,<span class="string">"loc"</span>:<span class="string">"永康 B4"</span>&#125; =&gt; <span class="number">70</span>:<span class="number">7609</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">40</span>,<span class="string">"dname"</span>:<span class="string">"OPERATIONS"</span>,<span class="string">"loc"</span>:<span class="string">"BOSTON"</span>&#125; =&gt; <span class="number">40</span>:<span class="number">9011</span></span><br><span class="line">cache hit:  &#123;<span class="string">"deptno"</span>:<span class="number">10</span>,<span class="string">"dname"</span>:<span class="string">"會計部"</span>,<span class="string">"loc"</span>:<span class="string">"紐約"</span>&#125; =&gt; <span class="number">10</span>:<span class="number">8907</span></span><br></pre></td></tr></table></figure>
+
+<p>這裡全部從 Redis 快取中取得了資料，完全沒有對 Oracle Database 發出請求。</p>
+<p>從 Redis 中可以查詢這些快取資料:</p>
+<figure class="highlight shell"><figcaption><span>Redis using redis-cli</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; scan 0 match graphql*</span><br><span class="line">1) "0"</span><br><span class="line">2) 1) "graphql:orademo:cache:department:40"</span><br><span class="line">   2) "graphql:orademo:cache:department:10"</span><br><span class="line">   3) "graphql:orademo:cache:department:70"</span><br><span class="line">   4) "graphql:orademo:cache:department:30"</span><br><span class="line">   5) "graphql:orademo:cache:department:20"</span><br><span class="line">127.0.0.1:6379&gt; get graphql:orademo:cache:department:20</span><br><span class="line">"&#123;\"deptno\":20,\"dname\":\"RESEARCH\",\"loc\":\"DALLAS\"&#125;"</span><br><span class="line">127.0.0.1:6379&gt; ttl graphql:orademo:cache:department:20</span><br><span class="line">(integer) 16</span><br><span class="line">127.0.0.1:6379&gt; exists graphql:orademo:cache:department:20</span><br><span class="line">(integer) 0</span><br></pre></td></tr></table></figure>
+
+<p>“graphql:orademo:cache:department:20” 就是我們設定的鍵(key)，第 8 行用鍵取出設定的值，這裡我們存入的是 JSON 字符串。第 10 行可以使用 ttl 在鍵過期前查看剩餘的時間，等待 16 秒後可以使用 exists 判斷鍵是否還存在，這時將會返回 0。</p>
+<p>在 Redis 生態圈習慣上使用冒號 ( : ) 來分隔名稱的不同部分，以此來構建命名空間 (namespace)。另外還有一些常見的分隔符，例如句號 ( . )、斜線 ( / )，有些人甚至還會使用管道符號 ( | )，無論使用哪個符號來做分隔符，都要保持分隔符號的一致性。</p>
+<p>存在 Redis 的快取可以在各不同的伺服器中分享，是伺服端快取模式的最佳選擇。</p>
+<p>過 30 秒後再度查詢，資料已不見了，Redis 會幫我們管理這個到期時間策略。</p>
+<figure class="highlight shell"><figcaption><span>Redis using redis-cli</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; scan 0 match graphql*</span><br><span class="line">1) "0"</span><br><span class="line">2) (empty list or set)</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Redis 是一個速度非常快的非關聯式資料庫 (no-relational database)，它可以存儲鍵 (key) 與 5 種不同類型的值 (value) 之間的映射 (mapping)， 可以將存儲在記憶體的鍵值對數據持久化 (persistence) 到硬碟，可以使用複製來擴展讀取的性能，還可以使用客戶端分片 (client-side sharding) 來擴展寫入的性能。這裡我們只用到一種型態的值 String，存儲的是 JSON 格式字串。</p>
+<p>Redis 的數據結構致力於幫助用戶解決問題，而不會像其他資料庫那樣，要求用戶扭曲問題來適應資料庫。Redis 是一個可以用來解決問題的工具，它既擁有其他資料庫不具備的數據結構，又擁有記憶體存儲 ( 這使的 Redis 速度非常快 )、遠程 ( 這使的 Redis 可以與多個客戶端和伺服器進行連接 )、持久化 ( 這使的 Redis 在重啟之後仍然保持重啟之前的數據 ) 和可擴展性 ( 透過主從複製和分片 ) 等多個特性，這使的我們可以以熟悉的方式為各種不同的問題構建解決方案。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/12/17/GraphQL-API-9/" data-id="ckcpzj95w000u80vzljdgvhev" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/04/17/Train0416-with-C/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          C# 教育訓練 using Visual Studio Code
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/09/GraphQL-API-8/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">建立 GraphQL API (8)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

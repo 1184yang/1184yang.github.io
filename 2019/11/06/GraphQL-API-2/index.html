@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>建立 GraphQL API (2) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="邊與連結GraphQL 的威力來自於邊 (edge)，也就是資料點之間的連結。當你建構 GraphQL 伺服器時，型態 (type) 通常對應模型 (model)。你可以想像這些型態就像資料被存放在資料庫的資料表 (table) 內，我們可以在那裡用連結 (connections) 來連結型態。接下來我們要來探討可以使用哪種連結來定義型態之間的相互關係。 一對多連結使用者必須能夠讀取貼過的照片。我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="建立 GraphQL API (2)">
+<meta property="og:url" content="https://1184yang.github.io/2019/11/06/GraphQL-API-2/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="邊與連結GraphQL 的威力來自於邊 (edge)，也就是資料點之間的連結。當你建構 GraphQL 伺服器時，型態 (type) 通常對應模型 (model)。你可以想像這些型態就像資料被存放在資料庫的資料表 (table) 內，我們可以在那裡用連結 (connections) 來連結型態。接下來我們要來探討可以使用哪種連結來定義型態之間的相互關係。 一對多連結使用者必須能夠讀取貼過的照片。我">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="建立 GraphQL API (2)">
+<meta name="twitter:description" content="邊與連結GraphQL 的威力來自於邊 (edge)，也就是資料點之間的連結。當你建構 GraphQL 伺服器時，型態 (type) 通常對應模型 (model)。你可以想像這些型態就像資料被存放在資料庫的資料表 (table) 內，我們可以在那裡用連結 (connections) 來連結型態。接下來我們要來探討可以使用哪種連結來定義型態之間的相互關係。 一對多連結使用者必須能夠讀取貼過的照片。我">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-API-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/06/GraphQL-API-2/" class="article-date">
+  <time datetime="2019-11-06T03:46:51.000Z" itemprop="datePublished">2019-11-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      建立 GraphQL API (2)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="邊與連結"><a href="#邊與連結" class="headerlink" title="邊與連結"></a>邊與連結</h3><p>GraphQL 的威力來自於邊 (edge)，也就是資料點之間的連結。當你建構 GraphQL 伺服器時，型態 (type) 通常對應模型 (model)。你可以想像這些型態就像資料被存放在資料庫的資料表 (table) 內，我們可以在那裡用連結 (connections) 來連結型態。接下來我們要來探討可以使用哪種連結來定義型態之間的相互關係。</p>
+<h4 id="一對多連結"><a href="#一對多連結" class="headerlink" title="一對多連結"></a>一對多連結</h4><p>使用者必須能夠讀取貼過的照片。我們要在一個名為 postedPhotos 的欄位讀取這種資料，它會被解析成使用者貼過的照片清單，而且這些照片會被過濾。</p>
+<p>因為一位 User 可貼出多張 Photos，我們將它稱為一對多關係。我們將 User 加入 typeDefs:</p>
+<figure class="highlight js"><figcaption><span>typeDefs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type User &#123;</span><br><span class="line">  appLogin: ID!</span><br><span class="line">  name: <span class="built_in">String</span></span><br><span class="line">  avatar: <span class="built_in">String</span></span><br><span class="line">  postedPhotos: [Photo!]!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此時，我們已經建立一個有向圖了。我們可以從 User 型態走到 Photo 型態。要產生無向圖，我們必須提供一條從 Photo 型態走回 User 型態的連結。我們在 Photo 型態加入 postedBy 欄位:</p>
+<figure class="highlight js"><figcaption><span>typeDefs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">type Photo &#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  url: <span class="built_in">String</span>!</span><br><span class="line">  name: <span class="built_in">String</span>!</span><br><span class="line">  description: <span class="built_in">String</span></span><br><span class="line">  category: PhotoCategory!</span><br><span class="line">  postedBy: User!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>藉由加入 postedBy 欄位，我們建立一條可返回貼出 Photo 的 User 的連結，建立一個無向圖。這是一對一連結，因為一張照片只能由一位 User 貼出。</p>
+<p>為了測試伺服器，我們需要一些樣本資料，往後我們會將資料移到資料庫。先移除 index.js 中設定的空陣列 photos 變數。在專案的根目錄下建立一個子目錄 models 來放我們的樣本資料 data.js:</p>
+<figure class="highlight js"><figcaption><span>models/data.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">exports.users = [</span><br><span class="line">  &#123; <span class="attr">appLogin</span>: <span class="string">"scott"</span>, <span class="attr">name</span>: <span class="string">"老虎 Scott"</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">appLogin</span>: <span class="string">"blake"</span>, <span class="attr">name</span>: <span class="string">"葛蘭特 Blake"</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">appLogin</span>: <span class="string">"james"</span>, <span class="attr">name</span>: <span class="string">"麥克 James"</span> &#125;</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line">exports.photos = [</span><br><span class="line">  &#123;</span><br><span class="line">    id: <span class="string">"1"</span>,</span><br><span class="line">    name: <span class="string">"Dropping the Heart Chute"</span>,</span><br><span class="line">    description: <span class="string">"是我最喜歡的 Chute"</span>,</span><br><span class="line">    category: <span class="string">"ACTION"</span>,</span><br><span class="line">    appUser: <span class="string">"blake"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    id: <span class="string">"2"</span>,</span><br><span class="line">    name: <span class="string">"Enjoying the sunshine"</span>,</span><br><span class="line">    category: <span class="string">"SELFIE"</span>,</span><br><span class="line">    appUser: <span class="string">"james"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    id: <span class="string">"3"</span>,</span><br><span class="line">    name: <span class="string">"Gunbarrel 25"</span>,</span><br><span class="line">    description: <span class="string">"25 laps on gunbarrel today"</span>,</span><br><span class="line">    category: <span class="string">"LANDSCAPE"</span>,</span><br><span class="line">    appUser: <span class="string">"james"</span></span><br><span class="line">  &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>然後將它加入 index.js 中:</p>
+<figure class="highlight js"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; users, photos &#125; = <span class="built_in">require</span>(<span class="string">'./models/data'</span>);</span><br></pre></td></tr></table></figure>
+
+<p>因為連結是用物件型態的欄位建立的，所以它們可以對應解析函式。在這些函式中，我們可以使用父物件的資料來協助找到有關的資料並回傳。</p>
+<p>我們將 postedPhotos 與 postedBy 解析函式加入服務:</p>
+<figure class="highlight js"><figcaption><span>resolvers</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  ...</span><br><span class="line">  Photo: &#123;</span><br><span class="line">    url: <span class="function"><span class="params">parent</span> =&gt;</span> <span class="string">`https://fakeimg.pl/120x160/?text=<span class="subst">$&#123;parent.id&#125;</span>`</span>,</span><br><span class="line">    postedBy: <span class="function"><span class="params">parent</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> users.find(<span class="function"><span class="params">u</span> =&gt;</span> u.appLogin === parent.appUser)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  User: &#123;</span><br><span class="line">    postedPhotos: <span class="function"><span class="params">parent</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> photos.filter(<span class="function"><span class="params">p</span> =&gt;</span> p.appUser === parent.appLogin)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我們必須在 Photo postedBy 欄位加入一個解析函式。我們可以自行決定如何在這個解析函式裡找到連結的資料。這裡我們使用陣列的 find( ) 方法取得 appLogin 符合每張照片的 appUser 值的使用者。</p>
+<p>我們在 User 解析函式裡面使用陣列的 filter( ) 方法來取得該位使用者貼過的照片。這個 filter( ) 方法會回傳一個照片陣列。</p>
+<p>接著我們試著傳送 allPhotos query:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">query photos &#123;</span><br><span class="line">  allPhotos &#123;</span><br><span class="line">    name</span><br><span class="line">    url</span><br><span class="line">    postedBy &#123;</span><br><span class="line">      name</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;data&quot;: &#123;</span><br><span class="line">    &quot;allPhotos&quot;: [</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;name&quot;: &quot;Dropping the Heart Chute&quot;,</span><br><span class="line">        &quot;url&quot;: &quot;https://fakeimg.pl/120x160/?text=1&quot;,</span><br><span class="line">        &quot;postedBy&quot;: &#123;</span><br><span class="line">          &quot;name&quot;: &quot;葛蘭特 Blake&quot;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;name&quot;: &quot;Enjoying the sunshine&quot;,</span><br><span class="line">        &quot;url&quot;: &quot;https://fakeimg.pl/120x160/?text=2&quot;,</span><br><span class="line">        &quot;postedBy&quot;: &#123;</span><br><span class="line">          &quot;name&quot;: &quot;麥克 James&quot;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;name&quot;: &quot;Gunbarrel 25&quot;,</span><br><span class="line">        &quot;url&quot;: &quot;https://fakeimg.pl/120x160/?text=3&quot;,</span><br><span class="line">        &quot;postedBy&quot;: &#123;</span><br><span class="line">          &quot;name&quot;: &quot;麥克 James&quot;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們要自行連接資料與解析函式，但是一旦我們能夠回傳那個連接的資料，用戶端就可以開始編寫功能強大的 query。你可以在 allPhotos query 的 postedBy 下載加入 postedPhotos 看看:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">query photos &#123;</span><br><span class="line">  allPhotos &#123;</span><br><span class="line">    name</span><br><span class="line">    url</span><br><span class="line">    postedBy &#123;</span><br><span class="line">      name</span><br><span class="line">      postedPhotos &#123;</span><br><span class="line">        name</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="多對多"><a href="#多對多" class="headerlink" title="多對多"></a>多對多</h4><p>接下來要在服務中加入 “在照片中標記使用者” 的功能。這意味著一位 User 可被標記 (tag) 在許多不同的照片中，而一張照片裡面可以標記許多不同的使用者。使用者與照片透過標記建立的關係稱為<strong>多對多</strong>，多位使用者對多張照片。</p>
+<p>為了建立多對多關係，我們在 Photo 加入 taggedUsers 欄位，在 User 加入 inPhotos 欄位。</p>
+<figure class="highlight js"><figcaption><span>typeDefa</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">type User &#123;</span><br><span class="line">  ...</span><br><span class="line">  inPhotos: [Photo!]!</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Photo &#123;</span><br><span class="line">  ...</span><br><span class="line">  taggedUsers: [User!]!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>taggedUsers 欄位會回傳一串使用者，而 inPhotos 欄位會回傳內含某位使用者的照片串列。</p>
+<p>為了實作這個多對多連結，我們要在樣本資料中加入一個標記 (tags) 陣列，這是一個定義多對多關係的資料，它提供了兩組資料之間的交集。在關連式資料庫中稱為 intersection table，它定義兩個多對多資料表之間的關係。</p>
+<figure class="highlight js"><figcaption><span>models/data.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">exports.tags = [</span><br><span class="line">  &#123; <span class="attr">photoID</span>: <span class="string">"1"</span>, <span class="attr">userID</span>: <span class="string">"blake"</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">photoID</span>: <span class="string">"2"</span>, <span class="attr">userID</span>: <span class="string">"james"</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">photoID</span>: <span class="string">"2"</span>, <span class="attr">userID</span>: <span class="string">"scott"</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">photoID</span>: <span class="string">"2"</span>, <span class="attr">userID</span>: <span class="string">"blake"</span> &#125;</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>然後 import 到 index.js 中:</p>
+<figure class="highlight js"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; users, photos, tags &#125; = <span class="built_in">require</span>(<span class="string">'./models/data'</span>);</span><br></pre></td></tr></table></figure>
+
+<p>當我們有張照片時，必須搜尋 tags 資料集來找出在照片中被標記的使用者。當我們有一位使用者時，就可以找到內含該使用者的照片串列。因為目前的資料放在 JavaScript 陣列裡面，所以我們在解析函式裡面使用陣列方法來尋找資料</p>
+<figure class="highlight js"><figcaption><span>resolvers</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Photo: &#123;</span><br><span class="line">  ...</span><br><span class="line">  taggedUsers: <span class="function"><span class="params">parent</span> =&gt;</span> tags</span><br><span class="line">    <span class="comment">// 回傳一個只含當前照片的 tag 陣列</span></span><br><span class="line">    .filter(<span class="function"><span class="params">tag</span> =&gt;</span> tag.photoID === parent.id)</span><br><span class="line">    <span class="comment">// 將 tag 陣列轉換成 userID 陣列，我們只需要 userID 屬性</span></span><br><span class="line">    .map(<span class="function"><span class="params">tag</span> =&gt;</span> tag.userID)</span><br><span class="line">    <span class="comment">// 將 userID 陣列轉換成使用者物件陣列</span></span><br><span class="line">    .map(<span class="function"><span class="params">userID</span> =&gt;</span> users.find(<span class="function"><span class="params">u</span> =&gt;</span> u.appLogin === userID))</span><br><span class="line">&#125;,</span><br><span class="line">User: &#123;</span><br><span class="line">  ...</span><br><span class="line">  inPhotos: <span class="function"><span class="params">parent</span> =&gt;</span> tags</span><br><span class="line">    <span class="comment">// 回傳一個只含有當前使用者的 tag 陣列</span></span><br><span class="line">    .filter(<span class="function"><span class="params">tag</span> =&gt;</span> tag.userID === parent.appLogin)</span><br><span class="line">    <span class="comment">// 將 tag 陣列轉換成 PhotoID 陣列，我們只需要 photoID 屬性</span></span><br><span class="line">    .map(<span class="function"><span class="params">tag</span> =&gt;</span> tag.photoID)</span><br><span class="line">    <span class="comment">// 將 photoID 陣列轉換成照片物件陣列</span></span><br><span class="line">    .map(<span class="function"><span class="params">photoID</span> =&gt;</span> photos.find(<span class="function"><span class="params">p</span> =&gt;</span> p.id === photoID))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>taggedUsers 欄位解析函式會濾除所有非當前照片的照片，並將過濾後的串列對應到實際的 User 物件組成的陣列。inPhotos 欄位解析函式會用使用者來過濾標記，並將使用者標記對應到實際的 Photo 物件組成的陣列。</p>
+<p>接著我們可以傳送一個 GraphQL query 來查看每一張照片中有哪些使用者被標記:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">query listPhotos &#123;</span><br><span class="line">  allPhotos &#123;</span><br><span class="line">    name</span><br><span class="line">    url</span><br><span class="line">    taggedUsers &#123;</span><br><span class="line">      name</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你應該會發現，我們有個 tags 的陣列，但沒有稱為 Tag 的 GraphQL 型態。GraphQL 並不要求資料模型完全匹配 schema 內的型態。用戶端可以藉由查詢 User 型態或 Photo 型態在每張照片找到被標記的使用者，以及有某位使用者被標記的照片。他們不需要查詢 Tag 型態，這只會讓事情更複雜。我們已經完成在解析函式中尋找被標記的使用者或照片的工作了，這可以讓用戶端更容易查詢這些資料。</p>
+<p style="text-align: right;">接續下一篇 <a href="/2019/11/06/GraplQL-API-3/" title="建立 GraphQL API (3)">建立 GraphQL API (3)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/11/06/GraphQL-API-2/" data-id="ckcpzj95m000e80vzh7gzpdsv" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/06/GraplQL-API-3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          建立 GraphQL API (3)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/11/06/GraphQL-API-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">建立 GraphQL API (1)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

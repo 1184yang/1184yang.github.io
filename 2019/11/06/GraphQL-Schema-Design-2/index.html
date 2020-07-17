@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GraphQL Schema 設計 (2) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="變動 Mutationmutation 必須在 schema 中定義。與 query 一樣，我們要在 schema 內，用 mutation 自訂的物件型態定義它。技術上，在 schema 中定義 mutation 與 query 的方式沒有任何差異。有差異的是它們的目的。你只需要在動作或事件會改變有關於 app 的狀態時建立 mutation。 mutation 代表 app 的動詞，它們只應該">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GraphQL Schema 設計 (2)">
+<meta property="og:url" content="https://1184yang.github.io/2019/11/06/GraphQL-Schema-Design-2/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="變動 Mutationmutation 必須在 schema 中定義。與 query 一樣，我們要在 schema 內，用 mutation 自訂的物件型態定義它。技術上，在 schema 中定義 mutation 與 query 的方式沒有任何差異。有差異的是它們的目的。你只需要在動作或事件會改變有關於 app 的狀態時建立 mutation。 mutation 代表 app 的動詞，它們只應該">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.058Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GraphQL Schema 設計 (2)">
+<meta name="twitter:description" content="變動 Mutationmutation 必須在 schema 中定義。與 query 一樣，我們要在 schema 內，用 mutation 自訂的物件型態定義它。技術上，在 schema 中定義 mutation 與 query 的方式沒有任何差異。有差異的是它們的目的。你只需要在動作或事件會改變有關於 app 的狀態時建立 mutation。 mutation 代表 app 的動詞，它們只應該">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-Schema-Design-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/06/GraphQL-Schema-Design-2/" class="article-date">
+  <time datetime="2019-11-05T23:15:46.000Z" itemprop="datePublished">2019-11-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GraphQL Schema 設計 (2)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="變動-Mutation"><a href="#變動-Mutation" class="headerlink" title="變動 Mutation"></a>變動 Mutation</h4><p>mutation 必須在 schema 中定義。與 query 一樣，我們要在 schema 內，用 mutation 自訂的物件型態定義它。技術上，在 schema 中定義 mutation 與 query 的方式沒有任何差異。有差異的是它們的目的。你只需要在動作或事件會改變有關於 app 的狀態時建立 mutation。</p>
+<p>mutation 代表 app 的<strong>動詞</strong>，它們只應該包含使用者可以用你的服務做的事情。當你設計 GraphQL 服務時，可列出使用者可以用你的 app 做的所有動作，它們可能都是你的 mutation。</p>
+<p>在 PhotoShape app 中，使用者可以登入、貼出照片與標記照片。這些動作都會改變一些 app 的狀態。當使用者登入後，用戶端的使用者就會改變。當使用者貼出照片時，系統會多出一張照片。有人標記照片時也會改變狀態，每當有照片被標記時，就會產生新的照片標記資料紀錄。</p>
+<p>我們可以將這些 mutation 加入 schema 內的根 mutation 型態，讓用戶端可以使用他們。我們從第一個 mutation postPhoto 開始寫起。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">type Mutation &#123;</span><br><span class="line">  postPhoto(</span><br><span class="line">    name: String!</span><br><span class="line">    description: String</span><br><span class="line">    category: PhotoCategory=PORTRAIT</span><br><span class="line">  ): Photo!</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">schema &#123;</span><br><span class="line">  query: Query</span><br><span class="line">  mutation: Mutation</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 Mutation 型態下面加入一個稱為 postPhoto 的欄位可讓使用者貼出照片。目前只是詮釋這個動作，還需要 GraphQL 服務的實作。</p>
+<p>當使用者貼出照片時，至少需要提供照片的 name，而 description 與 category 是可選的。如果使用者沒有提供 category 引數，貼出的照片將會使用預設值 PROTRAIT。例如，使用者可以傳送下列的 mutation 來貼出照片:</p>
+<figure class="highlight plain"><figcaption><span>client side</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mutation &#123;</span><br><span class="line">  postPhoto(name: &quot;Sending the Palisades&quot;) &#123;</span><br><span class="line">    id</span><br><span class="line">    url</span><br><span class="line">    created</span><br><span class="line">    postedBy &#123;</span><br><span class="line">      name</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用者可以在貼出照片後選擇關於剛才貼出的照片的資訊。這是很好的功能，因為有些新照片資料是在伺服器上產生的，例如新照片的 ID 是資料庫建立的，照片的 url 是自動生成的，我們也會幫照片加上它被 created 建立時的日期與時間時戳。照片被貼出之後，query 可以選擇以上所有新欄位。</p>
+<p>此外，選擇組也有關於貼出照片的使用者資訊。使用者必須登入才能貼出照片。如果目前沒有登入的使用者，這個 mutation 就要回傳錯誤。如果有使用者登入了，我們可以透過 postedBy 欄位來取得關於誰貼出照片的資料。</p>
+<h4 id="輸入型態-Input"><a href="#輸入型態-Input" class="headerlink" title="輸入型態 Input"></a>輸入型態 Input</h4><p>你或許已經發現，有一些 query 與 mutation 的引數愈來愈長了。有一種調整這些引數的好方法，使用<strong>輸入型態</strong>。輸入型態類似 GraphQL 物件型態，但他只供輸入引數使用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">input PostPhotoInput&#123;</span><br><span class="line">  name: String!</span><br><span class="line">  description: String!</span><br><span class="line">  category: PhotoCategory=POSTRAIT</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Mutation &#123;</span><br><span class="line">  postPhoto(input: PostPhotoInput!): Photo!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>PostPhotoInput 型態就像物件型態，但是只供輸入引數使用。這裡 name 與 description 是必須的，但 category 欄位仍然是選用的。現在當你傳送 postPhoto mutation 時，要將新照片的相關資料放在一個物件裡面:</p>
+<figure class="highlight plain"><figcaption><span>mutation</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mutation newPhoto($input: PostPhotoInput!) &#123;</span><br><span class="line">  postPhoto(input: $input) &#123;</span><br><span class="line">    id</span><br><span class="line">    url</span><br><span class="line">    created</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們建立這個 mutation 時，將 $input 查詢變數的型態設成 PostPhotoInput! 輸入型態。它不可為 null，因為我們至少要用 input.name 欄位來加入新照片。當我們傳送這個 mutation 時，必須用 input 欄位內的查詢變數(Query Variables)來提供新照片的資料:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"input"</span>: &#123;</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"Hanging at the Arc"</span>,</span><br><span class="line">    <span class="attr">"description"</span>: <span class="string">"Sunny on the deck of the Arc"</span>,</span><br><span class="line">    <span class="attr">"category"</span>: <span class="string">"LANDSCAPE"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們的輸入被一起放在一個 JSON 物件裡面，並且在 “input” 鍵底下以 query 變數與 mutation 一起送出。因為查詢變數被格式化為 JSON，category 必須是個符合 PhotoCategory 的其中一種分類的字串。</p>
+<p>輸入型態是建構與編寫簡明的 GraphQL schema 的關鍵元素。你可以將輸入型態當成任何欄位的引數，也可以在 app 中用它們來改善資料分頁與資料過濾。</p>
+<h4 id="回傳型態"><a href="#回傳型態" class="headerlink" title="回傳型態"></a>回傳型態</h4><p>現在 schema 的所有欄位都回傳主要的型態，User 與 Photo。但除了實際的承載資料 (payload data) 之外，有時我們也需要回傳關於 query 與 mutation 的詮釋資訊。例如，如果有使用者已經登入並且通過驗證了，除了 User 承載資料之外，我們也需要回傳權杖 (token)。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">type AuthPayload &#123;</span><br><span class="line">  user: User!</span><br><span class="line">  token: String!</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Mutation &#123;</span><br><span class="line">  ...</span><br><span class="line">  adAuth(code: String!): AuthPayload!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們藉由傳送有效的碼給 adAuth mutation 來驗證使用者，成功後，回傳一個自訂的物件型態，裡面有成功登入的使用者的資訊，可用來做進一步授權的權杖，以及包括 postPhoto mutation 的多個 mutation 時所需的使用者資訊。</p>
+<p>你可以在任何 “需要除了承載資料之外的資料” 的欄位使用自訂回傳型態。或許除了尋承載資料之外，我們也想要知道一個 query 需要多少時間來傳遞回應，或是在某個回應中可找到多少結果。你可以使用自訂的回傳型態來處理這類的事情。</p>
+<h4 id="訂閱-Subscription"><a href="#訂閱-Subscription" class="headerlink" title="訂閱 Subscription"></a>訂閱 Subscription</h4><p>Subscription 型態與 GraphQL schema 定義語言的任何其他物件型態沒有甚麼不同。我們要在自訂物件型態內將 subscription 定義成欄位。而當建立 GraphQL 服務時，要自行確保 subscription 實作了 PubSub 設計模式以及一種即時傳輸。</p>
+<p>例如，我們可以加入 subscription 來讓用戶端監聽 Photo 或 User 型態的建立:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">type Subscription &#123;</span><br><span class="line">  newPhoto: Photo!</span><br><span class="line">  newUser: User!</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">schema &#123;</span><br><span class="line">  query: Query</span><br><span class="line">  mutation: Mutation</span><br><span class="line">  subscription: Subscription</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們在這裡建立一個自訂的 Subscription 物件，它有兩個欄位: newPhoto 與 newUser。當使用者貼出新照片時，那張照片會被推送到訂閱 newPhoto subscription 的所有用戶端。有新的使用者被建立時，他們的資料會被推送到每一個監聽新使用者的用戶端。</p>
+<p>subscription 與 query 或 mutation 一樣可以使用引數。假如我們要在 newPhoto subscription 加入過濾器，讓它只監聽新的 ACTION 照片:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">type Subscription &#123;</span><br><span class="line">  newPhoto(category: PhotoCategory): Photo!</span><br><span class="line">  newUser: User!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在當使用者訂閱 newPhoto subscription 時，他們可以過濾被送到這個 subscription 的照片。例如，若要濾出新的 ACTION 照片，用戶端可傳送下列的操作給 GraphQL API:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">subscription &#123;</span><br><span class="line">  newPhoto(category: &quot;ACTION&quot;) &#123;</span><br><span class="line">    id</span><br><span class="line">    name</span><br><span class="line">    url</span><br><span class="line">    postedBy &#123;</span><br><span class="line">      name</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個訂閱只會回傳 ACTION 照片的資料。</p>
+<p>如果即時處理資料是很重要的功能，訂閱是很好的解決方案。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/11/06/GraphQL-Schema-Design-2/" data-id="ckcpzj967001e80vz10c5s409" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/06/GraphQL-API-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          建立 GraphQL API (1)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/10/29/Lost-Updates/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Lost Updates</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

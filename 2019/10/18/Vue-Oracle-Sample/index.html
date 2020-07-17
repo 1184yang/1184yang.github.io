@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Vue Oracle 框架範本 | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="這個框架範本，是建立在前一篇 Vue Fullstack 框架範本 的基礎上。 除了基本的認證外，實際加入了 Oracle 資料庫的資料運作。因此除了客戶端 Vue 的框架，也實作了伺服端與 Oracle 資料庫的 API， 實做了 Oracle 資料表的資料讀取、新增、更改與刪除，因此在此專案中需要安裝 Node.js 的 Oracle Database driver node_oracledb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue Oracle 框架範本">
+<meta property="og:url" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="這個框架範本，是建立在前一篇 Vue Fullstack 框架範本 的基礎上。 除了基本的認證外，實際加入了 Oracle 資料庫的資料運作。因此除了客戶端 Vue 的框架，也實作了伺服端與 Oracle 資料庫的 API， 實做了 Oracle 資料表的資料讀取、新增、更改與刪除，因此在此專案中需要安裝 Node.js 的 Oracle Database driver node_oracledb">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-2.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-3.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-4.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-5.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-6.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-7.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-8.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-9.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.087Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue Oracle 框架範本">
+<meta name="twitter:description" content="這個框架範本，是建立在前一篇 Vue Fullstack 框架範本 的基礎上。 除了基本的認證外，實際加入了 Oracle 資料庫的資料運作。因此除了客戶端 Vue 的框架，也實作了伺服端與 Oracle 資料庫的 API， 實做了 Oracle 資料表的資料讀取、新增、更改與刪除，因此在此專案中需要安裝 Node.js 的 Oracle Database driver node_oracledb">
+<meta name="twitter:image" content="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/ui-2.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Vue-Oracle-Sample" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/18/Vue-Oracle-Sample/" class="article-date">
+  <time datetime="2019-10-18T06:02:01.000Z" itemprop="datePublished">2019-10-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JavaScript/">JavaScript</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Vue Oracle 框架範本
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>這個框架範本，是建立在前一篇 <a href="http://10.11.25.137:6460/2019/10/05/Vue-Fullstack-Sample/" target="_blank" rel="noopener">Vue Fullstack 框架範本</a> 的基礎上。</p>
+<p>除了基本的認證外，實際加入了 Oracle 資料庫的資料運作。因此除了客戶端 Vue 的框架，也實作了伺服端與 Oracle 資料庫的 API， 實做了 Oracle 資料表的資料讀取、新增、更改與刪除，因此在此專案中需要安裝 Node.js 的 Oracle Database driver <a href="https://github.com/oracle/node-oracledb" target="_blank" rel="noopener">node_oracledb</a>。安裝這個 node_oracledb 你必須先在你的伺服器端安裝 Oracle Client。</p>
+<p>如果你使用的是 Microsoft Windows 64 bit，可將 VOL111:\DBA\Oracle Client\12.2\instantclient_12_2_basic 整個目錄複製到你的電腦上，並將路徑加入你的 PATH 環境變數上。 </p>
+<h3 id="原始碼"><a href="#原始碼" class="headerlink" title="原始碼"></a>原始碼</h3><ul>
+<li>如果你有安裝 git，可以用 git clone 取得程式碼，我的 Z: 虛擬硬碟是指向 VOL111。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git clone Z:\DBA\Git\Depot\vue-oracle-sample.git</span><br><span class="line"></span><br><span class="line">cd vue-oracle-sample</span><br><span class="line"></span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line">npm start</span><br></pre></td></tr></table></figure>
+
+<p>如果要用在正試環境時，記得將 package.json 的屬性 start 改為用 Node.js 啟動:</p>
+<figure class="highlight"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">"scripts": &#123;</span><br><span class="line">  "start": "node ./bin/www"</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>你可以使用 admin 管理員帳號管理使用者，記得更改 admin 的密碼。</p>
+<p>範例帳號，預設密碼都是 changeonlogin:</p>
+<ul>
+<li>admin</li>
+<li>user</li>
+<li>scott</li>
+<li>smith</li>
+<li>allen</li>
+</ul>
+<p>網址 <a href="http://localhost:3000/" target="_blank" rel="noopener">http://localhost:3000/</a></p>
+<p>Oracle Database 使用的則是 Lx26, Schema: demo/demo426</p>
+<p>Used TNSNAMES adapter:</p>
+<p>(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = lux02.pec.com.tw)(PORT = 1522)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = lx26.pec.com.tw)))</p>
+<h3 id="頁面簡介"><a href="#頁面簡介" class="headerlink" title="頁面簡介"></a>頁面簡介</h3><img src="/2019/10/18/Vue-Oracle-Sample/ui-2.png" title="Vue Client">
+
+<p>這個是 Oracle Table dept 的 UI 介面:</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-3.png" title="Vue Client">
+
+<p>這個是 Oracle Table emp 的 UI 介面:</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-4.png" title="Vue Client">
+
+
+<h4 id="Lost-Update-問題"><a href="#Lost-Update-問題" class="headerlink" title="Lost Update 問題"></a>Lost Update 問題</h4><p>Web Application 是一種 stateless 架構，我們這裡的範本仍有一個重要的問題需要解決，就是 <strong>Lost Update Problem</strong>。甚麼是 <strong>Lost Update</strong>，我們直接來看例子:</p>
+<p>使用者 A 與使用者 B 幾乎在同一時間從資料庫讀取同筆資料:</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-5.png" title="Vue Client">
+
+<p>然後各自修改了資料:</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-6.png" title="Vue Client">
+
+<p>然後使用者 A 與 B 相繼送出更新，資料庫的資料會如何?</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-7.png" title="Vue Client">
+
+<p>這種狀況在單人系統發生的機率很少，多人使用的系統，這是必須解決的問題，在 stateful 的架構中，關連性資料庫的 ACID 特性會防止這個狀況，你們可以嘗試了解一下 Oracle Forms 是如何解決的。</p>
+<p>至於 APEX 又是如何解決的?</p>
+<p>你如果是使用 APEX 的精靈產生的 Form</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-8.png" title="Vue Client">
+
+<p>當使用者 B 嘗試送出更新時，則會出現如下的錯誤訊息</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-9.png" title="Vue Client">
+
+<p>使用者 B 必須取消更新(Cancel)重新讀取資料，再重做更新。</p>
+<p>APEX 使用的是 checksum 技術，你則可以另行使用其它的版本控制技術。</p>
+<p>我們一直使用的是 Oracle 關連式資料庫，ACID 的特性幫我們解決了單塊架構的資料一至性問題，微服務背後的問題則相當的複雜，如果雲端與微服務是未來的策略，這些基礎的問題與架構必須加緊了解與規劃。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/" data-id="ckcpzj96q001w80vz4x8stqm4" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/10/29/Lost-Updates/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Lost Updates
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/10/05/Vue-Fullstack-Sample/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Vue Fullstack 框架範本</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

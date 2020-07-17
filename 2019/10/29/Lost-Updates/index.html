@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Lost Updates | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="在上一篇 Vue Oracle 框架 我們談到了 Lost Updates 問題，這裡我們進一步來詳細了解它及看看可以如何解決。 Lost Updates 是經典的關連式資料庫問題，關連式資料庫裡所必須包含的 ACID 特性，就是在解決這個問題。我們重覆上一篇所發生的情境來了解 Lost Updates 發生的時機。  使用者 A 與使用者 B 幾乎在同一時間從資料庫讀取同筆 (row) 資料。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Lost Updates">
+<meta property="og:url" content="https://1184yang.github.io/2019/10/29/Lost-Updates/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="在上一篇 Vue Oracle 框架 我們談到了 Lost Updates 問題，這裡我們進一步來詳細了解它及看看可以如何解決。 Lost Updates 是經典的關連式資料庫問題，關連式資料庫裡所必須包含的 ACID 特性，就是在解決這個問題。我們重覆上一篇所發生的情境來了解 Lost Updates 發生的時機。  使用者 A 與使用者 B 幾乎在同一時間從資料庫讀取同筆 (row) 資料。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-5.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-6.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-7.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-form-1.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-form-2.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-form-3.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-form-4.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-form-8.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-form-5.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-form-6.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-form-7.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-9.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.061Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Lost Updates">
+<meta name="twitter:description" content="在上一篇 Vue Oracle 框架 我們談到了 Lost Updates 問題，這裡我們進一步來詳細了解它及看看可以如何解決。 Lost Updates 是經典的關連式資料庫問題，關連式資料庫裡所必須包含的 ACID 特性，就是在解決這個問題。我們重覆上一篇所發生的情境來了解 Lost Updates 發生的時機。  使用者 A 與使用者 B 幾乎在同一時間從資料庫讀取同筆 (row) 資料。">
+<meta name="twitter:image" content="https://1184yang.github.io/2019/10/29/Lost-Updates/ui-5.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Lost-Updates" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/29/Lost-Updates/" class="article-date">
+  <time datetime="2019-10-29T05:37:45.000Z" itemprop="datePublished">2019-10-29</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JavaScript/">JavaScript</a>►<a class="article-category-link" href="/categories/Oracle/">Oracle</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Lost Updates
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在上一篇 <a href="http://10.11.25.137:6460/2019/10/18/Vue-Oracle-Sample/" target="_blank" rel="noopener">Vue Oracle 框架</a> 我們談到了 Lost Updates 問題，這裡我們進一步來詳細了解它及看看可以如何解決。</p>
+<p>Lost Updates 是經典的關連式資料庫問題，關連式資料庫裡所必須包含的 ACID 特性，就是在解決這個問題。我們重覆上一篇所發生的情境來了解 Lost Updates 發生的時機。</p>
+<ol>
+<li>使用者 A 與使用者 B 幾乎在同一時間從資料庫讀取同筆 (row) 資料。</li>
+</ol>
+<img src="/2019/10/29/Lost-Updates/ui-5.png" title="Vue Client">
+
+<ol start="2">
+<li>使用者 A 與使用者 B 各自修改該筆數據，並相繼提交更新資料庫。</li>
+</ol>
+<img src="/2019/10/29/Lost-Updates/ui-6.png" title="Vue Client">
+
+<ol start="3">
+<li>使用者 A 重新從資料庫讀取資料，卻發現他先前修改的資料不見了。</li>
+</ol>
+<img src="/2019/10/29/Lost-Updates/ui-7.png" title="Vue Client">
+
+<p>這被稱為 <strong>Lost Updates</strong>，因為使用者 A 所做的所有更改都將丟失。</p>
+<p>這原本是一個常見與簡單的使用者 UI 介面。 因此，我們編寫的應用程序沒有任何資料鎖定 (Lock)，只是簡單的 SELECT 和 UPDATE 命令。不幸的是，它卻很容易發生，也很常會被忽略。</p>
+<p>要注意的是，會發生這個問題，使用者 A 和使用者 B 甚至不需要在完全相同的時間點讀取資料。他們只要是在大約的時間點，便有可能就會發生，使用者越多則發生的機率越高。</p>
+<p>這是一個關連式資料庫的問題，也是應用程序開發工具的問題，GUI 開發人員如果不了解 Lost Updates 的情況下，被賦予編寫資料庫應用程序的任務，這種錯誤就會一次又一次的出現。 他們掌握了 SELECT、INSERT、UPDATE 和 DELETE 的使用知識，然後著手編寫應用程序；當開發的應用程序以上述方式運行時，錯誤看起來是如此隨機，又很零星，並且在受控環境中是完全不可複制的，這常導致開發人員認為這一定是使用者的錯誤，而發生爭執，最終則會失去使用者的信任。所以如果你要了解一個應用程序開發人員的水準，首先就可以測試它是不是有 Lost Updates 問題。</p>
+<p>許多工具，例如 Oracle Forms 通過確保某筆資料在你進行查詢和更改之前沒有被更改、並鎖定數據，背後保護您免受於這種錯誤；但是許多其他工具，例如自行編寫的 C#、Java 或 JavaScript 應用程序卻沒有這樣做，你必須自行防止，類似的這些細節有時是相當繁瑣的。</p>
+<p>而保護的方式也因所開發的應用程序類別而有不同，Oracle Forms 與 Oracle APEX 這兩種工具所開發的應用程序就有非常大的區別，也分別使用了不同的防止 Lost Updates 策略。</p>
+<p>Oracle Forms 是一種 stateful 開發工具，當使用者登入後，會一直與資料庫保持連線直到使用者登出，使用的是資料庫同一個 session，所以可以使用數據庫的 ACID 特性來防止 Lost Updates 的發生，這種機制就是我們熟悉的 <strong>Lock</strong>。</p>
+<p>Oracle APEX 則是一種 stateless 類型應用程序開發工具，它無法直接連線資料庫，通常是透過使用 HTTP 協定的 API 來與資料庫或其他資源互動，當它讀取資料與要提交更改回資料庫時，不會使用資料庫的同一個 session，所以我們無法事先 Lock 該筆資料，這與 Oracle Forms 不同，需要有不同的策略。</p>
+<p>從資料庫 Lock 的觀點來看，為防止 Lost Updates 問題，可選擇使用兩種不同的資料鎖定策略:</p>
+<ul>
+<li><strong>悲觀鎖定 (Pessimistic Locking)</strong></li>
+<li><strong>樂觀鎖定 (Optimistic Locking)</strong>。</li>
+</ul>
+<p>這在 Oracle Forms 則具有較大的優勢，兩種策略都可選擇；Oracle APEX 所開發的 Web Application 則只有一種選擇，即樂觀鎖定。以使用者角度來看，悲觀鎖定則會有比較好的 UX 體驗。</p>
+<h4 id="Pessimistic-Locking-悲觀鎖定"><a href="#Pessimistic-Locking-悲觀鎖定" class="headerlink" title="Pessimistic Locking 悲觀鎖定"></a>Pessimistic Locking 悲觀鎖定</h4><p>Oracle Forms 使用的策略是 Pessimistic Locking 悲觀鎖定，我們就從它的 UI 介面來了解甚麼是悲觀鎖定，以及它的優勢。雖然以後不會再使用 Oracle Forms 來開發應用程序，但它可以讓我們更深刻的了解 Lost Updates 問題。</p>
+<p>當使用 Oracle Forms 的 Query 查詢如以下畫面的資料:</p>
+<img src="/2019/10/29/Lost-Updates/ui-form-1.png" title="Oracle Forms">
+
+
+<p>它在背後其實執行了一段 SQL 指令:</p>
+<figure class="highlight sql"><figcaption><span>select</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> empno, ename, job, mgr, hiredate, sal, comm, deptno</span><br><span class="line">  <span class="keyword">FROM</span> emp</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>這是一段很普通的 SELECT 讀取，資料庫不會發出任何的資料鎖定，因此其它使用者也可以登入並開啟另外一個 Form 畫面讀取相同的資料與畫面。</p>
+<p>回到第一個使用者 A 登入的 Form，當使用者 A 選擇特定的資料行(row)，將遊標移到一個欄位，並輸入任何的值，例如將 empno 7788 的薪水欄位更改為 45300 (或隨便按一個空白鍵)。</p>
+<img src="/2019/10/29/Lost-Updates/ui-form-2.png" title="Oracle Forms">
+
+<p>Oracle Forms 馬上會在該時間點(鍵入第一個字符)發出以下的 SQL 指令:</p>
+<figure class="highlight sql"><figcaption><span>select for update nowait </span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> empno, ename, job, mgr, hiredate, sal, comm, deptno</span><br><span class="line">  <span class="keyword">FROM</span> emp</span><br><span class="line"> <span class="keyword">WHERE</span> empno = :empno</span><br><span class="line">   <span class="keyword">AND</span> ename = :ename</span><br><span class="line">   <span class="keyword">AND</span> job = :job</span><br><span class="line">   <span class="keyword">AND</span> mgr = :mgr</span><br><span class="line">   <span class="keyword">AND</span> hiredate = :hiredate</span><br><span class="line">   <span class="keyword">AND</span> sal = :sal</span><br><span class="line">   <span class="keyword">AND</span> comm = :comm</span><br><span class="line">   <span class="keyword">AND</span> deptno = :deptno</span><br><span class="line">   <span class="keyword">FOR</span> <span class="keyword">UPDATE</span> <span class="keyword">NOWAIT</span></span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>Oracle Forms 應用程序會從螢幕上的數據提供綁定變數 (bind variables)，從資料庫中重新查詢同一筆資料，但這次使用 SELECT FOR UPDATE NOWAIT 鎖定該筆資料 (row) 以防止資料庫中的其它 session 對該筆資料進行更新。</p>
+<p>從資料庫引擎中可查詢到該 Lock，通常 SELECT FOR UPDATE 會發出一個 Row-X (SX)(row exclusive lock) Lock。</p>
+<img src="/2019/10/29/Lost-Updates/ui-form-3.png" title="Oracle Forms">
+
+<p>此時如果使用資料庫其它的 session 發出如下的指令:</p>
+<img src="/2019/10/29/Lost-Updates/ui-form-4.png" title="Oracle Forms">
+
+<p>因為沒有使用 NOWAIT，這個 session 將會停在等待回覆的狀態，資料庫則會對該筆資料再發出一個 Row-X (SX) Lock，而後面的 session 在等待前一個 session 釋放其 Lock (可透過 commit 或 rollback 釋放鎖定)。</p>
+<img src="/2019/10/29/Lost-Updates/ui-form-8.png" title="Oracle Forms">
+
+<p>如果不想等待，使用 SELECT FOR UPDATE <strong>NOWAIT</strong>, 則會收到 ORA-00054 資源繁忙錯誤。 我們被封鎖，必須等待其他用戶完成，並釋放出資源。</p>
+<img src="/2019/10/29/Lost-Updates/ui-form-5.png" title="Oracle Forms">
+
+<p>這就是為什麼這種方法稱為悲觀鎖定的原因。 我們在嘗試更新之前就鎖定了該筆資料，因為我們懷疑該筆資料是否會保持不變。這是資料庫層的 Lost Updates 保護機制。</p>
+<p>回到 Oracle Forms，移到使用者 B 的畫面上，選擇同一筆資料，將遊標移到該筆資料的任何欄位，隨便輸入一個值或按下空白鍵。</p>
+<img src="/2019/10/29/Lost-Updates/ui-form-6.png" title="Oracle Forms">
+
+<p>這回 Oracle Forms 馬上會彈出一個警告視窗，它無法預留該筆資料作修改，這是 Oracle Forms 防止 Lost Updates 的第一道防線。你可以等一下按 Yes 再試試看。</p>
+<p>回到使用者 A 的 Form 畫面，從 Action 選項中選擇 Save, 將資料存入資料庫(commit)，此同時也會釋放其鎖定的資料。</p>
+<p>所以我們可以回到使用者 B 的畫面，從警告視窗中按下 Yes，再度嘗試取得該筆資料的鎖定，這次左下角則出現另一個警告訊息 </p>
+<blockquote><p>FRM-40654: Record has been updated by another user. Re-query to see change.</p>
+</blockquote>
+
+<p>要求你要從新從資料庫 Re-query 資料。</p>
+<img src="/2019/10/29/Lost-Updates/ui-form-7.png" title="Oracle Forms">
+
+<p>這是 Oracle Forms 防止 Lost Updates 的第二道防線。Oracle Forms 如何知道該筆資料已被更改過了?</p>
+<p>你有注意到之前我們發出 SELECT FOR UPDATE NOWAIT 時在 WHERE 的條件嗎? 要 Lock 一筆資料其實只需要使用 Primary Key。但在 WHERE 條件中卻使用了所有的欄位，Oracle Forms 根據目前畫面上的資料嘗試鎖定該筆資料時卻讀取不到資料，因為目前畫面上的資料仍然是舊的資料與數據庫中的資料不同(薪水欄位已被更改)，所以它無法鎖定任何的資料，因此要求你必須在修改任何數據之前重新查詢並鎖定。</p>
+<p>成功鎖定行後，應用程序就可以發佈一些更新並提交更改。</p>
+<figure class="highlight sql"><figcaption><span>update</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> emp</span><br><span class="line">   <span class="keyword">SET</span> ename = :ename,</span><br><span class="line">       job = :job,</span><br><span class="line">       mgr = :mgr,</span><br><span class="line">       hiredate = :hiredate,</span><br><span class="line">       sal = :sal,</span><br><span class="line">       comm = :comm,</span><br><span class="line">       deptno = :deptno</span><br><span class="line"> <span class="keyword">WHERE</span> empno = :empno</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>悲觀鎖定在 Oracle Forms 與 Oracle Database 應用的非常有效，並且比樂觀鎖定具有很多的優勢。它可以防止使用者在輸入更新前提醒使用者目前的 UI 與資料庫數據間的關連。</p>
+<p>但也要了解它可能產生的缺點，使用者可能會無意中鎖定資料，而如果使用者走開並且在一段時間內未真正使用該筆資料，則可能會讓其它的使用者空等，所以應該搭配使用資料庫的超時機制讓應用程序釋放資料的鎖定。</p>
+<h4 id="Optimistic-Locking-樂觀鎖定"><a href="#Optimistic-Locking-樂觀鎖定" class="headerlink" title="Optimistic Locking 樂觀鎖定"></a>Optimistic Locking 樂觀鎖定</h4><p>悲觀鎖定無法應用在像用 Oracle APEX 所開發的 Web Application 上，Web Application 使用的 HTTP 協定是一種 stateless 協定，無法像 stateful 協定一樣持續連線在資料庫上，只能使用第二種樂觀鎖定策略。</p>
+<p>樂觀鎖定的基本概念是將舊值和新值同時都保留在應用程序中，並在提交更新數據時使用如下指令直接更新資料：</p>
+<figure class="highlight sql"><figcaption><span>Optimistic update</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Update</span> <span class="keyword">table</span></span><br><span class="line">   <span class="keyword">Set</span> column1 = :new_column1, column2 = :new_column2, ...</span><br><span class="line"> <span class="keyword">Where</span> column1 = :old_column1</span><br><span class="line">   <span class="keyword">And</span> column2 = :old_column2</span><br><span class="line">   ...</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>在這裡，我們不會事先鎖定該筆資料，<strong>樂觀</strong>的希望數據在讀取與提交更改的這段時間內不會被更改。要注意的是 WHERE 條件，必須與可被更改的欄位做映對(Set 的欄位都必須在 Where 條件上)。</p>
+<p>在這種情況下，如果我們成功的提交更新了一筆資料，那我們很幸運，在我們讀出數據與提交更新的時間之間，數據沒有發生變化。</p>
+<p>如果我們更新<strong>零筆</strong>資料，那麼表示有其他人更改了數據，我們必須重新查詢該筆資料的新值後，重新鍵入要更改的資料（這可能會是一個無止境的循環，因為該筆資料可能會再次被更改）。</p>
+<p>因為我們無法鎖定它，只能稍後嘗試更新它，使用者可能會花時間和精力不斷的重覆進行更改(運氣真差)，而只會是被告知 “對不起，數據已更改， 請重試”。</p>
+<p>這時你該如何設計你的 UI 讓使用者的抱怨少一些? 是否應該嘗試合併兩個更新的值，並根據業務規則（大量代碼）執行更新衝突解決方案? 與悲觀鎖定比較，這常會造成使用者較差的 UX 體驗。</p>
+<p>這種樂觀的鎖定基本概念重點就是在 WHERE 條件上，必須與可被更新的欄位做映對，但可有一些變異的技術。</p>
+<p>Oracle APEX 使用的是 checksum 技術，也就是在讀取資料時對該筆資料所有欄位的值做 checksum 計算，並儲存在應用程序中，當要提交更改之前再從數據庫中讀取同一筆資料做 checksum 計算，比對舊的 checksum 與最新的 checksum 值來辨識資料是否被更改過。</p>
+<p>當兩個 checksum 不相等時，Oracle APEX 會彈出錯誤訊息:</p>
+<img src="/2019/10/29/Lost-Updates/ui-9.png" title="Oracle APEX checksum error">
+
+<p>當遇到這種錯誤，使用者只能放棄他所做得更改，從新更新 UI 介面資料，再重覆輸入更改。</p>
+<p>以下是一段簡單的 JavaScript checksum 程式碼範例，它可以在客戶端(流覽器)，也可以放在 API 端，這要看應用程序與 API 的規劃而定:</p>
+<figure class="highlight javascript"><figcaption><span>checksum example</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">'crypto'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> employee = &#123;</span><br><span class="line">  <span class="string">"empno"</span>: <span class="number">7607</span>,</span><br><span class="line">  <span class="string">"ename"</span>: <span class="string">"史密斯"</span>,</span><br><span class="line">  <span class="string">"job"</span>: <span class="string">"CLERK"</span>,</span><br><span class="line">  <span class="string">"mgr"</span>: <span class="number">7788</span>,</span><br><span class="line">  <span class="string">"hiredate"</span>: <span class="string">"2016-08-29T16:00:00Z"</span>,</span><br><span class="line">  <span class="string">"sal"</span>: <span class="number">45300</span>,</span><br><span class="line">  <span class="string">"comm"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="string">"deptno"</span>: <span class="number">10</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checksum</span> (<span class="params">obj</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> string =  <span class="built_in">Object</span>.keys(obj)</span><br><span class="line">    .sort()</span><br><span class="line">    .map(<span class="function"><span class="params">prop</span> =&gt;</span> <span class="built_in">String</span>(obj[prop]))</span><br><span class="line">    .join(<span class="string">''</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> crypto</span><br><span class="line">    .createHash(<span class="string">"sha1"</span>)</span><br><span class="line">    .update(string)</span><br><span class="line">    .digest(<span class="string">"hex"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(checksum(employee)); <span class="comment">// b2004faab97268287bc4a40856d5cb4ec70dba55</span></span><br></pre></td></tr></table></figure>
+
+<p>程式碼很簡單，但這種 checksum 技術，仍然會有時間差的風險存在，因為它是在應用程序端完成的。在從資料庫讀取當前的資料、計算 checksum、比對 checksum 後再提交更改，資料庫裡的資料有可能會在這段時間間被更改。</p>
+<p>因此直接使用樂觀鎖定基本概念的方式似乎比使用 checksum 來的保險，但如果欄位很多，似乎也是非常煩人。</p>
+<p>因此我們有另外一種變異方式，如果你有權限或可以更改資料庫資料表的結構，則可在資料表中新增一個版本控制欄位，每次更新資料時同時更改這個欄位的值，這樣就可以簡化樂觀鎖定時的 WHERE 條件，就只需要 Primary Key 與版控制欄位。</p>
+<figure class="highlight sql"><figcaption><span>Optimistic update</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Update</span> <span class="keyword">table</span></span><br><span class="line">   <span class="keyword">Set</span> column1 = :new_column1, column2 = :new_column2, ...</span><br><span class="line"> <span class="keyword">Where</span> primary_key = :primary_key</span><br><span class="line">   <span class="keyword">And</span> <span class="keyword">version</span> = :old_version</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>在 Oracle Database 中，版本控制欄位的值可以使用 SYS_GUID( ) 以確保值的唯一性。它會產生一個  RAW(16) 型態的值。</p>
+<figure class="highlight sql"><figcaption><span>sys_guid( )</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> sys_guid() <span class="keyword">as</span> <span class="keyword">version</span> <span class="keyword">from</span> dual;</span><br><span class="line"></span><br><span class="line">VERSION</span><br><span class="line"><span class="comment">--------------------------------</span></span><br><span class="line">9606E4C2447143D7E0538B190B0AD862</span><br></pre></td></tr></table></figure>
+
+<p>悲觀的鎖定在進行更改之前鎖定資料，其他使用者將被鎖定在該筆資料之外，應用程序的可伸縮性將降低。但如果我們要避免 Lost Updates，無論您怎麼做，最終只有一個用戶能夠更新該行。如果能事先鎖定該行，然後再對其進行更新，使用者將會有比較好的體驗(UX)。</p>
+<p>在此所展示的悲觀鎖定我們所用的是 Oracle 資料庫，Oracle 的鎖定不會像在其他資料庫會阻止其它 session 的讀取。這是由於 Oracle 100% 實作了 ACID 的並發性(concurrency)和鎖定(locking)。</p>
+<p>在有些資料庫中，有些情况恰好相反。如果試圖對它們進行悲觀鎖定，那麼任何應用程序可能都將無法正常工作。這些資料庫中的鎖定阻止了查詢。因此這裡所描述的情況，可能不適用在其它的資料庫中。</p>
+<p>至於樂觀鎖定則比較不限制在各種資料庫中，但使用者可能會遇到較差的體驗，如果企圖使用 UI 介面，改進使用者的體驗，勢必也要有 API 層的配合，就像樂觀鎖定的名稱一樣，樂觀一點吧。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/10/29/Lost-Updates/" data-id="ckcpzj96l001l80vzghuqu7oa" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/06/GraphQL-Schema-Design-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          GraphQL Schema 設計 (2)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/10/18/Vue-Oracle-Sample/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Vue Oracle 框架範本</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

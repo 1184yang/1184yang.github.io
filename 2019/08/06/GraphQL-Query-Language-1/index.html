@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GraphQL 查詢語言 (1) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="SQL，或結構化查詢語言 (Structured Query Language)，是一種用來存取、管理與操作資料庫內資料的領域專用語言 (domain-specific language)。 SQL 導入 “以單一指令來存取多筆紀錄” 的概念，也可以讓你用任何鍵來存取任何紀錄，而不只是只能使用 ID。 SQL 可執行的指令相當簡單(喔?): SELECT、INSERT、UPDATE 與 DELET">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GraphQL 查詢語言 (1)">
+<meta property="og:url" content="https://1184yang.github.io/2019/08/06/GraphQL-Query-Language-1/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="SQL，或結構化查詢語言 (Structured Query Language)，是一種用來存取、管理與操作資料庫內資料的領域專用語言 (domain-specific language)。 SQL 導入 “以單一指令來存取多筆紀錄” 的概念，也可以讓你用任何鍵來存取任何紀錄，而不只是只能使用 ID。 SQL 可執行的指令相當簡單(喔?): SELECT、INSERT、UPDATE 與 DELET">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.054Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GraphQL 查詢語言 (1)">
+<meta name="twitter:description" content="SQL，或結構化查詢語言 (Structured Query Language)，是一種用來存取、管理與操作資料庫內資料的領域專用語言 (domain-specific language)。 SQL 導入 “以單一指令來存取多筆紀錄” 的概念，也可以讓你用任何鍵來存取任何紀錄，而不只是只能使用 ID。 SQL 可執行的指令相當簡單(喔?): SELECT、INSERT、UPDATE 與 DELET">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-Query-Language-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/06/GraphQL-Query-Language-1/" class="article-date">
+  <time datetime="2019-08-06T01:16:41.000Z" itemprop="datePublished">2019-08-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GraphQL 查詢語言 (1)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>SQL，或結構化查詢語言 (Structured Query Language)，是一種用來存取、管理與操作資料庫內資料的領域專用語言 (domain-specific language)。 SQL 導入 “以單一指令來存取多筆紀錄” 的概念，也可以讓你用任何鍵來存取任何紀錄，而不只是只能使用 ID。</p>
+<p>SQL 可執行的指令相當簡單(喔?): SELECT、INSERT、UPDATE 與 DELETE。你只能對資料做這些事情。使用 SQL 時，我們可以編寫一條查詢指令來取得在資料庫的資料表內互相連接(join)的資料。</p>
+<p>“資料只能讀取、建立、更新或刪除” 這個概念確實成就了 REST，這個概念要求我們基於這四種基本的資料操作法來使用不同的 HTTP 方法: GET、POST、PUT 與 DELETE。但是，如果你想要指定用 REST 來讀取或改變那一種類型的資料，唯一的方式就是透過端點 URL，不能用實際的查詢語言。</p>
+<p>GraphQL 將原本用來查詢資料庫的概念應用在網際網路上。你只要用一種 GraphQL query 就可以回傳彼此相連的資料。你可以像 SQL 那樣使用 GraphQL query 來改變或移除資料。畢竟，SQL 與 GraphQL 代表同一個東西: Query Language (查詢語言)。</p>
+<p>雖然 GraphQL 與 SQL 都是查詢語言，但它們完全不同，它們適用於完全不同的環境。 SQL query 是傳給資料庫的，而 GraphQL query 是傳給 API 的。SQL 資料存放在資料庫的資料表內，GraphQL 資料可存放在任何地方: 資料庫、多個資料庫、檔案系統、REST API、WebSocket，甚至其他的 GraphQL API。 SQL 是資料庫的查詢語言，  <strong>GraphQL 是網際網路的查詢語言</strong>。</p>
+<p>GraphQL 與 SQL 的語法也完全不同。GraphQL 使用 Query 來請求資料，而不是 SELECT，這項操作是 GraphQL 完成的每項工作的核心。 GraphQL 將所有的資料的異動都包成一種資料型態: Mutation，而不是使用 INSERT、UPDATE 或 DELETE。因為 GraphQL 是讓網際網路使用的，它有一種訂閱(Subscription)型態可用來監聽通訊端連結上的資料變動。SQL 沒有類似訂閱的東西。</p>
+<p>GraphQL 是按照規格來標準化的。無論你使用哪一種程式語言都可以: GraphQL 查詢單純是個 GraphQL 查詢。查詢語法是個字串，無論你的專案使用 JavaScript、Java、C# 或任何其他東西，它看起來都一樣。</p>
+<p>GraphQL 的 query 只是放在 POST 請求的內文(body)中送給 GraphQL 端點的字串。下面是一個 GraphQL query，它是用 GraphQL 查詢語言寫成的字串:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  allLifts &#123;</span><br><span class="line">    name</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你可以使用 <em>curl</em> 將這個 query 送給一個 GraphQL 端點:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl 'http://snowtooth.herokuapp.com/'</span><br><span class="line">  -H 'Content-Type: application/json'</span><br><span class="line">  --data '&#123;"query":"&#123;allLifts &#123;name&#125;&#125;"&#125;'</span><br></pre></td></tr></table></figure>
+
+<p>或從瀏覽器使用 JavaScript:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">fetch(<span class="string">"http://snowtooth.herokuapp.com/"</span>, &#123;</span><br><span class="line">  method: <span class="string">"POST"</span>,</span><br><span class="line">  headers: &#123; <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span> &#125;,</span><br><span class="line">  body: <span class="built_in">JSON</span>.stringify(&#123; <span class="attr">query</span>: <span class="string">"&#123;allLifts &#123;name&#125;&#125;"</span>&#125;)</span><br><span class="line">&#125;)</span><br><span class="line">  .then(<span class="function"><span class="params">res</span> =&gt;</span> res.json())</span><br><span class="line">  .then(<span class="function"><span class="params">result</span> =&gt;</span> <span class="built_in">console</span>.log(result));</span><br></pre></td></tr></table></figure>
+
+<p>如果 GraphQL schema 支援這種外形的 query，你就可以直接收到一個 JSON 回應。那個 JSON 回應有你請求的 data 欄位中的資料，或者，在發生錯誤時有個 errors 欄位。我們發出一個請求，收到一個回應。</p>
+<p>若要修改資料，你可以傳送 <strong>mutation</strong> (變動)。mutation 長得很像 query，但它的目的是改變關於 app 整體狀態的事務。你可以使用 mutation 直接傳送執行改變所需的資料，例如:</p>
+<figure class="highlight plain"><figcaption><span>mutation</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mutation &#123;</span><br><span class="line">  setLiftStatus(id: &quot;panorama&quot; status: OPEN) &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的 mutation 是用 GraphQL 查詢語言寫成的，我們希望用它將 id 為 panorama 的纜椅改為 OPEN 狀態。我們一樣可用 cURL 將這項操作送給 GraphQL 伺服器:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl 'http://snowtooth.herokuapp.com/'</span><br><span class="line">  -H 'Content-Type: application/json'</span><br><span class="line">  --data '&#123;"query":"mutation &#123;setLiftStatus(id: \"panorama\" status:OPEN) &#123;name status&#125;&#125;"&#125;'</span><br></pre></td></tr></table></figure>
+
+<p>稍後我們將會看到如何使用更好的方法將變數對應到 query 或 mutation。</p>
+<h2 id="GraphQL-API-工具"><a href="#GraphQL-API-工具" class="headerlink" title="GraphQL API 工具"></a>GraphQL API 工具</h2><p>GraphQL 社群建立了一些可用來和 GraphQL API 互動的開放原始碼工具。這些工具可讓你用 GraphQL 查詢語言來編寫 query，並將這些 query 送到 GraphQL 端點，以及查看 JSON 回應。目前有兩種熱門工具: GraphiQL 與 GraphQL Playground。</p>
+<h3 id="GraphiQL"><a href="#GraphiQL" class="headerlink" title="GraphiQL"></a>GraphiQL</h3><p>GrahpiQL 是 Facebook 建造的瀏覽器內部整合開發環境 (IDE)，可用來查詢與瀏覽 GraphQL API。GraphiQL 提供語法突顯、程式自動完成及錯誤警告等功能，可以讓你直接在瀏覽器中執行查詢並查看查詢結果。許多公用的 API 都提供 GraphiQL 介面以供查詢即時資料。</p>
+<h3 id="GraphQL-Playground"><a href="#GraphQL-Playground" class="headerlink" title="GraphQL Playground"></a>GraphQL Playground</h3><p>另一種可用來流覽 GraphQL API 的工具是 GraphQL Playground，它很像 GraphiQL，但它還有一些方便的功能，其中最重要的功能是它可以讓你連同 GraphQL 請求一起傳送自訂的 HTTP 標頭 (HTTP headers)。</p>
+<h2 id="GraphQL-查詢"><a href="#GraphQL-查詢" class="headerlink" title="GraphQL 查詢"></a>GraphQL 查詢</h2><p>Snowtooth Mountain 是虛構的滑雪勝地。我們將使用它來瞭解一些 GraphQL Query 範例。我們將要觀察 Snowtooth Mountain 網路團隊如何使用 GraphQL 來提供即時、最新的纜椅和雪道狀態資訊。Snowtooth 滑雪巡邏員可以直接用它們的手機打開與關閉纜椅和雪道。你可以參考 <a href="http://snowtooth.moonhighway.com" target="_blank" rel="noopener">Snowtooth 的 GraphQL Playground 介面</a>(請用 Chrome 瀏覽器)來了解往後的範例。</p>
+<p>你可以使用 <strong>query</strong> (查詢)從 GraphQL API 請求資料。query 描述你想要從 GraphQL 伺服器取得的資料。當你傳送 query 時，就是以 <strong>field</strong> (欄位)為單位索取資料。這些欄位對應伺服器回傳的 JSON 資料回應內的同一組欄位。例如，如果你傳送一個索取 allLifts 的 query，並請求 name 與 status 欄位，就會收到一個含有 allLifts 陣列與每一個纜椅的 name 與 status 的字串。</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  allLifts &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><figcaption><span>results</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"allLifts"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"Astra Express"</span>,</span><br><span class="line">        <span class="attr">"status"</span>: <span class="string">"CLOSED"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"Jazz Cat"</span>,</span><br><span class="line">        <span class="attr">"status"</span>: <span class="string">"CLOSED"</span></span><br><span class="line">      &#125;,</span><br><span class="line">      ...</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote><h6 id="錯誤處裡"><a href="#錯誤處裡" class="headerlink" title="錯誤處裡"></a>錯誤處裡</h6><p>當你成功發出查詢後，會收到一個包含有 “data” 鍵的 JSON 文件。不成功的查詢會收到一個含有 “error” 鍵的 JSON 文件。這個鍵底下的 JSON 資料就是錯誤的詳細訊息。JSON 回應也可能同時含有 “data” 與 “error”。</p>
+</blockquote>
+
+<p>你可以在查詢文件裡加入多個 query，但每次只能執行一項操作。</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">query lifts &#123;</span><br><span class="line">  allLifts &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">query trails &#123;</span><br><span class="line">  allTrails &#123;</span><br><span class="line">    name</span><br><span class="line">    difficulty</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>當你按下撥放按鈕時，GraphQL Playground 會要求你選擇這兩項操作之一。如果你想要藉由一個請求來取得所有資料，就必須將它們全都放在ㄧ個 query 裡面:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">query liftsAndTrails &#123;</span><br><span class="line">  liftCount(status: OPEN)</span><br><span class="line">  allLifts &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">  allTrails &#123;</span><br><span class="line">    name</span><br><span class="line">    difficulty</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>從這裡開始，你可以慢慢看到 GraphQL 的優點。我們可以用一個 query 來索取各種不同的資料點。我們索取目前處於特定狀態的 liftCount、取得目前處於哪種狀態的纜椅量，也索取每一個纜椅的 name 與 status。最後，我們在同一個 query 中要求取得每一條滑雪道的 name 與 difficulty。</p>
+<p>Query 是一種 GraphQL 型態。我們稱它為<strong>根型態</strong>，因為這種型態對應一項操作 (Operation)，而操作是查詢文件的根。query 可在 GraphQL API 中使用的欄位已被定義在該 API 的 schema 裡面了，這個文件告訴我們哪個 Query 型態有哪些欄位可以選擇。</p>
+<p>GraphQL Schema 告訴我們，當我們查詢這個 API 時，可以選擇欄位 liftCount、allLifts 與 allTrails。它也定義了其他可供選擇的欄位，但與查詢有關的重點在於，我們能夠選擇需要的欄位，以及省略不想要的欄位。</p>
+<p>我們會在編寫 query 時，將需要的欄位放在<strong>大括號</strong>裡面來選擇它們，這些段落稱為<strong>選擇組</strong> (<em>selection set</em>)。我們在選擇組中定義的欄位與 GraphQL 型態有直接的關係。liftCount、allLifts 與 allTrails 欄位都被定義在 Query 型態內。</p>
+<p>你可以在ㄧ個選擇組裡面放入另一個選擇組。因為 allLifts 欄位會回傳一串 Lift 型態，我們必須使用大括號來建立一個這種型態的新選擇組。我們可以請求各種關於 lift 的資料，但在這個範例中，我們只想要選擇 lift 的 name 與 status。類似的情況，allTrails query 會回傳 Trail 型態。</p>
+<p>JSON 回應含有我們在 query 中請求的所有資料，那些資料都會被格式化為 JSON，並且使用與 query 一樣的外形來傳遞。它發出的每一個 JSON 欄位的名稱都與選擇組的欄位名稱一樣。我們可以在 query 中指定別名(chairlifts, liftName)來改變回應物件的欄位名稱，例如:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">query liftAndTrails &#123;</span><br><span class="line">  open: liftCount(status: OPEN)</span><br><span class="line">  chairlifts: allLifts &#123;</span><br><span class="line">    liftName: name</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">  skiSlopes: allTrails &#123;</span><br><span class="line">    name</span><br><span class="line">    difficulty</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其回應為:</p>
+<figure class="highlight plain"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;data&quot;: &#123;</span><br><span class="line">    &quot;open&quot;: 6,</span><br><span class="line">    &quot;chairlifts&quot;: [</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;liftName&quot;: &quot;Astra Express&quot;,</span><br><span class="line">        &quot;status&quot;: &quot;CLOSED&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    ],</span><br><span class="line">    &quot;skiSlopes&quot;: [</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;name&quot;: &quot;Blue Bird&quot;,</span><br><span class="line">        &quot;difficulty&quot;: &quot;intermediate&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們取回具備同樣外形的資料了，但也改變回應中的一些欄位名稱。要過濾 GraphQL 查詢結果，其中一種方式就是傳入<strong>查詢引數</strong>。引數是與一個查詢欄位有關的一對鍵/值(或好幾對)。如果我們只想要取得被關閉纜椅的名稱，可以傳入一個過濾回應的引數:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query closedLifts &#123;</span><br><span class="line">  allLifts(status: CLOSED) &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">query jazzCatStatus &#123;</span><br><span class="line">  Lift(id: &quot;jazz-cat&quot;) &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">    night</span><br><span class="line">    elevationGain</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="邊-edge-與連結"><a href="#邊-edge-與連結" class="headerlink" title="邊 (edge) 與連結"></a>邊 (edge) 與連結</h3><p>在 GraphQL 查詢語言中，欄位可為<strong>純量型態</strong>或<strong>物件型態</strong>。純量型態 (scalar type)類似其他語言中的基本型態。他們是選擇組的葉(leaf)節點。GraphQL 內建五種純量型態: 整數 (Int)、浮點數 (Float)、字串 (String)、布林 (Boolean)、及專屬代碼 (ID)。</p>
+<p>使用整數與浮點數都會得到 JSON 數字，使用字串與 ID 則會得到 JSON 字串。使用布林只會得到布林值。雖然使用 ID 與 String 字串會得到同一種 JSON 資料型態，但 GraphQL 會確保 ID 回傳唯一的字串。</p>
+<p>GraphQL 物件型態是在 schema 內定義的一或多個欄位群組，它們定義了應回傳的 JSON 物件的外形。JSON 可以在欄位底下無止盡地嵌套物件，GraphQL 也是如此。我們可以藉由查詢某個物件來取得與它有關的物件的細節來將物件連(join)在一起。</p>
+<p>例如，假如我們想要取得可以用特定的纜椅到達雪道的清單:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">query trailsAccessedByJazzCat &#123;</span><br><span class="line">  Lift(id: &quot;jazz-cat&quot;) &#123;</span><br><span class="line">    name</span><br><span class="line">    status</span><br><span class="line">    capacity</span><br><span class="line">    trailAccess &#123;</span><br><span class="line">      name</span><br><span class="line">      difficulty</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述的 query 中，我們索取關於 “Jazz Cat” 纜椅的一些資料，name、status 與 capacity 欄位都是純量型態。trailAccess 欄位是屬於 Trail 型態(物件型態)。在這個範例中，trailAccess 會回傳一個過濾過的、可用 Jazz Cat 抵達的雪道清單。因為 trailAccess 是 Lift 型態的欄位，API 可使用父物件(也就是 Jazz Cat Lift)的資料來過濾回傳的雪道清單。</p>
+<p>這個操作範例查詢兩種資料型態(纜椅與雪道)之間的一對多連結。一台纜椅與許多與它有關的雪道相連。如果我們從 Lift 節點開始遍歷圖，可透過命名為 trailAccess 的邊前往與該纜椅連接的一或多個 Trail 節點。如果你要從 Trail 節點走回 Lift 節點，因為這張圖是無向的，所以可以做到:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">query liftToAccessTrail &#123;</span><br><span class="line">  Trail(id: &quot;dance-fight&quot;) &#123;</span><br><span class="line">    groomed</span><br><span class="line">    accessedByLifts &#123;</span><br><span class="line">      name</span><br><span class="line">      capacity</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 liftToAccessTrail query 中，我們選擇一個名為 “Dance Fight” 的 Trail。groomed 欄位回傳一個布林純量型態，可讓我們知道 Dance Fight 雪道是否被整理過了。accessedByLifts 欄位回傳可帶著滑雪客前往 Dance Fight 雪道的纜椅。</p>
+<p style="text-align: right;">接續下一篇 <a href="/2019/08/16/GraphQL-Query-Language-2/" title="GraphQL 查詢語言 (2)">GraphQL 查詢語言 (2)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/08/06/GraphQL-Query-Language-1/" data-id="ckcpzj962001480vzbs1nv3f2" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/08/16/GraphQL-Query-Language-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          GraphQL 查詢語言 (2)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/26/Desktop-Application-Using-NW-and-Vue/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">桌面應用 NW.js、Vue.js and localStorage</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

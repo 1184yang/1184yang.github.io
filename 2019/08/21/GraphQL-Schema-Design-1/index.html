@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>GraphQL Schema 設計 (1) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="GraphQL 即將改變你的設計程序，你會開始將 API 視為型態的集合，而不是 REST 端點的集合。在開始製作 API 之前，你必須思考、討論與正式定義這個 API 將要公開的資料型態。這個型態的集合稱為 schema。這與關聯式資料庫的 schema 是同義的，Table 就是一種資料型態。 Schema 優先(Schema First) 是可讓你的團隊對於組成 app 的資料型態達成共識的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GraphQL Schema 設計 (1)">
+<meta property="og:url" content="https://1184yang.github.io/2019/08/21/GraphQL-Schema-Design-1/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="GraphQL 即將改變你的設計程序，你會開始將 API 視為型態的集合，而不是 REST 端點的集合。在開始製作 API 之前，你必須思考、討論與正式定義這個 API 將要公開的資料型態。這個型態的集合稱為 schema。這與關聯式資料庫的 schema 是同義的，Table 就是一種資料型態。 Schema 優先(Schema First) 是可讓你的團隊對於組成 app 的資料型態達成共識的">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2019/08/21/GraphQL-Schema-Design-1/one_one.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/08/21/GraphQL-Schema-Design-1/one_many.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.055Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="GraphQL Schema 設計 (1)">
+<meta name="twitter:description" content="GraphQL 即將改變你的設計程序，你會開始將 API 視為型態的集合，而不是 REST 端點的集合。在開始製作 API 之前，你必須思考、討論與正式定義這個 API 將要公開的資料型態。這個型態的集合稱為 schema。這與關聯式資料庫的 schema 是同義的，Table 就是一種資料型態。 Schema 優先(Schema First) 是可讓你的團隊對於組成 app 的資料型態達成共識的">
+<meta name="twitter:image" content="https://1184yang.github.io/2019/08/21/GraphQL-Schema-Design-1/one_one.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-Schema-Design-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/21/GraphQL-Schema-Design-1/" class="article-date">
+  <time datetime="2019-08-21T07:50:36.000Z" itemprop="datePublished">2019-08-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      GraphQL Schema 設計 (1)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>GraphQL 即將改變你的設計程序，你會開始將 API 視為型態的集合，而不是 REST 端點的集合。在開始製作 API 之前，你必須思考、討論與正式定義這個 API 將要公開的資料型態。這個型態的集合稱為 schema。這與關聯式資料庫的 schema 是同義的，Table 就是一種資料型態。</p>
+<p>Schema 優先(Schema First) 是可讓你的團隊對於組成 app 的資料型態達成共識的設計方法。後端團隊可藉由它來明確瞭解他們需要儲存與傳遞的資料。前端團隊可以知道他們開始建構使用者介面時需要的定義。每個人都有個明確的詞彙表可用來溝通如何建構系統。</p>
+<p>為了便於定義資料型態，關連式資料庫有資料定義語言（Data Definition Language，DDL）是 SQL 語言集中負責資料結構定義與資料庫物件定義的語言；GraphQL 也附有一種定義 schema 的語言，稱為 <em>Schema Definition Language</em>，或稱 SDL。如同 SQL 在不同的關連式資料庫中，GraphQL Query Language，無論你使用哪種語言或框架來建構 app，GraphQL SDL 都是一樣的。GraphQL schema 文件是定義可在 app 中使用的型態之文件，用戶端與伺服器端可以用它來驗證 GraphQL 請求。</p>
+<h3 id="定義型態"><a href="#定義型態" class="headerlink" title="定義型態"></a>定義型態</h3><p>實際建構 GraphQL 型態與 schema 是瞭解它們的最佳方式。這個範例將建立一個照片分享 app， 可讓使用者登入他們的帳號來張貼照片，並且在那些照片中標記使用者。</p>
+<p>PhotoShare app 有兩種主要的型態: User 與 Photo。我們從設計 schema 開始。</p>
+<h4 id="型態-Type"><a href="#型態-Type" class="headerlink" title="型態 (Type)"></a>型態 (Type)</h4><p>GraphQL Schema 的核心單位是型態。在 GraphQL 中，型態代表一種自訂的物件，這些物件描述了 app 的核心功能。例如，社群 app 有 Users 與 Posts。部落格或許有 Categories 與 Articles。這些型態代表 app 的資料。當你定義 schema 時，就是在定義團隊討論領域物件(domain object)時使用的共同語言。</p>
+<p>型態有一些<strong>欄位</strong>(field)，它們代表與每個物件有關的資料。每個欄位會回傳特定型態的資料，它可能是整數或字串，也可能是自訂的物件型態或型態串列。</p>
+<p>schema 是型態定義的集合。你可以在 JavaScript 檔案中用字串來編寫 schema，或在任何文字檔中編寫它。這些檔案通常使用 .graphql 副檔名。</p>
+<p>我們在此範例 schema 檔案中定義第一個 GraphQL 物件型態 – Photo:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type Photo &#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  name: String!</span><br><span class="line">  url: String!</span><br><span class="line">  description: String</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們在大括號之間定義了 Photo 的欄位。Photo 的 url 是圖像檔案位置的參考。這個描述式也含有一些關於 Photo 的描述資料: name 與 description。最後，每個 Photo 都有個 ID，它是可當成鍵來讀取照片的專屬代碼。</p>
+<p>每個欄位的資料都有特定型態。我們現在只在 schema 定義一種自訂型態，<strong>Photo</strong>，但 GraphQL 有一些內建的型態可讓欄位使用。這些內建型態稱為<strong>純量型態 (scalar types)</strong>。description、name 與 url 欄位都使用 String 純量型態。當我們查詢這些欄位時，回傳的資料將會是 JSON 字串。<strong>驚嘆號 !</strong> 代表該欄位不能為 <em>null</em>，也就是說在每個查詢中，name 與 url 欄位都必須回傳一些資料。descripton 可為 <em>null</em>，代表照片的說明是可選的，當這個欄位被查詢時可回傳 null。</p>
+<p>Photo id 欄位是每張照片的專屬代碼。在 GraphQL 中，當你要回傳專屬的代碼時，就要使用 ID 純量型態。這個代碼的 JSON 是個字串，但是這個字串將會被驗證是否為唯一值。</p>
+<h4 id="純量型態-Scalar-Type"><a href="#純量型態-Scalar-Type" class="headerlink" title="純量型態 (Scalar Type)"></a>純量型態 (Scalar Type)</h4><p>GraphQL 的內建純量型態 ( Int、Float、String、Boolean、ID )相當實用，但有時你可能想要定義自己的純量型態。純量型態不是物件型態，它沒有欄位。但是當你實作 GraphQL 服務時，可以指定自訂的純量型態，並定義應該如何驗證，例如:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">scalar DateTime</span><br><span class="line"></span><br><span class="line">type Photo &#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  name: String!</span><br><span class="line">  url: String!</span><br><span class="line">  description: String</span><br><span class="line">  created: DateTime!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們建立了一個自訂的純量型態: DateTime。現在我們可以找出每張照片是何時建立(created)的。任何被標記為 DateTime 的欄位都會回傳一個 JSON 字串，但我們可以使用自訂純量來確保該字串可被序列化、驗證與格式化為官方的日期與時間。</p>
+<p>你可以為任何需要驗證的型態宣告自訂純量。 graphql-custom-types npm 套件有一些常用的自訂純量型態可讓你快速的加入你的 GraphQL 服務。</p>
+<h4 id="列舉-enum"><a href="#列舉-enum" class="headerlink" title="列舉 (enum)"></a>列舉 (enum)</h4><p><em>enumeration</em> (列舉)型態，或 <em>enum</em> ，是可讓欄位回傳有限的字串值集合的純量型態。當你想要確保某個欄位只回傳一群特定值之中的一個值時，可使用 enum 型態。</p>
+<p>例如，我們來建立一個稱為 PhotoCategory 的 enum 型態，以及五種可能的選項來定義被貼出的照片的類型: SELFIE、PORTRAIT、ACTION、LANDSCAPE 或 GRAPHIC:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">enum PhotoCategory &#123;</span><br><span class="line">  SELFIE</span><br><span class="line">  PORTRAIT</span><br><span class="line">  ACTION</span><br><span class="line">  LANDSCAPE</span><br><span class="line">  GRAPHIC</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你可以在定義欄位時使用 enum 型態。我們在 Photo 物件型態中加入一個 category 欄位:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">type Photo &#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  name: String!</span><br><span class="line">  url: String!</span><br><span class="line">  description: String</span><br><span class="line">  created: DateTime!</span><br><span class="line">  category: PhotoCategory!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>加入 category 可確保我們實作這個服務之後，它可以回傳五個有效的值之一。</p>
+<h4 id="連結與串列"><a href="#連結與串列" class="headerlink" title="連結與串列"></a>連結與串列</h4><p>當你建立 GraphQL schema 時，可以定義可回傳 “任何 GraphQL 型態組成的串列” 的欄位。建立串列的方式是將 GraphQL 型態放在方刮號內，[String] 定義一個字串串列，而 [PhotoCategory] 定義一個照片種類的串列。串列也可以包含多種型態。</p>
+<p>當你定義串列時，驚嘆號的使用有點複雜。當驚嘆號在結束的方括號後面時，代表該欄位本身是不可為 null 的。當驚嘆號在結束的方括號之前時，代表串列內的值是不可為 null 的。當你看到驚嘆號時，它就必須有值，且不能回傳 null。</p>
+<p>串列可否為 null 的規則:</p>
+<table>
+<thead>
+<tr>
+<th>串列宣告</th>
+<th align="left">定義</th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>[Int]</td>
+<td align="left">可為 null 的整數值串列</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>[Int!]</td>
+<td align="left">不可為 null 的整數值組成的串列</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>[Int]!</td>
+<td align="left">可為 null 的整數值組成的不可為 null 的串列</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>[Int!]!</td>
+<td align="left">不可為 null 的整數值組成的不可為 null 的串列</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>大部分的串列定義都是不可為 null 的值組成的不可為 null 的串列，也就是 [Int!]!， 因為我們通常不希望串列裡面的值是 null。我們應事先濾除任何 null 值。如果串列不包含任何值，我們可直接回傳一個空的 JSON 陣列，例如 [ ]。<strong>空陣列在技術上不是 null，它是不包含任何值的陣列</strong>。</p>
+<p>連接資料與查詢多種相關資料的型態的能力都是非常重要的功能。當我們用自訂物件型態來建立<strong>串列</strong>時，就是在使用這個強大的功能，並將物件相互連接。</p>
+<h4 id="一對一連結"><a href="#一對一連結" class="headerlink" title="一對一連結"></a>一對一連結</h4><p>當我們使用自訂物件型態來建立欄位時，就是在連結兩個物件。在圖論中，兩個物件之間的連結稱為<strong>邊 (edge)</strong>。第一種連結類型是一對一連結，代表將一種物件型態連結另一種物件型態。</p>
+<p>照片是使用者貼出的，所以我們的系統裡面的每張照片都應該有一條邊連接貼出它的使用者。下圖是兩種型態 (Photo 與 User) 之間的單向連結。連接兩個節點的邊稱為 postedBy。</p>
+<img src="/2019/08/21/GraphQL-Schema-Design-1/one_one.png" title="One to One">
+
+<p>我們來看一下如何在 schema 中定義它:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">type User &#123;</span><br><span class="line">  adLogin: ID!</span><br><span class="line">  name: String</span><br><span class="line">  avatar: String</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Photo &#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  name: String!</span><br><span class="line">  url: String!</span><br><span class="line">  description: String</span><br><span class="line">  created: DateTime!</span><br><span class="line">  category: PhotoCategory!</span><br><span class="line">  postedBy: User!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們先在 schema 中加入一個新型態，<strong>User</strong>。PhotoShare app 的使用者會先用 AD 登入 ( 假設這個 app 的使用者使用 Windows AD 認證 )。當使用者登入時，我們可以取得他們的 id，並用它來作為使用者記錄的專屬代碼，這裡的欄位就是 adLogin。另外也可將他們的名子與大頭照儲存在 name 與 avatar 欄位。</p>
+<p>接著在 Photo 加入 postedBy 欄位來建立連結。因為每張照片都必須被使用者貼出，所以我們將這個欄位設為 User! 型態，加入驚嘆號是為了讓這個欄位不可為 null。</p>
+<h4 id="一對多連結"><a href="#一對多連結" class="headerlink" title="一對多連結"></a>一對多連結</h4><p>讓 GraphQL 服務成為一張無向圖有很大的好處，因為這個做法可讓用戶端有極大的 query 建立彈性，原因是<strong>無向圖可讓他們從任何的節點(node 或稱 vertice)開始遍歷圖</strong>。我們只要提供一個從 User 型態返回 Photo 型態的路徑就可以產生無向圖。這代表當我們查詢一位 User 時，可以看到那位使用者貼出的所有照片:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">type User &#123;</span><br><span class="line">  adLogin: ID!</span><br><span class="line">  name: String</span><br><span class="line">  avatar: String</span><br><span class="line">  postedPhotos: [Photo!]!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>藉由在 User 型態加入 postedPhotos 欄位，我們提供了一個從使用者回到 Photo 的路徑(藉由 postedBy 的邊)。postedPhotos 欄位會回傳一個 Photo 型態的串列，它們是使用者貼出的照片，我們也可稱此時的 User 型態與 postedPhotos 欄位中的 Photo 型態有父子關係。因為使用者可以張貼多張照片，所以我們建立了一對多連結。一對多連結是一種常見的連結，可藉由在父物件裡建立一個 “可以列出多個其它物件” 的欄位來產生，如圖所示。</p>
+<img src="/2019/08/21/GraphQL-Schema-Design-1/one_many.png" title="One to Many">
+
+<p>我們經常在根型態中加入一對多連結，而這些連結可以是階層式的。</p>
+<p>為了讓 query 可以使用我們已經定義的資料型，Photo 與 User，我們必須定義 Query 根型態的欄位。我們來看一下如何將新的自訂型態加入 Query 根型態：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">type Query &#123;</span><br><span class="line">  totalPhotos: Int!</span><br><span class="line">  allPhotos: [Photo!]!</span><br><span class="line">  totalUsers: Int!</span><br><span class="line">  allUsers: [User!]!</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">schema &#123;</span><br><span class="line">  query: Query</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>加入 Query 型態就定義了可在 API 使用的查詢，此例中為 Photo 與 User 各個型態各加入兩個 query: 一個用來傳遞各個型態的紀錄總數，另一個用來傳遞這些紀錄的完整串列。我們也將 Query 型態加入 schema 檔案，這可讓我們在 GraphQL API 中使用 query。</p>
+<p>現在我們可以用下面的 query 字串來查詢照片與使用者:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  totalPhotos</span><br><span class="line">  allPhotos &#123;</span><br><span class="line">    name</span><br><span class="line">    url</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="多對多連結"><a href="#多對多連結" class="headerlink" title="多對多連結"></a>多對多連結</h4><p>有時我們想要將一個節點串列與另一個節點串列關連起來。PhotoShare app 可讓使用者在他們貼出的每張照片中標示其他使用者，這個程序稱為<strong>標記</strong>   <em>(tagging)</em>。一張照片可能有許多使用者，且同一位使用者可能會被標記在許多照片中。</p>
+<p>為了建立這種類型的連結，我們必須在 User 與 Photo 型態裡加入<strong>串列</strong>欄位。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">type User &#123;</span><br><span class="line">  ...</span><br><span class="line">  inPhotos: [Photo!]!</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Photo &#123;</span><br><span class="line">  ...</span><br><span class="line">  taggedUsers: [User!]!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你可以看到，多對多連結是兩個一對多連結組成的。在這個例子中，一張 Photo 可以有多個被標記的使用者，且一位 User 可被標記在多張照片內。</p>
+<h3 id="引數-Arguments"><a href="#引數-Arguments" class="headerlink" title="引數 Arguments"></a>引數 Arguments</h3><p>在 GraphQL 中，你可以將引數加到任何欄位，用引數來傳送可以影響 GraphQL 操作結果的資料。接下來說明如何在 schema 中定義引數(Arguments)。</p>
+<p>Query 型態有列出 allUsers 或 allPhotos 的欄位，但當你只想要選擇一位 User 或一張 Photo 時該怎麼做?  此時要提供一些關於想要選擇的使用者或照片的資訊。你可以使用引數連同 query 一併傳送那項資訊:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">type Query &#123;</span><br><span class="line">  ...</span><br><span class="line">  User(adLogin: ID!): User!</span><br><span class="line">  Photo(id: ID!): Photo!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>引數與欄位一樣，必須有個型態。在 schema 內可以使用的任何一種純量型態或物件型態都可以用來定義那個型態。為了選擇特定的使用者，我們必須以引數傳送那位使用者的專屬 adLogin。</p>
+<figure class="highlight"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  User(adLogin: "Scott") &#123;</span><br><span class="line">    name</span><br><span class="line">    avatar</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  Photo(id: "12HK456H6P") &#123;</span><br><span class="line">    name</span><br><span class="line">    description</span><br><span class="line">    url</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在這兩個例子中，我們都用引數來查詢一筆特定記錄的細節。因為這些引數是必須的，所以它們被定義成不可為 null 的欄位。如果你在使用這些 query 時沒有提供 id 或 adLogin，GraphQL 就會回傳錯誤。</p>
+<h4 id="過濾資料"><a href="#過濾資料" class="headerlink" title="過濾資料"></a>過濾資料</h4><p>引數並非必須 “不可為 null”。我們可以使用 “可為 null” 的欄位來加入選用的引數。這意味著我們可以在執行查詢時提供引數作為選用的參數。例如，我們可以用照片種類來過濾 allPhotos query 回傳的照片串列:</p>
+<figure class="highlight"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">type Query &#123;</span><br><span class="line">  ...</span><br><span class="line">  allPhotos(category: PhotoCategory): [Photo!]!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們在 allPhotos query 中加入一個選用的 category 欄位。這個 category 必須匹配 enum 型態 PhotoCategory 的值。如果使用者傳送 query 時沒有提供種類值，我們假設將會回傳每一張照片。但是如果有提供種類，就可以取得一個過濾後的、屬於同一個種類的照片串列:</p>
+<figure class="highlight"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  allPhotos(category: "SELFIE") &#123;</span><br><span class="line">    name</span><br><span class="line">    description</span><br><span class="line">    url</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個 query 會回傳 SELFIE 種類的每張照片的 name 、description 與 url。</p>
+<p>這裡我們則再將我們熟悉的關連式資料庫表 EMP 與 DEPT 對應到 GraphQL schema 資料型態。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">type Employee &#123;</span><br><span class="line">  empno: ID!</span><br><span class="line">  ename: String</span><br><span class="line">  job: String</span><br><span class="line">  mgr: Int</span><br><span class="line">  hiredate: String</span><br><span class="line">  sal: Float</span><br><span class="line">  comm: Float</span><br><span class="line">  income: Float</span><br><span class="line">  department: Department</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">type Department &#123;</span><br><span class="line">  deptno: ID!</span><br><span class="line">  dname: String</span><br><span class="line">  loc: String</span><br><span class="line">  employees: [Employee!]!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中 empno 在資料庫是 Number(4)，這裡可以設定為 Int!，但我們為了確保回傳唯一值，將它設為 ID!，但要記得純量型態 ID 是一種字串型態，相對的 mgr 欄位就必須有所取捨，Int 或 String? department 欄位則不存在 EMP 資料表中，這裡我們則設定了一個一對一連結，返回 Department 資料型態。 income 則會是 sal 與 comm 相加的值，我們可以在此朔造資料庫端與使用者介面端的橋樑。</p>
+<p>Department 型態的欄位 employees 回傳一個 Employee 型態的串列，這是個一對多連結，它可以回傳空陣列 [ ]，要記得，空陣列在技術上不是 null，它是不包含任何值的陣列。</p>
+<p>現在我們可以 query:</p>
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  employee(empno: &quot;7788&quot;) &#123;</span><br><span class="line">    empno,</span><br><span class="line">    ename,</span><br><span class="line">    income</span><br><span class="line">    department &#123;</span><br><span class="line">      deptno,</span><br><span class="line">      dname,</span><br><span class="line">      loc</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;data&quot;: &#123;</span><br><span class="line">    &quot;employee&quot;: &#123;</span><br><span class="line">      &quot;empno&quot;: &quot;7788&quot;,</span><br><span class="line">      &quot;ename&quot;: &quot;SCOTT&quot;,</span><br><span class="line">      &quot;income&quot;: 3502,</span><br><span class="line">      &quot;department&quot;: &#123;</span><br><span class="line">        &quot;deptno&quot;: &quot;20&quot;,</span><br><span class="line">        &quot;dname&quot;: &quot;RESEARCH&quot;,</span><br><span class="line">        &quot;loc&quot;: &quot;DALLAS&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><figcaption><span>query</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  department(deptno: &quot;10&quot;) &#123;</span><br><span class="line">    dname,</span><br><span class="line">    employees &#123;</span><br><span class="line">      empno,</span><br><span class="line">      ename,</span><br><span class="line">      income</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><figcaption><span>result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;data&quot;: &#123;</span><br><span class="line">    &quot;department&quot;: &#123;</span><br><span class="line">      &quot;dname&quot;: &quot;ACCOUNTING&quot;,</span><br><span class="line">      &quot;employees&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">          &quot;empno&quot;: &quot;7608&quot;,</span><br><span class="line">          &quot;ename&quot;: &quot;แมว&quot;,</span><br><span class="line">          &quot;income&quot;: 1123</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          &quot;empno&quot;: &quot;7839&quot;,</span><br><span class="line">          &quot;ename&quot;: &quot;KING&quot;,</span><br><span class="line">          &quot;income&quot;: 5000</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          &quot;empno&quot;: &quot;7782&quot;,</span><br><span class="line">          &quot;ename&quot;: &quot;CLARK&quot;,</span><br><span class="line">          &quot;income&quot;: 2450</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          &quot;empno&quot;: &quot;7934&quot;,</span><br><span class="line">          &quot;ename&quot;: &quot;楊喆&quot;,</span><br><span class="line">          &quot;income&quot;: 5678</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p style="text-align: right;">接續下一篇 <a href="/2019/11/06/GraphQL-Schema-Design-2/" title="GraphQL Schema 設計 (2)">GraphQL Schema 設計 (2)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/08/21/GraphQL-Schema-Design-1/" data-id="ckcpzj964001980vz9j36cufw" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/09/09/Examples-for-Fullstack-Vue-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Fullstack Vue 實作範例 (1)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/16/GraphQL-Query-Language-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GraphQL 查詢語言 (2)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

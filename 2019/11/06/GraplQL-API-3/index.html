@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>建立 GraphQL API (3) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="自訂純量 Custom ScalarsGraphQL 有一群預設的純量型態可以在任何欄位中使用。Int、Float、String、Boolean 與 ID 之類的純量可以在大部分的情況下使用，但有時你可能需要建立自訂的純量型態來滿足資料的需求。 當我們實作自訂純量時，必須建立一些關於如何序列化和驗證型態的規則。例如，當我們建立 DateTime 型態時，也要定義怎樣的 DateTime 才可以視為">
+<meta property="og:type" content="article">
+<meta property="og:title" content="建立 GraphQL API (3)">
+<meta property="og:url" content="https://1184yang.github.io/2019/11/06/GraplQL-API-3/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="自訂純量 Custom ScalarsGraphQL 有一群預設的純量型態可以在任何欄位中使用。Int、Float、String、Boolean 與 ID 之類的純量可以在大部分的情況下使用，但有時你可能需要建立自訂的純量型態來滿足資料的需求。 當我們實作自訂純量時，必須建立一些關於如何序列化和驗證型態的規則。例如，當我們建立 DateTime 型態時，也要定義怎樣的 DateTime 才可以視為">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.058Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="建立 GraphQL API (3)">
+<meta name="twitter:description" content="自訂純量 Custom ScalarsGraphQL 有一群預設的純量型態可以在任何欄位中使用。Int、Float、String、Boolean 與 ID 之類的純量可以在大部分的情況下使用，但有時你可能需要建立自訂的純量型態來滿足資料的需求。 當我們實作自訂純量時，必須建立一些關於如何序列化和驗證型態的規則。例如，當我們建立 DateTime 型態時，也要定義怎樣的 DateTime 才可以視為">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraplQL-API-3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/11/06/GraplQL-API-3/" class="article-date">
+  <time datetime="2019-11-06T06:38:32.000Z" itemprop="datePublished">2019-11-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      建立 GraphQL API (3)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="自訂純量-Custom-Scalars"><a href="#自訂純量-Custom-Scalars" class="headerlink" title="自訂純量 Custom Scalars"></a>自訂純量 Custom Scalars</h3><p>GraphQL 有一群預設的純量型態可以在任何欄位中使用。Int、Float、String、Boolean 與 ID 之類的純量可以在大部分的情況下使用，但有時你可能需要建立自訂的純量型態來滿足資料的需求。</p>
+<p>當我們實作自訂純量時，必須建立一些關於如何序列化和驗證型態的規則。例如，當我們建立 DateTime 型態時，也要定義怎樣的 DateTime 才可以視為有效的。</p>
+<p>接下來要在 typeDefs 裡面加入這個自訂的 DateTime 純量型態，並且在 Photo 型態的 created 欄位使用它。我們用 created 欄位來存儲照片被貼出的日期與時間。</p>
+<figure class="highlight js"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = <span class="string">`</span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">  scalar DateTime</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Photo &#123;</span></span><br><span class="line"><span class="string">    ...</span></span><br><span class="line"><span class="string">    created: DateTime!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">`</span></span><br></pre></td></tr></table></figure>
+
+<p>schema 的每一個欄位都要對應一個解析函式。created 欄位要對應一個 DateTime 型態的解析函式。為 DataTime 建立自訂純量型態的原因是我們想要將任何使用這個純量的欄位解析為 JavaScript Date 型態並加以驗證。</p>
+<p>考慮各種用字串來表示日期與時間的方式，以下的字串都代表有效的日期:</p>
+<blockquote>
+<ul>
+<li>“7/30/2019”</li>
+<li>“7/30/2019 1:08:23 PM”</li>
+<li>“Tue Jul 30 2019 13:08:23 GMT+0800 (Taipei Standard Time)”</li>
+<li>“2019-07-30T05:08:23.960Z”</li>
+</ul>
+</blockquote>
+<p>我們可以用 JavaScript 將上面的任何字串做成 datetime 物件:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> d = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="string">"7/30/2019"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(d.toISOString());</span><br><span class="line"><span class="comment">// 2019-07-29T16:00:00.000Z 這是 ISO 格式，注意它的日期</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的程式用一種格式建立一個新的日期物件，接著將那個 datetime 字串轉換成 ISO 格式的日期字串。</p>
+<p>這個 JavaScript Date 不瞭解的東西都是無效的。你可以試著解析下面的資料:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> d = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="string">"Tuesday July"</span>);</span><br><span class="line"><span class="built_in">console</span>.log(d);</span><br><span class="line"><span class="comment">// Invalid Date</span></span><br></pre></td></tr></table></figure>
+
+<p>我們想要在查詢照片的 created 欄位時，確定這個欄位回傳的值含有 ISO 日期時間格式的字串。當欄位回傳日期值時，我們會將那個值 serialize (序列化) 為 ISO 格式的字串:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> serialize = <span class="function"><span class="params">value</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Date</span>(value).toISOString();</span><br></pre></td></tr></table></figure>
+
+<p>序列化函式會從物件取出欄位值，只要那個欄位含有 JavaScript 物件格式的日期，或任何有效的 datetime 字串<br>，GraphQL 就會用 ISO datetime 格式回傳它。</p>
+<p>當你在 schema 實作自訂的純量之後，就可以在 query 中將它當成引數來使用。假設我們為 allPhotos query 建立一種過濾器。這個 query 可以回傳在指定的日期之後拍攝的照片串列:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">type Query &#123;</span><br><span class="line">  ...</span><br><span class="line">  allPhotos(after: DateTime): [Photo!]!</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有這個欄位時，用戶端就可以傳送一個含有 DateTime 值的 query:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query recentPhotos($after: DateTime) &#123;</span><br><span class="line">  allPhotos(after: $after) &#123;</span><br><span class="line">    name</span><br><span class="line">    url</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這可以使用查詢變數來傳送 $after 引數:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"after"</span>: <span class="string">"7/30/2018"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們想要在 after 引數被傳送到解析函式之前確保它已經被解析成 JavaScript Date 物件了:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> parseValue = <span class="function"><span class="params">value</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Date</span>(value);</span><br></pre></td></tr></table></figure>
+
+<p>我們可以使用 parseValue 函式來解析與 query 一起送來的字串的值。 parseValue 函式回傳的值都會被傳給解析函式的引數 args:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    allPhotos: <span class="function">(<span class="params">parent, args</span>) =&gt;</span> &#123;</span><br><span class="line">      args.after <span class="comment">// JavaScript Date 物件</span></span><br><span class="line">      ...</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>自訂純量必須能夠序列化與解析日期。</p>
+<p>我們還有一個地方需要處理日期字串: <strong>當用戶端直接在 query 本身加入日期字串時</strong>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  allPhotos(after: &quot;7/30/2018&quot;) &#123;</span><br><span class="line">    name</span><br><span class="line">    url</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果 after 引數<strong>不是用查詢變數來傳遞的</strong>，它已經被<strong>直接加入查詢文件</strong>了。我們必須在這個值被解析成抽象語法<br>樹 (AST) 之後，從 query 取出它才能解析它。在解析這些值之前，我們使用 parseLiteral 函式從查詢文件中取出它們:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> parseLiteral = <span class="function"><span class="params">ast</span> =&gt;</span> ast.value;</span><br></pre></td></tr></table></figure>
+
+<p>我們用 parseLiteral 函式來取得被直接加入查詢文件的日期值。在本例中，我們只要回傳那個值即可，但在必要時，我們也可以在這個函式內執行額外的解析步驟。</p>
+<p>當我們建立自訂純量時，需要使用為了處理 DateTime 值而設計的三個函式。我們加入自訂純量 DateTime 的解析函式:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; GraphQLScalarType &#125; = <span class="built_in">require</span>(<span class="string">'graphql'</span>);</span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123; ... &#125;,</span><br><span class="line">  Mutation: &#123; ... &#125;,</span><br><span class="line">  Photo: &#123; ... &#125;,</span><br><span class="line">  User: &#123; ... &#125;,</span><br><span class="line">  DateTime: <span class="keyword">new</span> GraphQLScalarType(&#123;</span><br><span class="line">    name: <span class="string">"DateTime"</span>,</span><br><span class="line">    description: <span class="string">"有效的日期時間值"</span>,</span><br><span class="line">    parseValue: <span class="function"><span class="params">value</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Date</span>(value),</span><br><span class="line">    serialize: <span class="function"><span class="params">value</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Date</span>(value).toISOString(),</span><br><span class="line">    parseLiteral: <span class="function"><span class="params">ast</span> =&gt;</span> ast.value</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我們使用 GraphQLScalarType 建構式來建立 “自訂純量” 的解析函式。我們將 DateTime 解析函式放在解析函式清單中。當我們建立純量型態時，必須加入三個函式: <em>serialize<em>、</em>parseValue</em> 與 <em>parseLiteral</em>，它們會處理任何實作 DateTime 純量的欄位或引數。</p>
+<p>我們也要在樣本資料中加入 created 鍵與日期值，使用任何一個有效的日期字串或物件都可以，因為我們建立的欄位會先被<em>序列化</em>再回傳:</p>
+<figure class="highlight javascript"><figcaption><span>models/data.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">exports.photos = [</span><br><span class="line">  &#123;</span><br><span class="line">    ...</span><br><span class="line">    created : <span class="string">"3-28-2018"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    ...</span><br><span class="line">    created : <span class="string">"1-2-2015"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    ...</span><br><span class="line">    created : <span class="string">"2019-07-30T05:08:23.960Z"</span></span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>現在，當我們在選擇組加入 created 欄位時，可以看到這些日期與型態都被格式化成 ISO 日期字串了:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query listPhotos &#123;</span><br><span class="line">  allPhotos &#123;</span><br><span class="line">    name</span><br><span class="line">    created</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下來的工作只剩下在每張照片被貼出時為它們加上時戳。我們在每張照片加入一個 created 欄位，並且用 JavaScript Date 物件與自訂型態 DateTime 來加上及驗證時戳。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">postPhoto(parent, args) &#123;</span><br><span class="line">  <span class="keyword">let</span> newPhoto = &#123;</span><br><span class="line">    id: _id++,</span><br><span class="line">    ...args.input,</span><br><span class="line">    created: <span class="keyword">new</span> <span class="built_in">Date</span>()</span><br><span class="line">  &#125;;</span><br><span class="line">  photos.push(newPhoto);</span><br><span class="line">  <span class="keyword">return</span> newPhoto;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在當新照片被貼出時，就會被加上它們的建立日期與時間時戳了。</p>
+<figure class="highlight plain"><figcaption><span>postPhoto</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mutation newPhoto &#123;</span><br><span class="line">  postPhoto(input: &#123;</span><br><span class="line">    name: &quot;範例照片 haha&quot;,</span><br><span class="line">    description: &quot;這是範例照片 after custom scalar&quot;</span><br><span class="line">  &#125;) &#123;</span><br><span class="line">    id</span><br><span class="line">    name</span><br><span class="line">    description</span><br><span class="line">    url</span><br><span class="line">    created</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><figcaption><span>results</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"postPhoto"</span>: &#123;</span><br><span class="line">      <span class="attr">"id"</span>: <span class="string">"5"</span>,</span><br><span class="line">      <span class="attr">"name"</span>: <span class="string">"範例照片 haha"</span>,</span><br><span class="line">      <span class="attr">"description"</span>: <span class="string">"這是範例照片 after custom scalar"</span>,</span><br><span class="line">      <span class="attr">"url"</span>: <span class="string">"https://fakeimg.pl/120x160/?text=5"</span>,</span><br><span class="line">      <span class="attr">"created"</span>: <span class="string">"2019-07-30T08:04:57.022Z"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<blockquote>
+<h4 id="抽象語法樹-abstract-syntax-tree-AST"><a href="#抽象語法樹-abstract-syntax-tree-AST" class="headerlink" title="抽象語法樹 (abstract syntax tree, AST)"></a><em>抽象語法樹 (abstract syntax tree, AST)</em></h4></blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>GraphQL query 文件是個字串。當我們傳送 query 給 GraphQL API 時，字串會被解析成<strong>抽象語法樹</strong>，並且在操作執行之前進行驗證。抽象語法樹 (AST) 是一種代表 query 的階層式物件。AST 是個含有內嵌欄位的物件，裡面的欄位代表 GraphQL query 的細節。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>解析程序的第一個步驟是將字串解析成一堆較小的片段，這個步驟包括將關鍵字、引數，甚至括號與冒號解析成單獨的標記，這個程序稱為<strong>詞法分析</strong> (lexing 或 lexical analysis)。接下來將詞法分析後的 query 解析成 AST。使用 AST 可讓動態修改與驗證 query 的工作輕鬆許多。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>GraphQL query 是一種 GraphQL 文件。文件至少要有一個<strong>定義</strong>(Definition)，也可能有一串定義。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<ul>
+<li>定義只有可能是兩種型態: OperationDefinition 或 FragementDefinition。</li>
+<li>一個 OperationDefinition 只能含有三種操作型態: mutation、query 或 subscription。</li>
+<li>每一個操作定義都有 OperationType 與 SelectionSet。</li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>在每一個操作後面的大括號 { } 內都有該操作的 SelectionSet，它們就是我們查詢的欄位。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>GraphQL 可以遍歷這個 AST 並且用 GraphQL 語言與目前的 schema 來驗證它的細節。如果查詢語言的語法是正確的，且 schema 含有我們請求的欄位與型態，該操作就會執行。如果情況不是如此，就會回傳特定的錯誤。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>此外，AST 物件比字串容易修改。如果我們想要在 query 附加另外的欄位資料，可直接修改 AST。我們只要為特定的操作加入一個額外的 SelectionSet 就可以了。AST 是 GraphQL 很重要的成分。每一項操作都會被解析成 AST，以便對它進行驗證並最終執行它。</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<h4 id="模塊化的-GraphQL-架構"><a href="#模塊化的-GraphQL-架構" class="headerlink" title="模塊化的 GraphQL 架構"></a>模塊化的 GraphQL 架構</h4><p>到此我們會發覺 index.js 文件隨著 schema 與 resolvers 而不斷的增長，我們不能繼續都將程式碼定義在一個單一的文件中，我們必須模組化。</p>
+<p>模式拼接 (Schema stitching) 是 GraphQL 中的一個強大功能。它是將多個 GraphQL 模式合併到一個模式中。目前，我們應用程序中的模式尚屬單純，但將來可能需要使用多個模式和模式拼接更複雜的操作。其中每個模式都匹配一種類型 (例如 User 使用者類型，Photo 照片類型)，該操作需要合併兩個 GraphQL 模式，以便能使用 GraphQL 伺服器的 API 訪問整個 GraphQL 模式。這是架構拼接背後的基本動機之一。</p>
+<p>甚至可以更進一步，最終可能會出現微服務或第三方平台，這些平台各有其專用的 GraphQL API，然後可以將它們合併到一個 GraphQL 架構中，併接成為單一的事實來源。最後，客戶端可以使用整個模式，而該模式由多個應用領域驅動的微服務組成。</p>
+<p>在我們的例子中，讓我們從 GraphQL schema 和 resolvers 的技術問題開始分離。之後，您將按使用者(User)和照片(Photo)的應用域(domain)分隔。</p>
+<p>首先在我們的專案目錄下建立兩個子目錄: schema 與 resolvers，我們要將原先定義在 index.js 的 typeDefs 與 resolvers 的程式碼分離出來，並放入這子目錄中。</p>
+<figure class="highlight javascript"><figcaption><span>schema/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; gql &#125; = <span class="built_in">require</span>(<span class="string">"apollo-server-express"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    sayHello: String!</span></span><br><span class="line"><span class="string">    totalPhotos: Int!</span></span><br><span class="line"><span class="string">    allPhotos: [Photo!]!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  input PostPhotoInput &#123;</span></span><br><span class="line"><span class="string">    name: String!</span></span><br><span class="line"><span class="string">    category: PhotoCategory = PORTRAIT</span></span><br><span class="line"><span class="string">    description: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Mutation &#123;</span></span><br><span class="line"><span class="string">    postPhoto(input: PostPhotoInput!): Photo!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  enum PhotoCategory &#123;</span></span><br><span class="line"><span class="string">    SELFIE</span></span><br><span class="line"><span class="string">    PORTRAIT</span></span><br><span class="line"><span class="string">    ACTION</span></span><br><span class="line"><span class="string">    LANDSCAPE</span></span><br><span class="line"><span class="string">    GRAPHIC</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  scalar DateTime</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Photo &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    url: String!</span></span><br><span class="line"><span class="string">    name: String!</span></span><br><span class="line"><span class="string">    description: String</span></span><br><span class="line"><span class="string">    category: PhotoCategory!</span></span><br><span class="line"><span class="string">    postedBy: User!</span></span><br><span class="line"><span class="string">    taggedUsers: [User!]!</span></span><br><span class="line"><span class="string">    created: DateTime!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    appLogin: ID!</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    avatar: String</span></span><br><span class="line"><span class="string">    postedPhotos: [Photo!]!</span></span><br><span class="line"><span class="string">    inPhotos: [Photo!]!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<p>GraphQL schema 的定義是一個字符串，原先我們使用 JavaScript 的模板文字 (template literals) 編寫。這裡改用 gql，gql 是一種 JavaScript 模板文字標記，用於將 GraphQL 查詢字符串解析為標準 GraphQL AST或抽象語法樹。</p>
+<p>原先使用字符串編寫並沒甚麼錯， 但是，如果您嘗試添加額外的欄位，或要將多個 GraphQL 文件或查詢合併在一起，則一般的字符串操作起來不怎麼方便。</p>
+<p>再來就是 resolvers 子目錄下的 index.js:</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; users, photos, tags &#125; = <span class="built_in">require</span>(<span class="string">"../models/data"</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; GraphQLScalarType &#125; = <span class="built_in">require</span>(<span class="string">"graphql"</span>);</span><br><span class="line"><span class="keyword">const</span> timestamp = <span class="built_in">require</span>(<span class="string">'monotonic-timestamp'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    sayHello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">"哈囉，台南! 就從這裡開始。"</span>,</span><br><span class="line">    totalPhotos: <span class="function"><span class="params">()</span> =&gt;</span> photos.length,</span><br><span class="line">    allPhotos: <span class="function"><span class="params">()</span> =&gt;</span> photos</span><br><span class="line">  &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    postPhoto(parent, args) &#123;</span><br><span class="line">      <span class="keyword">let</span> newPhoto = &#123;</span><br><span class="line">        id: timestamp().toString(),</span><br><span class="line">        ...args.input,</span><br><span class="line">        created: <span class="keyword">new</span> <span class="built_in">Date</span>()</span><br><span class="line">      &#125;;</span><br><span class="line">      photos.push(newPhoto);</span><br><span class="line">      <span class="keyword">return</span> newPhoto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  Photo: &#123;</span><br><span class="line">    url: <span class="function"><span class="params">parent</span> =&gt;</span> <span class="string">`https://fakeimg.pl/120x160/?text=<span class="subst">$&#123;parent.id&#125;</span>`</span>,</span><br><span class="line">    postedBy: <span class="function"><span class="params">parent</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> users.find(<span class="function"><span class="params">u</span> =&gt;</span> u.appLogin === parent.appUser);</span><br><span class="line">    &#125;,</span><br><span class="line">    taggedUsers: <span class="function"><span class="params">parent</span> =&gt;</span></span><br><span class="line">      tags</span><br><span class="line">        <span class="comment">// 回傳一個只含當前照片的 tag 陣列</span></span><br><span class="line">        .filter(<span class="function"><span class="params">tag</span> =&gt;</span> tag.photoID === parent.id)</span><br><span class="line">        <span class="comment">// 將 tag 陣列轉換成 userID 陣列</span></span><br><span class="line">        .map(<span class="function"><span class="params">tag</span> =&gt;</span> tag.userID)</span><br><span class="line">        <span class="comment">// 將 userID 陣列轉換成使用者物件陣列</span></span><br><span class="line">        .map(<span class="function"><span class="params">userID</span> =&gt;</span> users.find(<span class="function"><span class="params">u</span> =&gt;</span> u.appLogin === userID))</span><br><span class="line">  &#125;,</span><br><span class="line">  User: &#123;</span><br><span class="line">    postedPhotos: <span class="function"><span class="params">parent</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> photos.filter(<span class="function"><span class="params">p</span> =&gt;</span> p.appUser === parent.appLogin);</span><br><span class="line">    &#125;,</span><br><span class="line">    inPhotos: <span class="function"><span class="params">parent</span> =&gt;</span></span><br><span class="line">      tags</span><br><span class="line">        <span class="comment">// 回傳一個只含有當前使用者的 tag 陣列</span></span><br><span class="line">        .filter(<span class="function"><span class="params">tag</span> =&gt;</span> tag.userID === parent.appLogin)</span><br><span class="line">        <span class="comment">// 將 tag 陣列轉換成 PhotoID 陣列</span></span><br><span class="line">        .map(<span class="function"><span class="params">tag</span> =&gt;</span> tag.photoID)</span><br><span class="line">        <span class="comment">// 將 photoID 陣列轉換成照片物件陣列</span></span><br><span class="line">        .map(<span class="function"><span class="params">photoID</span> =&gt;</span> photos.find(<span class="function"><span class="params">p</span> =&gt;</span> p.id === photoID))</span><br><span class="line">  &#125;,</span><br><span class="line">  DateTime: <span class="keyword">new</span> GraphQLScalarType(&#123;</span><br><span class="line">    name: <span class="string">"DateTime"</span>,</span><br><span class="line">    description: <span class="string">"有效的日期時間值"</span>,</span><br><span class="line">    parseValue: <span class="function"><span class="params">value</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Date</span>(value),</span><br><span class="line">    serialize: <span class="function"><span class="params">value</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Date</span>(value).toISOString(),</span><br><span class="line">    parseLiteral: <span class="function"><span class="params">ast</span> =&gt;</span> ast.value</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>注意這裡的 models/data 路徑不一樣了。也改用 monotonic-timestamp 套件來產生照片的 id，可以使用 npm 安裝此套件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install monotonic-timestamp --save</span><br></pre></td></tr></table></figure>
+
+<p>最後就要修改專案目錄下的 index.js</p>
+<figure class="highlight javascript"><figcaption><span>index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; ApolloServer &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-express'</span>);</span><br><span class="line"><span class="keyword">const</span> typeDefs = <span class="built_in">require</span>(<span class="string">'./schema'</span>);</span><br><span class="line"><span class="keyword">const</span> resolvers = <span class="built_in">require</span>(<span class="string">'./resolvers'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = express();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">server.applyMiddleware(&#123; app &#125;);</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/'</span>, (req, res) =&gt; res.end(<span class="string">"Welcome to the GraphQL Sample API"</span>));</span><br><span class="line"></span><br><span class="line">app.listen(&#123; <span class="attr">port</span>: <span class="number">4000</span> &#125;, () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`GraphQL Server running @ http://localhost:4000<span class="subst">$&#123;server.graphqlPath&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>把 schema 與 resolvers 加進來，現在整個專案的入口點變的清爽多了。但故事還沒完，如果 schema 與 resolvers 越來越多，是不是也可以再以應用域 (domain) 模組化?</p>
+<p>回到 schema 目錄下，我們還需要再改造 schema/index.js。建立兩個新檔案 user.js 與 photo.js 我們要將<br> User 與 Photo 分開定義。</p>
+ <figure class="highlight javascript"><figcaption><span>schema/user.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; gql &#125; = <span class="built_in">require</span>(<span class="string">"apollo-server-express"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = gql<span class="string">`</span></span><br><span class="line"><span class="string">  extend type Query &#123;</span></span><br><span class="line"><span class="string">    sayHello: String!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    appLogin: ID!</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    avatar: String</span></span><br><span class="line"><span class="string">    postedPhotos: [Photo!]!</span></span><br><span class="line"><span class="string">    inPhotos: [Photo!]!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+ <figure class="highlight javascript"><figcaption><span>schema/photo.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; gql &#125; = <span class="built_in">require</span>(<span class="string">"apollo-server-express"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = gql<span class="string">`</span></span><br><span class="line"><span class="string">  extend type Query &#123;</span></span><br><span class="line"><span class="string">    totalPhotos: Int!</span></span><br><span class="line"><span class="string">    allPhotos: [Photo!]!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  extend type Mutation &#123;</span></span><br><span class="line"><span class="string">    postPhoto(input: PostPhotoInput!): Photo!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  input PostPhotoInput &#123;</span></span><br><span class="line"><span class="string">    name: String!</span></span><br><span class="line"><span class="string">    category: PhotoCategory = PORTRAIT</span></span><br><span class="line"><span class="string">    description: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  enum PhotoCategory &#123;</span></span><br><span class="line"><span class="string">    SELFIE</span></span><br><span class="line"><span class="string">    PORTRAIT</span></span><br><span class="line"><span class="string">    ACTION</span></span><br><span class="line"><span class="string">    LANDSCAPE</span></span><br><span class="line"><span class="string">    GRAPHIC</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  scalar DateTime</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Photo &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    url: String!</span></span><br><span class="line"><span class="string">    name: String!</span></span><br><span class="line"><span class="string">    description: String</span></span><br><span class="line"><span class="string">    category: PhotoCategory!</span></span><br><span class="line"><span class="string">    postedBy: User!</span></span><br><span class="line"><span class="string">    taggedUsers: [User!]!</span></span><br><span class="line"><span class="string">    created: DateTime!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<p>注意這理 Query 和 Mutation 類型的 <strong>extend</strong> 語句。每個文件只描述自己的實體，包含類型及其關係。 關係可以是來自不同文件的類型，例如，與 User 使用者類型關係的 Photo 照片類型，即使類型是定義在不同的文件。由於現在有多種類型，因此需要擴展類型 (extend)。 </p>
+<p>接下來，在 schema/index.js 中為它們定義共享基類型：</p>
+<figure class="highlight javascript"><figcaption><span>schema/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; gql &#125; = <span class="built_in">require</span>(<span class="string">"apollo-server-express"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> userSchema = <span class="built_in">require</span>(<span class="string">'./user'</span>);</span><br><span class="line"><span class="keyword">const</span> photoSchema = <span class="built_in">require</span>(<span class="string">'./photo'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> linkSchema = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    _: Boolean</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Mutation &#123;</span></span><br><span class="line"><span class="string">    _: Boolean</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Subscription &#123;</span></span><br><span class="line"><span class="string">    _: Boolean</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = [linkSchema, userSchema, photoSchema];</span><br></pre></td></tr></table></figure>
+
+<p>在此我們定義一個 linkSchema 共享基類型，它會使用其他特定於應用域 schema 中的 extend 語句進行擴展，它使用的是一種併接模式(Schema Stitching)。</p>
+<p>現在我們也要分離解析器的映射，resolvers/user.js 與 resolvers/photo.js:</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/user.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; photos, tags &#125; = <span class="built_in">require</span>(<span class="string">"../models/data"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    sayHello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">"哈囉，台南! 就從這裡開始。"</span></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  User: &#123;</span><br><span class="line">    postedPhotos: <span class="function"><span class="params">parent</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> photos.filter(<span class="function"><span class="params">p</span> =&gt;</span> p.appUser === parent.appLogin);</span><br><span class="line">    &#125;,</span><br><span class="line">    inPhotos: <span class="function"><span class="params">parent</span> =&gt;</span></span><br><span class="line">      tags</span><br><span class="line">        <span class="comment">// 回傳一個只含有當前使用者的 tag 陣列</span></span><br><span class="line">        .filter(<span class="function"><span class="params">tag</span> =&gt;</span> tag.userID === parent.appLogin)</span><br><span class="line">        <span class="comment">// 將 tag 陣列轉換成 PhotoID 陣列</span></span><br><span class="line">        .map(<span class="function"><span class="params">tag</span> =&gt;</span> tag.photoID)</span><br><span class="line">        <span class="comment">// 將 photoID 陣列轉換成照片物件陣列</span></span><br><span class="line">        .map(<span class="function"><span class="params">photoID</span> =&gt;</span> photos.find(<span class="function"><span class="params">p</span> =&gt;</span> p.id === photoID))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><figcaption><span>resolvers/photo.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; users, photos, tags &#125; = <span class="built_in">require</span>(<span class="string">"../models/data"</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; GraphQLScalarType &#125; = <span class="built_in">require</span>(<span class="string">"graphql"</span>);</span><br><span class="line"><span class="keyword">const</span> timestamp = <span class="built_in">require</span>(<span class="string">'monotonic-timestamp'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    totalPhotos: <span class="function"><span class="params">()</span> =&gt;</span> photos.length,</span><br><span class="line">    allPhotos: <span class="function"><span class="params">()</span> =&gt;</span> photos</span><br><span class="line">  &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    postPhoto(parent, args) &#123;</span><br><span class="line">      <span class="keyword">let</span> newPhoto = &#123;</span><br><span class="line">        id: timestamp().toString(),</span><br><span class="line">        ...args.input,</span><br><span class="line">        created: <span class="keyword">new</span> <span class="built_in">Date</span>()</span><br><span class="line">      &#125;;</span><br><span class="line">      photos.push(newPhoto);</span><br><span class="line">      <span class="keyword">return</span> newPhoto;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  Photo: &#123;</span><br><span class="line">    url: <span class="function"><span class="params">parent</span> =&gt;</span> <span class="string">`https://fakeimg.pl/120x160/?text=<span class="subst">$&#123;parent.id&#125;</span>`</span>,</span><br><span class="line">    postedBy: <span class="function"><span class="params">parent</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> users.find(<span class="function"><span class="params">u</span> =&gt;</span> u.appLogin === parent.appUser);</span><br><span class="line">    &#125;,</span><br><span class="line">    taggedUsers: <span class="function"><span class="params">parent</span> =&gt;</span></span><br><span class="line">      tags</span><br><span class="line">        <span class="comment">// 回傳一個只含當前照片的 tag 陣列</span></span><br><span class="line">        .filter(<span class="function"><span class="params">tag</span> =&gt;</span> tag.photoID === parent.id)</span><br><span class="line">        <span class="comment">// 將 tag 陣列轉換成 userID 陣列</span></span><br><span class="line">        .map(<span class="function"><span class="params">tag</span> =&gt;</span> tag.userID)</span><br><span class="line">        <span class="comment">// 將 userID 陣列轉換成使用者物件陣列</span></span><br><span class="line">        .map(<span class="function"><span class="params">userID</span> =&gt;</span> users.find(<span class="function"><span class="params">u</span> =&gt;</span> u.appLogin === userID))</span><br><span class="line">  &#125;,</span><br><span class="line">  DateTime: <span class="keyword">new</span> GraphQLScalarType(&#123;</span><br><span class="line">    name: <span class="string">"DateTime"</span>,</span><br><span class="line">    description: <span class="string">"有效的日期時間值"</span>,</span><br><span class="line">    parseValue: <span class="function"><span class="params">value</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Date</span>(value),</span><br><span class="line">    serialize: <span class="function"><span class="params">value</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Date</span>(value).toISOString(),</span><br><span class="line">    parseLiteral: <span class="function"><span class="params">ast</span> =&gt;</span> ast.value</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><figcaption><span>resolvers/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> userResolvers = <span class="built_in">require</span>(<span class="string">'./user'</span>);</span><br><span class="line"><span class="keyword">const</span> photoResolvers = <span class="built_in">require</span>(<span class="string">'./photo'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = [userResolvers, photoResolvers];</span><br></pre></td></tr></table></figure>
+
+<p>由於 Apollo Server 也接受一個解析器映射陣列，resolvers/index.js 文件中導入所有解析器映射，並將它們 export 為解析器映射列表。現在的模組化好多了。</p>
+<p>接下來我們需要把資料移往資料庫了。</p><p style="text-align: right;">接續下一篇 <a href="/2019/11/07/GraphQL-API-4/" title="建立 GraphQL API (4)">建立 GraphQL API (4)</a></p><p></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/11/06/GraplQL-API-3/" data-id="ckcpzj966001b80vzl312mh2g" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/11/07/GraphQL-API-4/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          建立 GraphQL API (4)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/11/06/GraphQL-API-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">建立 GraphQL API (2)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

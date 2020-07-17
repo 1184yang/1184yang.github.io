@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Vue Fullstack 框架範本 | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="這個框架範本，是建立在Fullstack Vue 實作範例 - Authorization 介紹的基礎上。 這個範本則把使用者的資料移到資料庫中，使用的是 LevelDB。客戶端也有介面可以維護使用者的資料，包括新增、修改與刪除。使用者如果有 AD 帳號，可以選擇使用 AD 認證，也可使用自設的密碼認證，可設定角色(Role)作授權的管理，授權包含客戶端與伺服端 API 的授權。 這個範本可以當成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vue Fullstack 框架範本">
+<meta property="og:url" content="https://1184yang.github.io/2019/10/05/Vue-Fullstack-Sample/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="這個框架範本，是建立在Fullstack Vue 實作範例 - Authorization 介紹的基礎上。 這個範本則把使用者的資料移到資料庫中，使用的是 LevelDB。客戶端也有介面可以維護使用者的資料，包括新增、修改與刪除。使用者如果有 AD 帳號，可以選擇使用 AD 認證，也可使用自設的密碼認證，可設定角色(Role)作授權的管理，授權包含客戶端與伺服端 API 的授權。 這個範本可以當成">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2019/10/05/Vue-Fullstack-Sample/ui-1.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.086Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vue Fullstack 框架範本">
+<meta name="twitter:description" content="這個框架範本，是建立在Fullstack Vue 實作範例 - Authorization 介紹的基礎上。 這個範本則把使用者的資料移到資料庫中，使用的是 LevelDB。客戶端也有介面可以維護使用者的資料，包括新增、修改與刪除。使用者如果有 AD 帳號，可以選擇使用 AD 認證，也可使用自設的密碼認證，可設定角色(Role)作授權的管理，授權包含客戶端與伺服端 API 的授權。 這個範本可以當成">
+<meta name="twitter:image" content="https://1184yang.github.io/2019/10/05/Vue-Fullstack-Sample/ui-1.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Vue-Fullstack-Sample" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/10/05/Vue-Fullstack-Sample/" class="article-date">
+  <time datetime="2019-10-05T00:40:28.000Z" itemprop="datePublished">2019-10-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JavaScript/">JavaScript</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Vue Fullstack 框架範本
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>這個框架範本，是建立在<a href="http://10.11.25.137:6460/2019/09/18/Examples-for-Fullstack-Vue-2/" target="_blank" rel="noopener">Fullstack Vue 實作範例 - Authorization</a> 介紹的基礎上。</p>
+<p>這個範本則把使用者的資料移到資料庫中，使用的是 <a href="https://github.com/google/leveldb" target="_blank" rel="noopener">LevelDB</a>。客戶端也有介面可以維護使用者的資料，包括新增、修改與刪除。使用者如果有 AD 帳號，可以選擇使用 AD 認證，也可使用自設的密碼認證，可設定角色(Role)作授權的管理，授權包含客戶端與伺服端 API 的授權。</p>
+<p>這個範本可以當成以 Vue.js 為基礎的實作架構，複製後就可以直接在架構上新增功能。認證與授權都已在架構中。認證應不需要做甚麼修改，授權只需依照使用者授權的範本，複製修改即可。</p>
+<p>現在大家都熱中在客戶端技術的學習，但我認為如果要走雲端及微服務，伺服端的 API 與資料的一致性才是重點與複雜所在，這可以事先漸進的把這些概念與機制建立起來。而這些概念與架構都在今年的 Node.js 教育訓練中。</p>
+<h3 id="原始碼"><a href="#原始碼" class="headerlink" title="原始碼"></a>原始碼</h3><ul>
+<li>如果你有安裝 git，可以用 git clone 取得程式碼，我的 Z: 虛擬硬碟是指向 VOL111。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git clone Z:\DBA\Git\Depot\vue-fullstack-sample.git</span><br><span class="line"></span><br><span class="line">cd vue-fullstack-sample</span><br><span class="line"></span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line">npm start</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果沒有安裝 git，可從 VOL111:\DBA\Oracle Training\Xyang\Source\vue-fullstack-sample.zip 取得壓縮檔，解壓縮後:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br><span class="line"></span><br><span class="line">npm start</span><br></pre></td></tr></table></figure>
+
+<p>如果要用在正試環境時，記得將 package.json 的屬性 start 改為用 Node.js 啟動:</p>
+<figure class="highlight"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">"scripts": &#123;</span><br><span class="line">  "start": "node ./bin/www"</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>你可以使用 admin 管理員帳號管理使用者，記得更改 admin 的密碼。</p>
+<p>範例帳號，預設密碼都是 changeonlogin:</p>
+<ul>
+<li>admin</li>
+<li>user</li>
+<li>scott</li>
+<li>smith</li>
+<li>allen</li>
+</ul>
+<p>網址 <a href="http://localhost:3000/" target="_blank" rel="noopener">http://localhost:3000/</a></p>
+<p><strong>Ready to go!  Go!</strong></p>
+<h3 id="頁面簡介"><a href="#頁面簡介" class="headerlink" title="頁面簡介"></a>頁面簡介</h3><p>整體架構與<a href="http://10.11.25.137:6460/2019/09/18/Examples-for-Fullstack-Vue-2/" target="_blank" rel="noopener">Fullstack Vue 實作範例 - Authorization</a> 是一樣的，伺服器端新增了使用者的新增、更改、刪除與更改密碼的 API，可以把這個部分改使用 GraphQL，或者使用 C# .NET，這不會影響客戶端的程式碼。</p>
+<p>客戶端則新增了使用者管理的操作頁面，有些頁面只有管理者才能操作，有些頁面則限制只有登入的使用者能存取自己的資訊。這不僅在客戶端要作管控，伺服端的 API 也需同時管控這些資料的授權。</p>
+<img src="/2019/10/05/Vue-Fullstack-Sample/ui-1.png" title="Vue Client">
+
+<p>在這個架構上，你只需加入自己的頁面與 REST API，就像使用 APEX 一樣。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/10/05/Vue-Fullstack-Sample/" data-id="ckcpzj96r001y80vzjf7ri0r9" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/10/18/Vue-Oracle-Sample/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Vue Oracle 框架範本
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/18/Examples-for-Fullstack-Vue-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Fullstack Vue 實作範例 - Authorization</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

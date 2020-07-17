@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>建立 GraphQL API (7) | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="分頁 Pagination使用 GraphQL，幾乎可以肯定會遇到一個含有項目列表 (lists of items) 的應用程序，稱為分頁 (Pagination) 功能。  在應用程序中存儲的用戶照片會變成很長的列表，並且當用戶端應用程序請求顯示照片時，立即從資料庫中檢索所有照片可能會導致嚴重的性能瓶頸。分頁允許您將項目列表拆分為多個列表，稱為頁面 (pages)。 通常用限制 (limit)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="建立 GraphQL API (7)">
+<meta property="og:url" content="https://1184yang.github.io/2019/12/05/GraphQL-API-7/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="分頁 Pagination使用 GraphQL，幾乎可以肯定會遇到一個含有項目列表 (lists of items) 的應用程序，稱為分頁 (Pagination) 功能。  在應用程序中存儲的用戶照片會變成很長的列表，並且當用戶端應用程序請求顯示照片時，立即從資料庫中檢索所有照片可能會導致嚴重的性能瓶頸。分頁允許您將項目列表拆分為多個列表，稱為頁面 (pages)。 通常用限制 (limit)">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-07-17T08:46:16.006Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="建立 GraphQL API (7)">
+<meta name="twitter:description" content="分頁 Pagination使用 GraphQL，幾乎可以肯定會遇到一個含有項目列表 (lists of items) 的應用程序，稱為分頁 (Pagination) 功能。  在應用程序中存儲的用戶照片會變成很長的列表，並且當用戶端應用程序請求顯示照片時，立即從資料庫中檢索所有照片可能會導致嚴重的性能瓶頸。分頁允許您將項目列表拆分為多個列表，稱為頁面 (pages)。 通常用限制 (limit)">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-GraphQL-API-7" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/12/05/GraphQL-API-7/" class="article-date">
+  <time datetime="2019-12-04T23:02:29.000Z" itemprop="datePublished">2019-12-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GraphQL/">GraphQL</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      建立 GraphQL API (7)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="分頁-Pagination"><a href="#分頁-Pagination" class="headerlink" title="分頁 Pagination"></a>分頁 Pagination</h3><p>使用 GraphQL，幾乎可以肯定會遇到一個含有項目列表 (lists of items) 的應用程序，稱為分頁 (Pagination) 功能。 </p>
+<p>在應用程序中存儲的用戶照片會變成很長的列表，並且當用戶端應用程序請求顯示照片時，立即從資料庫中檢索所有照片可能會導致嚴重的性能瓶頸。分頁允許您將項目列表拆分為多個列表，稱為頁面 (pages)。 通常用限制 (limit) 和偏移量 (offset) 定義頁面。 這樣，您可以以項目頁面 (one page of items) 進行請求，而當用戶希望查看更多項目時，可以請求另一頁項目。</p>
+<p>有兩種不同的分頁方法可在 GraphQL 中實現分頁。 第一種方法是較簡單的方法，稱為 Offset/Limit-based Pagination 的分頁方法。 另一種進階的方法是 Cursor-based pagination 的分頁方法，這是在應用程序中允許分頁比較複雜的方法之一。</p>
+<h4 id="Offset-Limit-Pagination"><a href="#Offset-Limit-Pagination" class="headerlink" title="Offset/Limit Pagination"></a>Offset/Limit Pagination</h4><p>Offset/Limit-based pagination 並不是很難實現。 <em>limit</em> 說明您要從整個列表中檢索多少個項目，<em>offset</em> 則說明要從整個列表中開始的位置。 使用不同的偏移量 (offset) ，可以在整個項目列表中移動並檢索具有限制 (limit) 數量的子列表（頁面）。</p>
+<p>看起來似乎很簡單，但這也需要資料庫端的實作，以下是 PostgreSQL SQL:</p>
+<figure class="highlight sql"><figcaption><span>PostgreSQL</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">db01=&gt; select empno, ename from emp</span><br><span class="line">db01-&gt; order by empno;</span><br><span class="line"> empno | ename</span><br><span class="line"><span class="comment">-------+--------</span></span><br><span class="line">  7369 | SMITH</span><br><span class="line">  7499 | ALLEN</span><br><span class="line">  7566 | 楊瑞珉</span><br><span class="line">  7607 | バック</span><br><span class="line">  7608 | 馬小九</span><br><span class="line">  7609 | 蔡大一</span><br><span class="line">  7654 | 葉習堃</span><br><span class="line">  7698 | BLAKE</span><br><span class="line">  7782 | 楊瑞</span><br><span class="line">  7788 | SCOTT</span><br><span class="line">  7839 | KING</span><br><span class="line">  7844 | 하찮고</span><br><span class="line">  7876 | ADAMS</span><br><span class="line">  7900 | JAMES</span><br><span class="line">  7902 | FORD</span><br><span class="line">  7934 | 楊喆</span><br><span class="line">  8907 | 牸祢</span><br><span class="line">  9006 | 林羿君</span><br><span class="line">  9011 | 文英蔡</span><br></pre></td></tr></table></figure>
+
+<p>加上 offset 與 limit，注意這裡的 order by 是必須的。offset 是從哪個位置開始，limit 則是限制筆數。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">db01=&gt; select empno, ename from emp</span><br><span class="line">db01-&gt; order by empno</span><br><span class="line">db01-&gt; offset 5 limit 5;</span><br><span class="line"> empno | ename</span><br><span class="line">-------+--------</span><br><span class="line">  7609 | 蔡大一</span><br><span class="line">  7654 | 葉習堃</span><br><span class="line">  7698 | BLAKE</span><br><span class="line">  7782 | 楊瑞</span><br><span class="line">  7788 | SCOTT</span><br><span class="line">(5 rows)</span><br></pre></td></tr></table></figure>
+
+<p>PostgreSQL 一直都有支援 SQL 分頁功能，Oracle 則直到 Oracle 12c 才有支援，在 12c 之前則需使用一些技巧。如果未來是以 Web App 為策略，則 Oracle Database 升級要盡早規畫。以下在 YK11 的 SQL: </p>
+<figure class="highlight sql"><figcaption><span>Oracle</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">YK11&gt; select empno, ename from apexdemo.emp</span><br><span class="line">  2  order by empno;</span><br><span class="line"></span><br><span class="line">     EMPNO ENAME</span><br><span class="line"><span class="comment">---------- ------------------------------</span></span><br><span class="line">      7369 史密斯</span><br><span class="line">      7499 ALLEN</span><br><span class="line">      7521 WARD</span><br><span class="line">      7566 JONES</span><br><span class="line">      7654 馬丁</span><br><span class="line">      7698 布萊克</span><br><span class="line">      7782 楊瑞</span><br><span class="line">      7788 SCOTT</span><br><span class="line">      7839 KING</span><br><span class="line">      7844 TURNER</span><br><span class="line">      7876 ADAMS</span><br><span class="line">      7900 楊瑞</span><br><span class="line">      7902 福特</span><br><span class="line">      7934 米勒</span><br><span class="line"></span><br><span class="line">14 rows selected.</span><br></pre></td></tr></table></figure>
+
+<p>Oracle 的 limit 有一些不同:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">YK11&gt; select empno, ename from apexdemo.emp</span><br><span class="line">  2  order by empno</span><br><span class="line">  3  offset 5 rows fetch next 5 rows only;</span><br><span class="line"></span><br><span class="line">     EMPNO ENAME</span><br><span class="line">---------- ------------------------------</span><br><span class="line">      7698 布萊克</span><br><span class="line">      7782 楊瑞</span><br><span class="line">      7788 SCOTT</span><br><span class="line">      7839 KING</span><br><span class="line">      7844 TURNER</span><br></pre></td></tr></table></figure>
+
+<p>有了資料庫端的配合，GraphQL 就可以加入分頁的功能，例如:</p>
+<figure class="highlight javascript"><figcaption><span>Pagination Example</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="built_in">module</span>.exports = gql<span class="string">`</span></span><br><span class="line"><span class="string">  extend type Query &#123;</span></span><br><span class="line"><span class="string">    totalPhotos: Int!</span></span><br><span class="line"><span class="string">    allPhotos(offset: Int, limit: Int): [Photo!]!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p>即使這種方法比較簡單，它也有一些缺點。當偏移量變得很大時，資料庫查詢將花費更長的時間，這可能會導致 UI 等待下一頁數據時客戶端性能下降。 另外，Offset/Limit-based pagination 無法處理兩次查詢之間的已刪除項目。例如，如果您查詢某一頁並且有其他人刪除了你已查詢過的某個項目，則下一頁上的偏移量將是錯誤的，因為該項目的數量減少了一個。 使用 Offset/Limit-based pagination 無法輕鬆克服此問題，這就是為什麼可能需要 Cursor-based pagination 的原因。</p>
+<h4 id="Cursor-based-Pagination"><a href="#Cursor-based-Pagination" class="headerlink" title="Cursor-based Pagination"></a>Cursor-based Pagination</h4><p>在 Cursor-based pagination 分頁中，offset 被一個稱為 <strong>cursor</strong> 的標識符所取代，而不像 Offset/Limit pagination 的項目進行計數。Cursor 可以用來表示 “從 Cursor Y 開始給我 limit 個項目的列表”。 所以 cursor 儲存的是一個欄位的值，用來取代 offset，當要求下一個分頁時使用 cursor 當為起使值，你可以使用 Primary Key，或使用日期（例如，資料庫中某個項目的創建日期）來標識列表中項目，這都是常用的方法。這裡要注意，資料庫 SQL 返回的資料不能保證其順序，所以 <strong>order by</strong> 通常都是必須的。</p>
+<p>在我們的例子，照片的 ID 是按時間建立的，所以就使用它當成 cursor 的值。如果你的 ID 是使用 uuid 亂碼產生的，你則需要新增一個例如 createdAt 的時間欄位當作是 cursor 的值。在資料庫中記得加個 index 在 createdAt 欄位上。</p>
+<p>這裡不管使用 ID 或 createdAt，有一個重要的特性，<strong>兩個欄位的值都不會改變</strong>，所以 cursor 具有穩定的位置，不像 offset 的不定性，有可能會有不同的起始值。</p>
+<p>GraphQL 伺服器以標準化的方式公開它的連接 (Connections)。 在查詢中，連接模型 (connection model) 提供了用於對結果集進行切片和分頁的標準機制。 在響應回應中，連接模型提供了一種提供 cursor 的標準方法，以及一種在出現更多結果時告訴客戶端的方法。</p>
+<p>連接模型有一些規範讓我們可以遵循，細節可以參考 <a href="https://facebook.github.io/relay/graphql/connections.htm" target="_blank" rel="noopener">Relay Cursor Connections Specification</a>，裡面有詳盡的介紹。</p>
+<p>這裡我們要來新增一個可以有分頁功能的照片清單。首先我們看一下資料庫模組抽象層程式，如何用來支援前端的分頁功能。</p>
+<figure class="highlight javascript"><figcaption><span>models/database.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">Database.prototype.findAll = <span class="function"><span class="keyword">function</span>(<span class="params"> opts = &#123;&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> options = &#123; ...opts &#125;;</span><br><span class="line">    <span class="keyword">let</span> _this = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">let</span> results = [];</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      _this._db</span><br><span class="line">        .createValueStream( options )</span><br><span class="line">        .on(<span class="string">"data"</span>, value =&gt; results.push(value))</span><br><span class="line">        .on(<span class="string">"end"</span>, () =&gt; resolve(results))</span><br><span class="line">        .on(<span class="string">"error"</span>, err =&gt; reject(err));</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      reject(err);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>findAll( ) 函式我們預留了可選擇性參數的物件 opts，在第 9 行呼叫時會使用到此選擇性參數物件，這個選擇性參數物件可以包含以下的特性:</p>
+<blockquote>
+<ul>
+<li>gt（大於），gte（大於或等於）：定義資料流傳輸範圍的下限。 此範圍內僅包含鍵 (Key) 大於（或等於）此選項的項目。 當 reverse = true 時，順序將顛倒，但 stream 傳輸的項目將相同。</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>lt（小於），lte（小於或等於）：定義資料流傳輸範圍的上限。 該範圍內僅包含鍵小於（或等於）此選項的項目。 當 reverse = true 時，順序將顛倒，但資料流傳輸的項目將相同。</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>reverse (boolean, default: false)：以相反的順序讀取資料流項目。 注意，由於像 LevelDB 這樣的存儲方式，反向搜索可能比正向搜索要慢。</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>limit（number，default：-1）：限制此資料流的項目數。 此數字代表最大項目數，如果您先到達範圍末尾，則返回的項目可能少於 limit 數。 值 -1 表示沒有限制。 當 reverse = true 時，將返回具有最高鍵的項目，而不是最低鍵。</li>
+</ul>
+</blockquote>
+<p>我們可修改原來的 Query Schema 的 allPhotos，但是我們先保留它，以免這裡出了問題無法回復，尤其如果是線上系統，可能會造成問題。所以我們要新增一個新的 Query Schema，這樣可以較無壓力的轉換。在 schema 子目錄下新增 photoConnection.js :</p>
+<figure class="highlight javascript"><figcaption><span>schema/photoConnection.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; gql &#125; = <span class="built_in">require</span>(<span class="string">"apollo-server-express"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = gql<span class="string">`</span></span><br><span class="line"><span class="string">  extend type Query &#123;</span></span><br><span class="line"><span class="string">    allPhotosWithPagination(</span></span><br><span class="line"><span class="string">      after: String</span></span><br><span class="line"><span class="string">      first: Int</span></span><br><span class="line"><span class="string">      before: String</span></span><br><span class="line"><span class="string">      last: Int</span></span><br><span class="line"><span class="string">    ): PhotoConnection!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type PhotoConnection &#123;</span></span><br><span class="line"><span class="string">    pageInfo: PageInfo!</span></span><br><span class="line"><span class="string">    edges: [PhotoEdge!]!</span></span><br><span class="line"><span class="string">    totalCount: Int</span></span><br><span class="line"><span class="string">    photos: [Photo!]!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type PageInfo &#123;</span></span><br><span class="line"><span class="string">    hasNextPage: Boolean!</span></span><br><span class="line"><span class="string">    hasPreviousPage: Boolean!</span></span><br><span class="line"><span class="string">    startCursor: String</span></span><br><span class="line"><span class="string">    endCursor: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type PhotoEdge &#123;</span></span><br><span class="line"><span class="string">    node: Photo!</span></span><br><span class="line"><span class="string">    cursor: String!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<p>這裡的 Query allPhotosWithPagination 提供了 4 個參數 after、first、before 與 last。</p>
+<ul>
+<li>after 與 first 是一對的，支援下一頁的功能。</li>
+<li>before 與 last 是一對的，支援上一頁的功能。</li>
+</ul>
+<p>因此 first 與 last 不能同時用。而它會返回一個 Connection 模型物件 PhotoConnection。</p>
+<p>Connection 模型中一個分頁稱為一個 Connection，對於 Connection 返回的資料有一些規範，一定要包含某些特性，需要包含:</p>
+<ul>
+<li>pageInfo: <ul>
+<li>startCursor</li>
+<li>endCursor</li>
+<li>hasPreviousPage</li>
+<li>hasNextPage</li>
+</ul>
+</li>
+<li>edges : 這是一個陣列，包含所返回的項目，也就是目前這一頁(Connection)的項目。<ul>
+<li>node : 實際返回的資料項目，這裡就是實際照片的資料。</li>
+<li>cursor : cursor 的值，在這個例子就是照片的 ID key 值，通常會做 base64 編譯，這樣對資料隱匿性比較好，也比較不容易讓前端誤會資料的用途。</li>
+</ul>
+</li>
+</ul>
+<p>除了規範的特性，你也可加入任何的資訊，這裡我們加入了 totalCount 與 photos。totalCount 是資料庫中照片的總數，photos 的資料與 edges 中的 node 相同，如果你不需要分頁功能則可以直接使用這個 photos 即可。</p>
+<p>將它併接到 schema/index.js</p>
+<figure class="highlight javascript"><figcaption><span>schema/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">const</span> photoConnectionSchema = <span class="built_in">require</span>(<span class="string">'./photoConnection'</span>);</span><br><span class="line">...</span><br><span class="line"><span class="built_in">module</span>.exports = [linkSchema, userSchema, photoSchema, photoConnectionSchema, subscriptionSchema];</span><br></pre></td></tr></table></figure>
+
+<p>再來我們要實作 allPhotosWithPagination 的解析函式，這是分頁功能複雜的地方:</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/photoConnection.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> toCursorHash = <span class="function"><span class="params">string</span> =&gt;</span> Buffer.from(string).toString(<span class="string">'base64'</span>);</span><br><span class="line"><span class="keyword">const</span> fromCursorHash = <span class="function"><span class="params">string</span> =&gt;</span> Buffer.from(string, <span class="string">'base64'</span>).toString(<span class="string">'ascii'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    allPhotosWithPagination: <span class="keyword">async</span> (parent, &#123; after, first, before, last &#125;, &#123; <span class="attr">db</span>: &#123; photos &#125; &#125;) =&gt; &#123;</span><br><span class="line">      <span class="keyword">let</span> result, allCount, unlimitedCount;</span><br><span class="line">      <span class="keyword">const</span> opts = &#123;&#125;;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> after === <span class="string">'string'</span> &amp;&amp; <span class="keyword">typeof</span> before === <span class="string">'string'</span> ) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'after and before cannot use same time'</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> first === <span class="string">'number'</span> &amp;&amp; <span class="keyword">typeof</span> last === <span class="string">'number'</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'first and last cannot use same time'</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> after === <span class="string">'string'</span> &amp;&amp; <span class="keyword">typeof</span> last === <span class="string">'number'</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'after must be with first'</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> before === <span class="string">'string'</span> &amp;&amp; <span class="keyword">typeof</span> first === <span class="string">'number'</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'before must be with last'</span>);</span><br><span class="line">      &#125;   </span><br><span class="line">      </span><br><span class="line">      <span class="comment">// Forward pagination</span></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> first === <span class="string">'number'</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (first &lt; <span class="number">0</span> ) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'first cannot be less than 0'</span>);</span><br><span class="line">        opts.limit = first</span><br><span class="line">      &#125;;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> after === <span class="string">'string'</span>) opts.gt = fromCursorHash(after);</span><br><span class="line">      </span><br><span class="line">      <span class="comment">// Backward pagination</span></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> last === <span class="string">'number'</span>) &#123; </span><br><span class="line">        <span class="keyword">if</span> (last &lt; <span class="number">0</span> ) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'last cannot be less than 0'</span>);</span><br><span class="line">        opts.limit = last;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> before === <span class="string">'string'</span>) opts.lt = fromCursorHash(before);</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> last === <span class="string">'number'</span> || <span class="keyword">typeof</span> before === <span class="string">'string'</span>) opts.reverse = <span class="literal">true</span>;  </span><br><span class="line">      </span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        allCount = <span class="keyword">await</span> photos.allCount();</span><br><span class="line">        unlimitedCount = <span class="keyword">await</span> photos.allCount(&#123; ...opts, <span class="attr">limit</span>: <span class="literal">undefined</span> &#125;);</span><br><span class="line">        result = <span class="keyword">await</span> photos.findAll( opts );</span><br><span class="line">      &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">        <span class="keyword">throw</span> error;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (opts &amp;&amp; opts.reverse) result.reverse();</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">const</span> edges = result.map(<span class="function"><span class="params">value</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">          node: &#123; ...value &#125;,</span><br><span class="line">          cursor: toCursorHash( value.id )</span><br><span class="line">        &#125;;</span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        pageInfo: &#123;</span><br><span class="line">          startCursor: edges.length &gt; <span class="number">0</span> ? edges[<span class="number">0</span>].cursor : <span class="literal">undefined</span>,</span><br><span class="line">          endCursor: edges.length &gt; <span class="number">0</span> ? edges[edges.length - <span class="number">1</span>].cursor : <span class="literal">undefined</span>,</span><br><span class="line">          hasPreviousPage:</span><br><span class="line">            <span class="keyword">typeof</span> last === <span class="string">'number'</span> </span><br><span class="line">              ? last &lt; unlimitedCount </span><br><span class="line">              : ( <span class="keyword">typeof</span> before === <span class="string">'string'</span> ? <span class="literal">false</span> : allCount &gt; unlimitedCount),</span><br><span class="line">          hasNextPage: </span><br><span class="line">            <span class="keyword">typeof</span> first === <span class="string">'number'</span> </span><br><span class="line">              ? first &lt; unlimitedCount </span><br><span class="line">              : ( <span class="keyword">typeof</span> after === <span class="string">'string'</span> ? <span class="literal">false</span> : allCount &gt; unlimitedCount)</span><br><span class="line">        &#125;,</span><br><span class="line">        edges,</span><br><span class="line">        totalCount: allCount,</span><br><span class="line">        photos: result</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>第 1、2 行是 base64 編譯與解意函式。</li>
+<li>第 6 行傳入了 4 個參數 after、first、before 與 last。after 與 first 是一對的，支援下一頁的功能，before 與 last 是一對的，支援上一頁的功能，因此 first 與 last 不能同時用。 第 10 到 21 行就是在檢查這些關聯。 </li>
+<li>第 24 到 28 行設定下一頁的資料庫執行參數。</li>
+<li>第 30 到 36 行設定上一頁的資料庫執行參數。注意 36 行的 opts.reverse 設定為 true。所以會以相反的順序讀取資料流項目</li>
+<li>第 39 行是資料庫中所有照片的筆數。</li>
+<li>第 40 行可以知道還剩多少筆數，可讓我們知道是不是還有下一頁或上一頁。</li>
+<li>第 41 行是實際返回的資料項目。</li>
+<li>第 46 行如果使用 last，它是相反方向搜尋的，返回的順序也是相反的，將它迴轉，以免客戶端顯示的順序一團亂。</li>
+<li>第 55 行返回 PhotoConnection 型態的物件。</li>
+</ul>
+</blockquote>
+<p>將解析函式併接到 resolvers/index.js</p>
+<figure class="highlight javascript"><figcaption><span>resolvers/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">const</span> photoConnectionResolvers = <span class="built_in">require</span>(<span class="string">'./photoConnection'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = [userResolvers, photoResolvers, subscriptionResolvers, photoConnectionResolvers];</span><br></pre></td></tr></table></figure>
+
+<p>現在可以由 GraphQL Playground 測試一下，仔細觀察一下返回的資料:</p>
+<figure class="highlight plain"><figcaption><span>Playground</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">query allPhotos &#123;</span><br><span class="line">  allPhotosWithPagination (</span><br><span class="line">    first: 5</span><br><span class="line">  ) &#123;</span><br><span class="line">    totalCount,</span><br><span class="line">    pageInfo &#123;</span><br><span class="line">      startCursor</span><br><span class="line">      endCursor</span><br><span class="line">      hasNextPage</span><br><span class="line">      hasPreviousPage</span><br><span class="line">    &#125;</span><br><span class="line">    edges &#123;</span><br><span class="line">      node &#123;</span><br><span class="line">        id</span><br><span class="line">        created</span><br><span class="line">        postedBy &#123;</span><br><span class="line">          appLogin</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      cursor</span><br><span class="line">    &#125;</span><br><span class="line">    photos &#123;</span><br><span class="line">      id</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個查詢我們只用了一個引數 first: 5，所以會返回第一筆到第 5 筆的資料，資料就類似如下:</p>
+<figure class="highlight json"><figcaption><span>GraphQL Query result</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"data"</span>: &#123;</span><br><span class="line">    <span class="attr">"allPhotosWithPagination"</span>: &#123;</span><br><span class="line">      <span class="attr">"totalCount"</span>: <span class="number">16</span>,</span><br><span class="line">      <span class="attr">"pageInfo"</span>: &#123;</span><br><span class="line">        <span class="attr">"startCursor"</span>: <span class="string">"MQ=="</span>,</span><br><span class="line">        <span class="attr">"endCursor"</span>: <span class="string">"MTU3NjEwOTIxNTk3Nw=="</span>,</span><br><span class="line">        <span class="attr">"hasNextPage"</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"hasPreviousPage"</span>: <span class="literal">false</span></span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">"edges"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"node"</span>: &#123;</span><br><span class="line">            <span class="attr">"id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="attr">"created"</span>: <span class="string">"2018-03-27T16:00:00.000Z"</span>,</span><br><span class="line">            <span class="attr">"postedBy"</span>: &#123;</span><br><span class="line">              <span class="attr">"appLogin"</span>: <span class="string">"blake"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"cursor"</span>: <span class="string">"MQ=="</span></span><br><span class="line">        &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>如果需要下一頁的資料就必須加入 after 引數，它的值則是上一個查詢中 pageInfo.endCursor 的值。hasNextPage 與 hasPreviousPage 則可讓你控制應用程式的上一頁與下一頁的按鈕。</p>
+<figure class="highlight plain"><figcaption><span>Playground</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query allPhotos &#123;</span><br><span class="line">  allPhotosWithPagination (</span><br><span class="line">    first: 5</span><br><span class="line">    after: &quot;MTU3NjEwOTIxNTk3Nw==&quot;</span><br><span class="line">  ) &#123;</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+
+<p>使用分頁功能時一定會有一些效能上的損失，這不只會出現在客戶端，資料庫端的效能耗損也需注意，使用上須衡量一下。</p>
+<p style="text-align: right;">接續下一篇 <a href="/2019/12/09/GraphQL-API-8/" title="建立 GraphQL API (8)">建立 GraphQL API (8)</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/12/05/GraphQL-API-7/" data-id="ckcpzj95t000q80vzectdldcf" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/12/09/GraphQL-API-8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          建立 GraphQL API (8)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/11/28/GraphQL-Client-3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">GraphQL 用戶端 (3)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

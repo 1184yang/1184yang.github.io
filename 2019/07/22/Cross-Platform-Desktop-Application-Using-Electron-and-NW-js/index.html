@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>跨平台桌面應用開發 NW.js and Electron | </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Web 應用程式的跨平台運作特性，減低了一些應用開發的負擔。但是隨著多樣化的移動設備應用，Web 應用程式存在一些限制和挑戰，例如，   網路不是一直可用的。當你在火車上或者在隧道裡的時候，就可能沒有網路，你的 Web 應用也會因此中斷，這對於使用者來說可能造成非常多的困擾。 Web 流覽器本身也都有一些安全策略，因此對於本機的軟硬體資源也都有限制。   基於這些理由，原生的桌面應用(Deskto">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跨平台桌面應用開發 NW.js and Electron">
+<meta property="og:url" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="Web 應用程式的跨平台運作特性，減低了一些應用開發的負擔。但是隨著多樣化的移動設備應用，Web 應用程式存在一些限制和挑戰，例如，   網路不是一直可用的。當你在火車上或者在隧道裡的時候，就可能沒有網路，你的 Web 應用也會因此中斷，這對於使用者來說可能造成非常多的困擾。 Web 流覽器本身也都有一些安全策略，因此對於本機的軟硬體資源也都有限制。   基於這些理由，原生的桌面應用(Deskto">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/nwjs.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/chrome.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/nwjs3.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/electron.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/chrome2.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/electron2.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/nwjs4.png">
+<meta property="og:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/notes.png">
+<meta property="og:updated_time" content="2020-07-17T08:46:15.939Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跨平台桌面應用開發 NW.js and Electron">
+<meta name="twitter:description" content="Web 應用程式的跨平台運作特性，減低了一些應用開發的負擔。但是隨著多樣化的移動設備應用，Web 應用程式存在一些限制和挑戰，例如，   網路不是一直可用的。當你在火車上或者在隧道裡的時候，就可能沒有網路，你的 Web 應用也會因此中斷，這對於使用者來說可能造成非常多的困擾。 Web 流覽器本身也都有一些安全策略，因此對於本機的軟硬體資源也都有限制。   基於這些理由，原生的桌面應用(Deskto">
+<meta name="twitter:image" content="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/nwjs.png">
+  
+    <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo"></a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://1184yang.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Cross-Platform-Desktop-Application-Using-Electron-and-NW-js" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/" class="article-date">
+  <time datetime="2019-07-22T05:26:29.000Z" itemprop="datePublished">2019-07-22</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JavaScript/">JavaScript</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      跨平台桌面應用開發 NW.js and Electron
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Web 應用程式的跨平台運作特性，減低了一些應用開發的負擔。但是隨著多樣化的移動設備應用，Web 應用程式存在一些限制和挑戰，例如，</p>
+<blockquote>
+<ul>
+<li>網路不是一直可用的。當你在火車上或者在隧道裡的時候，就可能沒有網路，你的 Web 應用也會因此中斷，這對於使用者來說可能造成非常多的困擾。</li>
+<li>Web 流覽器本身也都有一些安全策略，因此對於本機的軟硬體資源也都有限制。</li>
+</ul>
+</blockquote>
+<p>基於這些理由，原生的桌面應用(Desktop)需求也有其存在的優勢，但是開發這些原生應用需要精通不同的技術，進入的門檻複雜。因此過去有類似 Apache Cordova 這類的開發平台，應用現有的 Web 開發技術來開發移動設備的原生應用。最近 的 PWA 架構，也在試圖使用 Web 技術，來取得像原生應用的優點。</p>
+<p>JavaScript 生態圈則有 NW.js 與 Electron，試圖將現有的 Web 技術應用在桌面應用系統(Desktop Application)上，寫一份程式碼就可以在 Mac、Windows 及 Linux 上建置及執行。</p>
+<h3 id="NW-js-和-Electron"><a href="#NW-js-和-Electron" class="headerlink" title="NW.js 和 Electron"></a>NW.js 和 Electron</h3><p>NW.js 是 Node.js 第一個桌面應用開發框架，但是近年來 Electron 的發展比較快速，風頭蓋過了 NW.js。兩者都是來自於同一個創造者，但是兩者在內部架構上採用不一樣的策略。以流行度與發展趨勢來看，Electron 似乎領先 NW.js。不過也有人更喜歡 NW.js，因為相對而言，NW.js 在代碼運行和應用加載方面比較簡單，而且它還支援像 Google 的 Chromebook 平台。</p>
+<h3 id="NW-js"><a href="#NW-js" class="headerlink" title="NW.js"></a>NW.js</h3><p>簡單來說，<a href="https://nwjs.io/" target="_blank" rel="noopener">NW.js</a> 是一個框架，它支持用 HTML、CSS 和 JavaScript 來構建桌面應用(Desktop Application)。它整合 Node.js 與瀏覽器中的 WebKit 瀏覽器引擎，因此開始的命名為 node-webkit。</p>
+<p>通過整合 Node.js 與 WebKit，不僅可以在應用視窗內載入 HTML、CSS 與 JavaScript 文件，還可以通過 JavaScript API 和作業系統進行互動。通過這個 JavaScript API 可以控制視窗的視覺元素，例如，視窗大小<br>、工具條以及菜單項目，而且還可以訪問本機文件系統與其它資源，這些都是 Web 應用無法做到的。</p>
+<p>我們還是由 Hello Tainan 開始。</p>
+<h4 id="NW-js-Hello-Tainan"><a href="#NW-js-Hello-Tainan" class="headerlink" title="NW.js Hello Tainan"></a>NW.js Hello Tainan</h4><p>首先先要安裝 NW.js，開啟一個終端視窗，使用本機管理者身份將 nw 安裝成全局(global)套件，這樣每個專案就可以共享。</p>
+<figure class="highlight bash"><figcaption><span>install NW.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g nw</span><br></pre></td></tr></table></figure>
+
+<p>這個安裝會花一些時間！我大該花了 10 分鐘。</p>
+<p>新建一個資料夾 hello-tainan-nwjs，我們要在此建立一個 NW.js 專案。開啟 VSCode 選擇專案資料夾，然後開啟一個終端視窗，初始化專案:</p>
+<figure class="highlight bash"><figcaption><span>init</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm init -y</span><br></pre></td></tr></table></figure>
+
+<p>在專案目錄下新建一個子目錄 app，我們會將程式碼放在這個目錄中，在這個 app 目錄下新建一個 index.html 文件。</p>
+<figure class="highlight html"><figcaption><span>app/index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Hello Tainan<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello Tainan!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">"sayHello()"</span>&gt;</span>Say Hello<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/main.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在 app 目錄下再開一個子目錄 javascripts 來擺放 JavaScript 程式檔，在 javascripts 目錄下建立 main.js 程式檔，我們會將主要的程式碼放在這個文件中，目前裡面只是一個簡單的 sayHello( ) 函數。</p>
+<figure class="highlight js"><figcaption><span>app/javascripts/main.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayHello</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  alert(<span class="string">"Hello Tainan, 台南!"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>修改專案目錄下的 package.json 的 main 屬性，將其值指向 “app/index.html”，這會是我們專案的入口點:</p>
+<figure class="highlight json"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"hello-tainan-nwjs"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0"</span>,</span><br><span class="line">  <span class="attr">"description"</span>: <span class="string">""</span>,</span><br><span class="line">  <span class="attr">"main"</span>: <span class="string">"app/index.html"</span>,</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"test"</span>: <span class="string">"echo \"Error: no test specified\" &amp;&amp; exit 1"</span></span><br><span class="line">  &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>從專案目錄下開啟終端視窗啟動 NW.js</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nw .</span><br></pre></td></tr></table></figure>
+
+<p>你將會看到如下的樣子。</p>
+<img src="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/nwjs.png" title="NW.js">
+
+<p>如果單擊螢幕上的 Say Hello 按鈕，會彈出一個寫著 “Hello Tainan, 台南!” 的警示視窗。</p>
+<p>如果從 Chrome 流覽器直接打開 index.html 文件檔，也會看到同樣的界面，單擊按鈕也會看到同樣的結果。</p>
+<img src="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/chrome.png" title="NW.js">
+
+<p>這就是關鍵，<strong>代碼不需要修改</strong>，你就可以直接將網站的 HTML 頁面轉為 NW.js 開發的桌面應用。</p>
+<p>我們來上一點妝扮，在專案目錄下開啟一個終端視窗安裝 bootstrap。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install bootstrap --save</span><br></pre></td></tr></table></figure>
+
+<p>從 node_modules/bootstrap/dist/css/ 將 bootstrap.min.css 複製到 app/stylesheets 目錄下。並將 bootstrap.min.css 加入 index.html，並在一些 DOM 元素加上一些 bootstrap 的妝扮。</p>
+<figure class="highlight html"><figcaption><span>app/index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"stylesheets/bootstrap.min.css"</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"container text-center"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello Tainan!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span> <span class="attr">onclick</span>=<span class="string">"sayHello()"</span>&gt;</span>Say Hello<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/main.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>將 Vue.js 也加進來:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install vue --save</span><br></pre></td></tr></table></figure>
+
+<p>將 node_modules/vue/dist 下的 vue.min.js 複製到 app/javascripts 目錄下, 將 vue.min.js 加入 index.html，再來就需要修改 main.js 產生 Vue 實例，我們也會透過 REST API 從遠端抓取一些資料。</p>
+<figure class="highlight html"><figcaption><span>app/index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span> <span class="attr">class</span>=<span class="string">"container text-center"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;&#123; hello &#125;&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span> <span class="attr">onclick</span>=<span class="string">"sayHello()"</span>&gt;</span>Say Hello<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">table</span> <span class="attr">class</span>=<span class="string">"table table-dark mt-3"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">tr</span> <span class="attr">v-for</span>=<span class="string">"e in employees"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.empno &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.ename &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; formatDate(e.hiredate) &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.sal &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.comm &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.deptno &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/vue.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/main.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>修改 main.js 讓它多作點事情:</p>
+<figure class="highlight js"><figcaption><span>app/javascripts/main.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayHello</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  alert(<span class="string">"Hello Tainan, 台南!"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> vm = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  data: &#123;</span><br><span class="line">    hello: <span class="string">"Hello Tainan, 台南!"</span>,</span><br><span class="line">    employees: []</span><br><span class="line">  &#125;,</span><br><span class="line">  methods: &#123;</span><br><span class="line">    formatDate(date) &#123;</span><br><span class="line">      <span class="keyword">let</span> newDate = <span class="keyword">new</span> <span class="built_in">Date</span>(date);</span><br><span class="line">      <span class="keyword">return</span> newDate.toISOString().slice(<span class="number">0</span>,<span class="number">10</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  created() &#123;</span><br><span class="line">    fetch(<span class="string">"http://ords3.pec.com.tw:8080/lx26/ordsdemo/employees/"</span>)</span><br><span class="line">      .then(<span class="function"><span class="params">r</span> =&gt;</span> r.json())</span><br><span class="line">      .then(<span class="function"><span class="params">result</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.employees = result.items</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;).$mount(<span class="string">"#app"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>啟動 NW.js，另外也從瀏覽器直接打開 index.html 檔。</p>
+<img src="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/nwjs3.png" title="NW.js">
+
+<p>背景是從流覽器執行的畫面，前景則是 NW.js。兩者的程式碼都來自同一份，完全沒甚麼不同!</p>
+<h3 id="Electron"><a href="#Electron" class="headerlink" title="Electron"></a>Electron</h3><p>Electron 和 NW.js 的區別之一就是整合 Chromium 和 Node.js 的方式不同。NW.js 維護一個共享的 JavaScript 上下文，而 Electron 有多個獨立的 JavaScript 上下文，一個負責啟動運行的視窗 (main)，另外一個負責具體的應用視窗 (renderer)。所以在啟動時也有很大的區別，NW.js 通常使用 HTML 作為入口文件，而 Electron 使用的是 JavaScript 文件。</p>
+<h4 id="Electron-Hello-Tainan"><a href="#Electron-Hello-Tainan" class="headerlink" title="Electron Hello Tainan"></a>Electron Hello Tainan</h4><p>一樣要先安裝 Electron，開啟一個終端視窗，使用本機管理者身份:</p>
+<figure class="highlight bash"><figcaption><span>install Electron</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g electron</span><br></pre></td></tr></table></figure>
+
+<p>這也會花一些時間。</p>
+<p>新建一個資料夾 hello-tainan-electron，我們要在此建立一個 Electron 專案。開啟 VSCode 選擇專案資料夾，然後開啟一個終端機視窗，初始化專案，除此之外，專案本身也需安裝 electron，這也會花一些時間:</p>
+<figure class="highlight bash"><figcaption><span>init project</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm init -y</span><br><span class="line">npm install electron --save</span><br></pre></td></tr></table></figure>
+
+<p>在專案目錄下新建一個子目錄 app，我們會將程式碼放在這個目錄中，在這個 app 目錄下新建一個 index.html 檔與 main.js 程式碼文件。在 app 目錄下另外開兩個子目錄 javascripts 與 stylesheets。</p>
+<p>以下則是 app 目錄下的 index.html 與 main.js 文件檔。</p>
+<figure class="highlight html"><figcaption><span>app/index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Hello Tainan<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello Tainan!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">onclick</span>=<span class="string">"sayHello()"</span>&gt;</span>Say Hello<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/app.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><figcaption><span>app/main.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; app, BrowserWindow &#125; = <span class="built_in">require</span>(<span class="string">'electron'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> mainWindow = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">app.on(<span class="string">'window-all-closed'</span>, () =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (process.platform !== <span class="string">'darwin'</span>) app.quit();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.on(<span class="string">'ready'</span>, () =&gt; &#123;</span><br><span class="line">  mainWindow = <span class="keyword">new</span> BrowserWindow();</span><br><span class="line">  mainWindow.loadURL(<span class="string">`file://<span class="subst">$&#123;__dirname&#125;</span>/index.html`</span>);</span><br><span class="line">  mainWindow.on(<span class="string">'closed'</span>, () =&gt; mainWindow = <span class="literal">null</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>main.js 是 Electron 的入口點，使用 mainWindow.loadURL( ) 將 index.html 加載進來，這個 index.html 與 NW.js 的 index.html 內容是一樣的。</p>
+<p>再來要加入我們自己的程式碼，新建一個 JavaScript 文件 app/javascripts/app.js 放我們的應用程式碼，目前只有一個函數 sayHello( )。</p>
+<figure class="highlight js"><figcaption><span>app/javascripts/app.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayHello</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  alert(<span class="string">"Hello Tainan, 台南!"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下來一樣要修改專案目錄下的 package.json 的 main 屬性，更改專案的入口點，這與 NW.js 完全不同，是 JavaScript 文件:</p>
+<figure class="highlight json"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"hello-tainan-electron"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0"</span>,</span><br><span class="line">  <span class="attr">"description"</span>: <span class="string">""</span>,</span><br><span class="line">  <span class="attr">"main"</span>: <span class="string">"app/main.js"</span>,</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"test"</span>: <span class="string">"echo \"Error: no test specified\" &amp;&amp; exit 1"</span></span><br><span class="line">  &#125;,</span><br></pre></td></tr></table></figure>
+
+<p>從專案目錄下開啟終端視窗啟動 Electron</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">electron .</span><br></pre></td></tr></table></figure>
+
+<p>你將會看到如下的樣子。</p>
+<img src="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/electron.png" title="Electron">
+
+<p>如果單擊螢幕上的 Say Hello 按鈕，會彈出一個寫著 “Hello Tainan, 台南!” 的警示視窗。</p>
+<p>如果從 Chrome 流覽器直接打開 index.html 文件檔，也會看到同樣的界面，單擊按鈕也會看到同樣的結果。</p>
+<img src="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/chrome2.png" title="Electron">
+
+<p>同樣，把 bootstrap 與 Vue.js 加進來。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm install bootstrap --save</span><br><span class="line">npm install vue --save</span><br></pre></td></tr></table></figure>
+
+<p>分別將 node_modules/bootstrap/dist/css/bootstrap.min.css 與 node_modules/vue/dist/vue.min.js 複製到 app/stylesheets 與 app/javascripts 目錄</p>
+<p>修改 app/index.html 與 app/javascripts/app.js:</p>
+<figure class="highlight html"><figcaption><span>app/index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span> <span class="attr">class</span>=<span class="string">"container text-center"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;&#123; hello &#125;&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span> <span class="attr">onclick</span>=<span class="string">"sayHello()"</span>&gt;</span>Say Hello<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">table</span> <span class="attr">class</span>=<span class="string">"table table-dark mt-3"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">tr</span> <span class="attr">v-for</span>=<span class="string">"e in employees"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.empno &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.ename &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; formatDate(e.hiredate) &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.sal &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.comm &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">td</span>&gt;</span>&#123;&#123; e.deptno &#125;&#125;<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/vue.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/app.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><figcaption><span>app/javascripts/app.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sayHello</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  alert(<span class="string">"Hello Tainan, 台南!"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> vm = <span class="keyword">new</span> Vue(&#123;</span><br><span class="line">  data: &#123;</span><br><span class="line">    hello: <span class="string">"Hello Tainan, 台南!"</span>,</span><br><span class="line">    employees: []</span><br><span class="line">  &#125;,</span><br><span class="line">  methods: &#123;</span><br><span class="line">    formatDate(date) &#123;</span><br><span class="line">      <span class="keyword">let</span> newDate = <span class="keyword">new</span> <span class="built_in">Date</span>(date);</span><br><span class="line">      <span class="keyword">return</span> newDate.toISOString().slice(<span class="number">0</span>, <span class="number">10</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  created() &#123;</span><br><span class="line">    fetch(<span class="string">"http://ords3.pec.com.tw:8080/lx26/ordsdemo/employees/"</span>)</span><br><span class="line">      .then(<span class="function"><span class="params">r</span> =&gt;</span> r.json())</span><br><span class="line">      .then(<span class="function"><span class="params">result</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.employees = result.items;</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;).$mount(<span class="string">"#app"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>啟動 Electron</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">electron .</span><br></pre></td></tr></table></figure>
+
+<p>另外也從瀏覽器直接打開 index.html 檔。</p>
+<img src="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/electron2.png" title="Electron">
+
+<p>背景是從流覽器執行的畫面，前景則是 Electron。兩者的程式碼也都來自同一份，完全沒甚麼不同!</p>
+<p>我們常用的 <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">Visual Studio Code</a> 程式碼編輯器就是使用 Electron 開發的。</p>
+<h4 id="微軟-Metro-UI"><a href="#微軟-Metro-UI" class="headerlink" title="微軟 Metro UI"></a>微軟 Metro UI</h4><p>隨著 Window 8 和 Surface 平板的發佈， 微軟對其 UI 做了很大的改變，引入了一套新設計風格的 UI，名為 Metro。帶來的改變不僅是重新設計了元素的樣式，還包括了應用佈局和結構的改變。有人基於這種 Metro 風格的規範，做了一個名為 <a href="https://metroui.org.ua/" target="_blank" rel="noopener">Metro UI CSS</a> 的 CSS 框架，它可以讓開發者建出符合 Metro 規範的基於 HTML 的應用樣式。</p>
+<p>將前面範例使用的 bootstrap 用 Metro 取代，可做出像微軟桌面應用系統風格的畫面:</p>
+<img src="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/nwjs4.png" title="NW.js">
+
+
+<h4 id="Offline-First-本機存儲"><a href="#Offline-First-本機存儲" class="headerlink" title="Offline First 本機存儲"></a>Offline First 本機存儲</h4><p>最後我們要建立一個極簡單的備忘便條應用，就像可以完全離線操作的桌面應用系統。我們這裡使用較簡單的 NW.js 框架。</p>
+<p>首先建立專案資料夾 let-me-remember，然後切換到專案目錄下，初始化一個 npm 專案。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd let-me-remember</span><br><span class="line">npm init -y</span><br></pre></td></tr></table></figure>
+
+<p>我們需要修改 package.json 來啟動應用程式，並定義起始視窗的大小。</p>
+<figure class="highlight json"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"let-me-remember"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"1.0.0"</span>,</span><br><span class="line">  <span class="attr">"description"</span>: <span class="string">""</span>,</span><br><span class="line">  <span class="attr">"main"</span>: <span class="string">"app/index.html"</span>,</span><br><span class="line">  <span class="attr">"window"</span>: &#123;</span><br><span class="line">    <span class="attr">"width"</span>: <span class="number">480</span>,</span><br><span class="line">    <span class="attr">"height"</span>: <span class="number">320</span>,</span><br><span class="line">    <span class="attr">"frame"</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"toolbar"</span>: <span class="literal">false</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"start"</span>: <span class="string">"nw ."</span>,</span><br><span class="line">    <span class="attr">"test"</span>: <span class="string">"echo \"Error: no test specified\" &amp;&amp; exit 1"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"keywords"</span>: [],</span><br><span class="line">  <span class="attr">"author"</span>: <span class="string">""</span>,</span><br><span class="line">  <span class="attr">"license"</span>: <span class="string">"ISC"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡我們將應用程式的入口點 main 屬性改為 app/index.html，並新增了 window 屬性，定義了起始視窗的大小，也去除了視窗的邊框，讓它看起來就像螢幕上的便條簽。scripts 新增了 start 屬性，這樣我們可以使用 npm 啟動專案。</p>
+<p>在專案目錄下建一子目錄 app 來放我們的程式碼，並在 app 目錄下再建兩個子目錄 stylesheets 與 javascripts 來擺放 CSS 與 JavaScript 文件。首先是 app 目錄下的 index.html 文件。</p>
+<figure class="highlight html"><figcaption><span>app/index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"stylesheets/app.css"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>備忘便條<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"close"</span> <span class="attr">onclick</span>=<span class="string">"process.exit(0)"</span>&gt;</span>x<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">textarea</span> <span class="attr">rows</span>=<span class="string">"10"</span> <span class="attr">onKeyUp</span>=<span class="string">"saveNotes();"</span>&gt;</span><span class="tag">&lt;/<span class="name">textarea</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/app.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>HTML 文件很簡單，使用 textarea 元素來存放用戶輸入的便條內容。還用了一個 id 為 close 的 div 元素，當它被單擊的時候，會觸發退出應用的流程。<strong>注意這裡，我們可以從 HTML 中的 JavaScript 上下文中直接調用 Node.js 的 process 全局變數</strong>。</p>
+<p>另外我們要新增 app.css 與 app.js 兩個文件，這分別位於 stylesheets 與 javascripts 目錄下。</p>
+<figure class="highlight css"><figcaption><span>"stylesheets/app.css"</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="number">#ffe15f</span>;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#694921</span>;</span><br><span class="line">  <span class="attribute">padding</span>: <span class="number">1em</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">textarea</span> &#123;</span><br><span class="line">  <span class="attribute">font-family</span>: <span class="string">"Hannotate SC"</span>, <span class="string">"Hanzipen SC"</span>, <span class="string">"Comic Sans"</span>, <span class="string">"Comic Sans MS"</span>;</span><br><span class="line">  <span class="attribute">outline</span>: none;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">14pt</span>;</span><br><span class="line">  <span class="attribute">border</span>: none;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">background</span>: none;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-id">#close</span> &#123;</span><br><span class="line">  <span class="attribute">cursor</span>: pointer;</span><br><span class="line">  <span class="attribute">position</span>: absolute;</span><br><span class="line">  <span class="attribute">top</span>: <span class="number">8px</span>;</span><br><span class="line">  <span class="attribute">right</span>: <span class="number">10px</span>;</span><br><span class="line">  <span class="attribute">text-align</span>: center;</span><br><span class="line">  <span class="attribute">font-family</span>: <span class="string">"Helvetica Neue"</span>, <span class="string">"Arial"</span>;</span><br><span class="line">  <span class="attribute">font-weight</span>: <span class="number">400</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><figcaption><span>"javascripts/app.js"</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initialize</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> notes = <span class="built_in">window</span>.localStorage.getItem(<span class="string">'notes'</span>);</span><br><span class="line">  <span class="keyword">if</span> (!notes) notes = <span class="string">"不要忘了..."</span>;</span><br><span class="line">  <span class="built_in">window</span>.document.querySelector(<span class="string">"textarea"</span>).value = notes;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">saveNotes</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> notes = <span class="built_in">window</span>.document.querySelector(<span class="string">"textarea"</span>).value;</span><br><span class="line">  <span class="built_in">window</span>.localStorage.setItem(<span class="string">"notes"</span>, notes);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">window</span>.onload = initialize;</span><br></pre></td></tr></table></figure>
+
+<p>我們使用 HTML5 的 localStorage API，可以在應用中實現數據持久化，並且可以讓保存數據發生在後台，用戶完全感覺不到。</p>
+<p>現在可以啟動應用程式了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm start</span><br></pre></td></tr></table></figure>
+
+<p>畫面看起來就像直接貼在螢幕上的便條籤。隨意打入一些備忘內容，內容就會被保存。當重新打開應用時，此前保存的內容會顯示在便條中。</p>
+<img src="/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/notes.png" title="NW.js notes">
+
+
+<p>最後我們需要將此應用直接打包成桌面應用的可執行檔。我們要使用一個 nw-builder 的套件，首先安裝它，如果要安裝成全局套件需要系統管理者權限。</p>
+<figure class="highlight bash"><figcaption><span>"nw-builder install"</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install nw-builder -g</span><br></pre></td></tr></table></figure>
+
+<p>目前 nw-builder 可以打包的平台有 win32, win64, osx32, osx64, linux32, linux64，這裡我們要打包成<br>win64 的應用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nwbuild . -o ./build -p win64</span><br></pre></td></tr></table></figure>
+
+<p>第一次執行 nwbuild 會花一些時間，它需要從網路分別下載不同平台的打包工具 nwjs sdk 來執行打包的工作。執行完後會在專案目錄下產生一個 build 目錄，目錄下會有一個專案名稱的子目錄，裡面又會分不同的作業系統目錄。我們可以在 win64 目錄下找到 Windows 版本的 let-me-remember.ext 文件，現在只要直接打開此執行檔，就可以啟動我們的應用程式了。</p>
+<p>Electron 版本的備忘便條應用就自己試試了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://1184yang.github.io/2019/07/22/Cross-Platform-Desktop-Application-Using-Electron-and-NW-js/" data-id="ckcpzj958000180vz0t5g4bm9" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/07/26/Desktop-Application-Using-NW-and-Vue/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          桌面應用 NW.js、Vue.js and localStorage
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/18/RabbitMQ-Oracle-with-C/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">RabbitMQ、Oracle with C#</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Apache-Kafka/">Apache Kafka</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/C/">C#</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/GraphQL/">GraphQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Oracle/">Oracle</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/PostgreSQL/">PostgreSQL</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/RabbitMQ/">RabbitMQ</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/07/13/Sequential-Execution/">Node.js 非同步控制流程模式 - 並行限制與循序執行</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/12/C-Entity-Framework-Core-2-0-and-PostgreSQL-Provider/">C# Entity Framework Core 2.0 and PostgreSQL Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/04/C-Entity-Framework-Core-2-0-and-Oracle-Provider/">C# Entity Framework Core 2.0 and Oracle Provider</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/02/Kafka-RabbitMQ-Electron/">Apache Kafka 與 Electron-RabbitMQ Notification</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/21/Electron-Notification-Buzzer/">Desktop 桌面應用程式 Electron-RabbitMQ Notification</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 J.Y. Yang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
