@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="執行上下文(Execution Context)的概念(簡稱為 context)在 JavaScript 中非常重要。變數或函式的執行上下文定義了它可以存取運作的資料，以及它應該如何運作。 每個執行上下文都有一個關聯的 variable 物件，在這個執行上下文所定義的變數和函數，都存在這個 variable 物件上。此 variable 物件無法由程式碼作存取，一卻都在幕後運作。 在各種 Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React Context">
+<meta property="og:url" content="https://1184yang.github.io/2020/10/07/React-Context/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="執行上下文(Execution Context)的概念(簡稱為 context)在 JavaScript 中非常重要。變數或函式的執行上下文定義了它可以存取運作的資料，以及它應該如何運作。 每個執行上下文都有一個關聯的 variable 物件，在這個執行上下文所定義的變數和函數，都存在這個 variable 物件上。此 variable 物件無法由程式碼作存取，一卻都在幕後運作。 在各種 Java">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:updated_time" content="2020-12-24T10:13:30.828Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React Context">
+<meta name="twitter:description" content="執行上下文(Execution Context)的概念(簡稱為 context)在 JavaScript 中非常重要。變數或函式的執行上下文定義了它可以存取運作的資料，以及它應該如何運作。 每個執行上下文都有一個關聯的 variable 物件，在這個執行上下文所定義的變數和函數，都存在這個 variable 物件上。此 variable 物件無法由程式碼作存取，一卻都在幕後運作。 在各種 Java">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/10/07/React-Context/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>React Context | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/10/07/React-Context/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          React Context
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-10-07 08:55:21" itemprop="dateCreated datePublished" datetime="2020-10-07T08:55:21+08:00">2020-10-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-12-24 18:13:30" itemprop="dateModified" datetime="2020-12-24T18:13:30+08:00">2020-12-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/React/" itemprop="url" rel="index"><span itemprop="name">React</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>執行上下文(Execution Context)的概念(簡稱為 context)在 JavaScript 中非常重要。變數或函式的執行上下文定義了它可以存取運作的資料，以及它應該如何運作。 每個執行上下文都有一個關聯的 variable 物件，在這個執行上下文所定義的變數和函數，都存在這個 variable 物件上。此 variable 物件無法由程式碼作存取，一卻都在幕後運作。</p>
+<p>在各種 JavaScript 運作的架構，都將此 context 概念運用在其結構上。GraphQL 有 context，React 也不例外。</p>
+<p>在 React 中，<strong>context</strong> (上下文) 就像為數據設置噴射機一樣。 您可以通過創建 <strong>context provider</strong> (上下文提供者) 將數據放置在 React context 中。Context provider 是一個 React 組件，您可以將其包裹在整個組件樹或組件樹的特定部分中。</p>
+<p>Context provider 是您的數據所在的出發機場。它也是航空公司的樞紐。所有航班都從該機場出發，飛往不同的目的地。每個目的地都是 <strong>context consumer</strong> (上下文使用者)。</p>
+<p>context consumer 是一種從 context 檢索數據的 React 組件。這是您的數據著陸，下機並開始工作的目的地機場。</p>
+<p>使用 context 將使我們能夠將數據存儲在單個位置，但是不需要我們將數據通過不需要它們的一堆組件傳遞。</p>
+<h4 id="將資料放置在-Context"><a href="#將資料放置在-Context" class="headerlink" title="將資料放置在 Context"></a>將資料放置在 Context</h4><p>為了在 React 中使用 context，我們必須首先在 context provider 中放置一些數據，然後將該 provider 添加到我們的組件樹中。React 有一個稱為 createContext 的函式，我們可以使用它創建一個新的 context 物件。 該物件包含兩個組件：context <strong>Provider</strong> 和 <strong>Consumer</strong>。</p>
+<p>讓我們將顏色數據 colors 放入 context 中。 通常都會將 context 添加到應用程序的入口點，然後就可以在每個組件中使用。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;div id=<span class="string">"react-container"</span>&gt;&lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;script type="text/</span>babel<span class="string">"&gt;</span></span><br><span class="line"><span class="string">  const &#123; createContext &#125; = React;</span></span><br><span class="line"><span class="string">  const &#123; render &#125; = ReactDOM;</span></span><br><span class="line"><span class="string">  const &#123; uuid, colorData &#125; = Demo;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  const ColorContext = createContext();</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  render(</span></span><br><span class="line"><span class="string">    &lt;ColorContext.Provider value=&#123;&#123; colors: colorData &#125;&#125;&gt;</span></span><br><span class="line"><span class="string">      &lt;App /&gt;</span></span><br><span class="line"><span class="string">    &lt;/ColorContext.Provider&gt;,</span></span><br><span class="line"><span class="string">    document.getElementById("</span>react-container<span class="string">")</span></span><br><span class="line"><span class="string">  ); </span></span><br><span class="line"><span class="string">&lt;/script&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>第 8 行我們使用 createContext 創建了一個新的 React context 實例，我們將其命名為 ColorContext。color context 包含兩個組件：ColorContext.Provider 和 ColorContext.Consumer。</p>
+<p>我們需要使用 provider 將 colors 數據置於狀態中。第 13 行通過設置 Provider 的 value 屬性，可以將數據添加到 context 中。 這裡，我們向 context 添加了一個包含 colorData 數據的 colors 屬性的物件。由於我們使用 provider 包裝了整個 App 組件，因此 colors 數據將可供我們整個組件樹中含有 context consumer 的組件使用。當組件想從 context 中獲取 colors 數據時，只需要訪問 ColorContext.Consumer。</p>
+<p>Context provider 並不必總是需要包裝整個應用程序；可以只包裝特定部分的組件，這可以使您的應用程序有更好的效能。Provider 將僅向其子組件提供 context 值。因此可以在一個應用程序使用多個 context provider。</p>
+<p>現在我們在 conext 中提供 colors 數據，App 組件不再需要保持狀態並將其作為 props 屬性傳遞給其子組件。我們可以直接飛過 App 組件。Provider 是 App 組件的父級，它在 context 中提供 colors。 ColorList 是 App 組件的子級，它可以直接自己獲取 colors。 因此 App 組件根本不需要接觸 colors，因為 App 組件本身與 colors 無關，這種保持狀態的責任已從組件樹中解脫了。</p>
+<p>我們可以從　App　組件中刪除很多代碼。它只需要呈現　AddColorForm　和　ColorList。 它不再需要擔心數據狀態：</p>
+<figure class="highlight js"><figcaption><span>App</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;   </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;AddColorForm /&gt;  </span><br><span class="line">      &lt;ColorList /&gt;</span><br><span class="line">    &lt;<span class="regexp">/&gt;</span></span><br><span class="line"><span class="regexp">  );  </span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="使用-useContext-取得資料"><a href="#使用-useContext-取得資料" class="headerlink" title="使用 useContext 取得資料"></a>使用 useContext 取得資料</h4><p>React 16.8 之後添加的 Hooks 使處理 context 變得更簡易。現在使用 useContext 掛鉤，直接在掛鉤中訪問 Consumer，我們不再需要直接使用 Consumer 組件。在使用 Hooks 之前，我們必須使用 context consumer 中稱為 <strong>render props</strong> 的模式從 context 中獲取 colors。Render props 作為參數傳遞給子組件。 現在我們直接使用 useContext 掛鉤從 context consumer 中獲取我們需要的那些值。</p>
+<p>ColorList 組件不再需要從其屬性獲取 colors。它可以通過 useContext 掛鉤直接訪問它們：</p>
+<figure class="highlight js"><figcaption><span>ColorList</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; createContext, useContext &#125; = React;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ColorList = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; colors &#125; = useContext(ColorContext);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span>(!colors.length) <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>No Colors Listed.<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &#123;</span><br><span class="line">         colors.map(<span class="function"><span class="params">color</span> =&gt;</span> <span class="xml"><span class="tag">&lt;<span class="name">Color</span> <span class="attr">key</span>=<span class="string">&#123;color.id&#125;</span> &#123;<span class="attr">...color</span>&#125; /&gt;</span></span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>第 1 行將 useContext 加進來。第 6 行使用 useContext 掛鉤從 context consumer 中獲取我們需要的數據 colors。現在，ColorList 可以基於 context 中提供的數據構造用戶界面。</p>
+<h4 id="Stateful-Context-Provider"><a href="#Stateful-Context-Provider" class="headerlink" title="Stateful Context Provider"></a>Stateful Context Provider</h4><p>Context provider 可以將一個物件放入 context 中，但是不能自行更改 context 中的值。它需要父級組件的幫助。訣竅是創建一個能夠渲染 context provider 的有狀態父組件。當有狀態組件的狀態更改時，它將使用新的 context 數據重新渲染 context provider (context provider 也是一個 React 組件)。 而 context provider 的任何子代也將重新以新的 context 數據渲染介面。</p>
+<p>這個會渲染 context provider 的有狀態組件是我們的 <strong>custom provider</strong>。 這個自定義的有狀態組件將我們的 App 組件與 provider 包裝在一起。</p>
+<figure class="highlight js"><figcaption><span>ColorProvider</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; createContext, useContext, useState &#125; = React;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ColorProvider = <span class="function">(<span class="params">&#123; children &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [colors, setColors] = useState(colorData);</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ColorContext.Provider value=&#123;&#123; colors, setColors &#125;&#125;&gt;</span><br><span class="line">      &#123;children&#125;</span><br><span class="line">    &lt;<span class="regexp">/ColorContext.Provider&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">render(</span></span><br><span class="line"><span class="regexp">  &lt;ColorProvider&gt;</span></span><br><span class="line"><span class="regexp">    &lt;App /</span>&gt;</span><br><span class="line">  &lt;<span class="regexp">/ColorProvider&gt;,</span></span><br><span class="line"><span class="regexp">  document.getElementById("react-container")</span></span><br><span class="line"><span class="regexp">);</span></span><br></pre></td></tr></table></figure>
+
+<p>在此 ColorProvider 組件中，我們使用 useState 掛鉤創建了 colors 狀態變數。 ColorProvider 使用 ColorContext.Provider 的 value 屬性將 colors 從狀態添加到 context。 ColorProvider 中的所有子組件都會因狀態的改變而重新渲染，而且也都包裝在 ColorContext.Provider 中，所以也都將可以從 context 直接訪問 colors 數據。</p>
+<p>您可能已經注意到，我們在第 8 行也將 setColors 函式添加到 context 中。這使 context consumers 可以更改 colors 數據。每當調用 setColors 時，colors 數據都會更改。這將導致 ColorProvider 的渲染，我們的 UI 將被更新，以顯示新的 colors 數據。</p>
+<p>將 setColors 添加到 context 可能不是最好的主意。它可能會讓其他開發人員和您在以後使用它時出錯。更改 colors 數據的值時只有三個選項：添加顏色，刪除顏色或對顏色進行評級。 最好在 context 中為每個操作各自添加函式功能。這樣，您就不必向 consumers 公開 setColors 函式。 您將只公開允許其進行更改的函式功能：</p>
+<figure class="highlight js"><figcaption><span>ColorProvider</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ColorProvider = <span class="function">(<span class="params">&#123; children &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [colors, setColors] = useState(colorData);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> addColor = <span class="function">(<span class="params">title, color</span>) =&gt;</span> </span><br><span class="line">    setColors([</span><br><span class="line">      ...colors,</span><br><span class="line">      &#123;</span><br><span class="line">        id: uuid(),</span><br><span class="line">        rating: <span class="number">0</span>,</span><br><span class="line">        title,</span><br><span class="line">        color</span><br><span class="line">      &#125;</span><br><span class="line">    ]);</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">const</span> rateColor = <span class="function">(<span class="params">id, rating</span>) =&gt;</span></span><br><span class="line">    setColors(colors.map(<span class="function"><span class="params">color</span> =&gt;</span> (color.id === id ? &#123; ...color, rating &#125; : color ))</span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> removeColor = <span class="function"><span class="params">id</span> =&gt;</span> setColors(colors.filter(<span class="function"><span class="params">color</span> =&gt;</span> color.id !== id ));</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ColorContext.Provider value=&#123;&#123; colors, addColor, removeColor, rateColor &#125;&#125;&gt;</span><br><span class="line">      &#123;children&#125;</span><br><span class="line">    &lt;<span class="regexp">/ColorContext.Provider&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>看起來好多了。在此我們為 context 添加了可以在 colors 陣列上進行的所有操作函式，addColor、reteColor 與 removeColor。 現在，組件樹中的任何組件都可以使用這些函式更改 colors 數據。</p>
+<h4 id="Custom-Hooks-with-Context"><a href="#Custom-Hooks-with-Context" class="headerlink" title="Custom Hooks with Context"></a>Custom Hooks with Context</h4><p>我們還可以做出一些改變。Hooks 的引入使得 context 完全不必暴露於 consumer 組件。 但對於團隊成員而言，context 可能會造成混亂。 通過將 context 包裝在自定義掛鉤(custom hooks)中，我們可以使它們更容易理解與維護。</p>
+<p>無需公開 ColorContext 實例，我們可以創建一個名為 useColors 的 hook ，該 hook 會從 context 返回 colors 數據。</p>
+<figure class="highlight js"><figcaption><span>useColors</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ColorContext = createContext();</span><br><span class="line"><span class="keyword">const</span> useColors = <span class="function"><span class="params">()</span> =&gt;</span> useContext(ColorContext);</span><br></pre></td></tr></table></figure>
+
+<p>這一簡單更改對應用程序結構產生了巨大影響。我們可以將呈現和使用有狀態數據 colors 所需的所有功能包裝在一個自定義掛鉤中。</p>
+<p>現在 consumer 使用 ColorProvider 和 useColors 掛鉤是一件比較愉快的事情。App 組件的所有子級組件都可以從 useColors 掛鉤中獲取 colors 數據。 ColorList 組件現在可以直接使用自行定義的 useColors 掛鉤取得 colors 數據：</p>
+<figure class="highlight js"><figcaption><span>ColorList</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ColorList = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; colors &#125; = useColors();</span><br><span class="line">  </span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ( ... );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我們從該組件中刪除了對 context 的任何引用。 現在，我們需要的一切都可以從我們自定義的掛鉤中獲得。</p>
+<p>Color 組件現在也可以使用我們自行定義的 useColors 掛鉤直接獲取用於對 color 進行評級和刪除顏色的函式 rateColor 與 removeColor：</p>
+<figure class="highlight js"><figcaption><span>Color</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Color = <span class="function">(<span class="params">&#123; id, title, color, rating &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; rateColor, removeColor &#125; = useColors();</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;section&gt;</span><br><span class="line">      &lt;h1&gt;&#123;title&#125;&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">      &lt;button className="t-Button" onClick=&#123;() =&gt; removeColor(id)&#125; &gt;</span></span><br><span class="line"><span class="regexp">        &lt;FaRemove /</span>&gt;</span><br><span class="line">      &lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div style=&#123;&#123; height: 50, backgroundColor: color&#125;&#125; /</span>&gt;</span><br><span class="line">      &lt;StarRating selectedStars=&#123;rating&#125; onRate=&#123;rating =&gt; rateColor(id, rating)&#125; /&gt;</span><br><span class="line">    &lt;<span class="regexp">/section&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>最後則是 AddColorForm 組件直接從 useColors 掛鉤取得 addColor 函式:</p>
+<figure class="highlight js"><figcaption><span>AddColorForm</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> AddColorForm = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [title, setTitle] = useState(<span class="string">""</span>);</span><br><span class="line">  <span class="keyword">const</span> [color, setColor] = useState(<span class="string">"#000000"</span>);</span><br><span class="line">  <span class="keyword">const</span> &#123; addColor &#125; = useColors();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> submit = <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">    e.preventDefault();</span><br><span class="line">    addColor(title, color);</span><br><span class="line">    setTitle(<span class="string">""</span>);</span><br><span class="line">    setColor(<span class="string">"#000000"</span>);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;form onSubmit=&#123;submit&#125; &gt;</span><br><span class="line">      &lt;input </span><br><span class="line">        value=&#123;title&#125;</span><br><span class="line">        onChange=&#123; event =&gt; setTitle(event.target.value)&#125;</span><br><span class="line">        type=<span class="string">"text"</span></span><br><span class="line">        placeholder=<span class="string">"color title..."</span></span><br><span class="line">        required</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;input </span><br><span class="line">        value=&#123;color&#125;</span><br><span class="line">        onChange=&#123; event =&gt; setColor(event.target.value)&#125;</span><br><span class="line">        type=<span class="string">"color"</span></span><br><span class="line">        required</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;button className=<span class="string">"t-Button t-Button--hot margin-left-sm"</span>&gt;Add&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>form&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Custom-Hooks"><a href="#Custom-Hooks" class="headerlink" title="Custom Hooks"></a>Custom Hooks</h4><p>在 AddColorForm 組件中還有一個地方可以改進的。當您的大型表單具有很多 input 元素時，您可能會複製並貼上以下兩行代碼：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">value=&#123;title&#125;</span><br><span class="line">onChange=&#123; event =&gt; setTitle(event.target.value)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通過簡單地將這些屬性複制並粘貼到每個表單元素中，同時調整變數名稱，似乎很快速。但是，腦海裡總覺得，複製和粘貼代碼表明這些應改可以用函式更抽象化這些冗餘的工作。</p>
+<p>我們可以創建受控表單組件所需的詳細信息打包到自定義的掛鉤(Custom Hook)中。 我們可以創建自己的 useInput 掛鉤，可以抽像出創建受控表單輸入所涉及的冗餘部分：</p>
+<figure class="highlight js"><figcaption><span>useInput</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> useInput = <span class="function"><span class="params">initialValue</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [value, setValue] = useState(initialValue);</span><br><span class="line">  <span class="keyword">return</span> [</span><br><span class="line">    &#123; value, <span class="attr">onChange</span>: <span class="function"><span class="params">e</span> =&gt;</span> setValue(e.target.value) &#125;,</span><br><span class="line">    () =&gt; setValue(initialValue)</span><br><span class="line">  ];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>現在可以在 AddColorForm 使用自定義的 useInput 掛鉤：</p>
+<figure class="highlight js"><figcaption><span>AddColorForm</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> AddColorForm = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [titleProps, resetTitle] = useInput(<span class="string">""</span>);</span><br><span class="line">  <span class="keyword">const</span> [colorProps, resetColor] = useInput(<span class="string">"#000000"</span>);</span><br><span class="line">  <span class="keyword">const</span> &#123; addColor &#125; = useColors();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> submit = <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">    e.preventDefault();</span><br><span class="line">    addColor(titleProps.value, colorProps.value);</span><br><span class="line">    resetTitle();</span><br><span class="line">    resetColor();</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;form onSubmit=&#123;submit&#125; &gt;</span><br><span class="line">      &lt;input </span><br><span class="line">        &#123;...titleProps&#125;</span><br><span class="line">        type=<span class="string">"text"</span></span><br><span class="line">        placeholder=<span class="string">"color title..."</span></span><br><span class="line">        required</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;input </span><br><span class="line">        &#123;...colorProps&#125;</span><br><span class="line">        type=<span class="string">"color"</span></span><br><span class="line">        required</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;button className=<span class="string">"t-Button t-Button--hot margin-left-sm"</span>&gt;Add&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>form&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 2、3 行改用自定義的 useInput 掛鉤。</li>
+<li>第 16、22 行我們不用重複輸入 value 與 onChange 事件。</li>
+<li>記得要一起修改 submit 函式中第 8 行 addColor 的參數與第 9 、10 行預設值設定。這個預設值是我們在調用 useInput 時設定的。</li>
+</ul>
+<p>不必靠組件屬性將數據傳上傳下的，整個程式碼更清楚與更容易理解。</p>
+<figure class="highlight html"><figcaption><span>Oracle APEX: Color Organizer </span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"react-container"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; createContext, useContext, useState &#125; = React;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; render &#125; = ReactDOM;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; uuid, colorData &#125; = Demo;</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> ColorContext = createContext();</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> useColors = <span class="function"><span class="params">()</span> =&gt;</span> useContext(ColorContext);</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> ColorProvider = <span class="function">(<span class="params">&#123; children &#125;</span>) =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> [colors, setColors] = useState(colorData);</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> addColor = <span class="function">(<span class="params">title, color</span>) =&gt;</span> </span></span><br><span class="line">      setColors([</span><br><span class="line">        ...colors,</span><br><span class="line">        &#123;</span><br><span class="line">          id: uuid(),</span><br><span class="line">          rating: 0,</span><br><span class="line">          title,</span><br><span class="line">          color</span><br><span class="line">        &#125;</span><br><span class="line">    ]);</span><br><span class="line">    </span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> rateColor = <span class="function">(<span class="params">id, rating</span>) =&gt;</span></span></span><br><span class="line"><span class="javascript">      setColors(colors.map(<span class="function"><span class="params">color</span> =&gt;</span> (color.id === id ? &#123; ...color, rating &#125; : color ))</span></span><br><span class="line">    );</span><br><span class="line">  </span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> removeColor = <span class="function"><span class="params">id</span> =&gt;</span> setColors(colors.filter(<span class="function"><span class="params">color</span> =&gt;</span> color.id !== id ));</span></span><br><span class="line">    </span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> (</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">ColorContext.Provider</span> <span class="attr">value</span>=<span class="string">&#123;&#123;</span> <span class="attr">colors</span>, <span class="attr">addColor</span>, <span class="attr">removeColor</span>, <span class="attr">rateColor</span> &#125;&#125;&gt;</span></span></span><br><span class="line">        &#123;children&#125;</span><br><span class="line"><span class="xml">      <span class="tag">&lt;/<span class="name">ColorContext.Provider</span>&gt;</span></span></span><br><span class="line">    )</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> FaStar = <span class="function">(<span class="params">&#123; color, onSelect =  f =&gt; f &#125;</span>) =&gt;</span> ( </span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">span</span> <span class="attr">className</span>=<span class="string">"fa fa-star"</span> <span class="attr">style</span>=<span class="string">&#123;&#123;color&#125;&#125;</span> <span class="attr">onClick</span>=<span class="string">&#123;onSelect&#125;</span> &gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Star = <span class="function">(<span class="params">&#123; selected = <span class="literal">false</span>, onSelect = f =&gt; f &#125;</span>) =&gt;</span> (</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">FaStar</span> <span class="attr">color</span>=<span class="string">&#123;selected</span> ? "<span class="attr">gold</span>" <span class="attr">:</span> "<span class="attr">grey</span>"&#125; <span class="attr">onSelect</span>=<span class="string">&#123;onSelect&#125;</span> /&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">   </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> createArray = <span class="function"><span class="params">length</span> =&gt;</span> [...Array(length)];</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> StarRating = <span class="function">(<span class="params">&#123; totalStars = <span class="number">5</span>, selectedStars = <span class="number">0</span>, onRate = f =&gt; f &#125;</span>) =&gt;</span> &#123;    </span></span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> (</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;&gt;</span></span></span><br><span class="line"><span class="javascript">        &#123;createArray(totalStars).map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> (</span></span><br><span class="line">          &lt;Star</span><br><span class="line">            key=&#123;i&#125; </span><br><span class="line">            selected=&#123;selectedStars &gt; i&#125;</span><br><span class="line">            onSelect=&#123;() =&gt; onRate(i + 1)&#125;</span><br><span class="line">          /&gt;</span><br><span class="line">        ))&#125;</span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">p</span> <span class="attr">style</span>=<span class="string">&#123;&#123;fontSize:</span> "<span class="attr">1.5em</span>", <span class="attr">margin:</span> "<span class="attr">10px</span>"&#125;&#125;&gt;</span>&#123;selectedStars&#125; of &#123;totalStars&#125; stars<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> FaRemove = <span class="function"><span class="params">()</span> =&gt;</span>  <span class="xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">className</span>=<span class="string">"fa fa-remove"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span>;</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Color = <span class="function">(<span class="params">&#123; id, title, color, rating &#125;</span>) =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> &#123; rateColor, removeColor &#125; = useColors();</span></span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> (</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">section</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;title&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">className</span>=<span class="string">"t-Button"</span> <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> removeColor(id)&#125; &gt;</span></span><br><span class="line"><span class="xml">          <span class="tag">&lt;<span class="name">FaRemove</span> /&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">&#123;&#123;</span> <span class="attr">height:</span> <span class="attr">50</span>, <span class="attr">backgroundColor:</span> <span class="attr">color</span>&#125;&#125; /&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">StarRating</span> <span class="attr">selectedStars</span>=<span class="string">&#123;rating&#125;</span> <span class="attr">onRate</span>=<span class="string">&#123;rating</span> =&gt;</span> rateColor(id, rating)&#125; /&gt;</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/<span class="name">section</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> ColorList = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> &#123; colors &#125; = useColors();</span></span><br><span class="line">    </span><br><span class="line"><span class="javascript">    <span class="keyword">if</span>(!colors.length) <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>No Colors Listed.<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> (</span></span><br><span class="line"><span class="javascript">      &lt;div&gt;&#123; colors.map(<span class="function"><span class="params">color</span> =&gt;</span> <span class="xml"><span class="tag">&lt;<span class="name">Color</span> <span class="attr">key</span>=<span class="string">&#123;color.id&#125;</span> &#123;<span class="attr">...color</span>&#125; /&gt;</span></span>) &#125; &lt;<span class="regexp">/div&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> useInput = <span class="function"><span class="params">initialValue</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> [value, setValue] = useState(initialValue);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> [</span></span><br><span class="line"><span class="javascript">      &#123; value, <span class="attr">onChange</span>: <span class="function"><span class="params">e</span> =&gt;</span> setValue(e.target.value) &#125;,</span></span><br><span class="line">      () =&gt; setValue(initialValue)</span><br><span class="line">    ];</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> AddColorForm = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> [titleProps, resetTitle] = useInput(<span class="string">""</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> [colorProps, resetColor] = useInput(<span class="string">"#000000"</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> &#123; addColor &#125; = useColors();</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> submit = <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span></span><br><span class="line">      e.preventDefault();</span><br><span class="line">      addColor(titleProps.value, colorProps.value);</span><br><span class="line">      resetTitle();</span><br><span class="line">      resetColor();</span><br><span class="line">    &#125;;</span><br><span class="line">  </span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> (</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">form</span> <span class="attr">onSubmit</span>=<span class="string">&#123;submit&#125;</span> &gt;</span></span></span><br><span class="line">        &lt;input </span><br><span class="line">          &#123;...titleProps&#125;</span><br><span class="line"><span class="javascript">          type=<span class="string">"text"</span></span></span><br><span class="line"><span class="javascript">          placeholder=<span class="string">"color title..."</span></span></span><br><span class="line">          required</span><br><span class="line">        /&gt;</span><br><span class="line">        &lt;input </span><br><span class="line">          &#123;...colorProps&#125;</span><br><span class="line"><span class="javascript">          type=<span class="string">"color"</span></span></span><br><span class="line">          required</span><br><span class="line">        /&gt;</span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">button</span> <span class="attr">className</span>=<span class="string">"t-Button t-Button--hot margin-left-sm"</span>&gt;</span>Add<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;   </span></span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> (</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">AddColorForm</span> /&gt;</span>  </span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">ColorList</span> /&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/&gt;</span></span></span><br><span class="line">    );  </span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line">  render(</span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">ColorProvider</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">App</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">ColorProvider</span>&gt;</span>,</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">"react-container"</span>)</span></span><br><span class="line">  ); </span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>Hook 是 React 16.8 中增加的新功能，它解決了 React 中我們過去在編寫與維護數萬個 component 組件時所遇到的各種看似不相關的問題。</p>
+<p>Hook 可以讓你從 component 組件抽取 stateful 的邏輯，讓你不需要改變 component 階層就能重用 stateful 的邏輯，如此一來它就可以獨立地被測試和重複使用。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/26/React-State-in-Component-Trees/" rel="prev" title="React State in Component Trees">
+      <i class="fa fa-chevron-left"></i> React State in Component Trees
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/12/Enhancing-Components-with-Hooks/" rel="next" title="Enhancing Components with Hooks (Ⅰ)">
+      Enhancing Components with Hooks (Ⅰ) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#將資料放置在-Context"><span class="nav-number">1.</span> <span class="nav-text">將資料放置在 Context</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-useContext-取得資料"><span class="nav-number">2.</span> <span class="nav-text">使用 useContext 取得資料</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Stateful-Context-Provider"><span class="nav-number">3.</span> <span class="nav-text">Stateful Context Provider</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Custom-Hooks-with-Context"><span class="nav-number">4.</span> <span class="nav-text">Custom Hooks with Context</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Custom-Hooks"><span class="nav-number">5.</span> <span class="nav-text">Custom Hooks</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

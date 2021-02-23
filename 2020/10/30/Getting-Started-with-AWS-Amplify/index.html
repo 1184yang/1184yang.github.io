@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="大多數應用程序的核心是 data/API 層。該層包含很多東西，在無伺服器世界中，這通常由 API 端點和無伺服器函式的組合而成。 這些無伺服器函式可能執行某些邏輯並返回數據、與某種資料庫進行互動，甚至與另一個 API 端點進行互動。 使用 Amplify 創建 API 有兩種主要方法：  Amazon API Gateway 和 Lambda 函式的組合。 連接到某種類型的數據源(資料庫、Lam">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS Amplify 入門">
+<meta property="og:url" content="https://1184yang.github.io/2020/10/30/Getting-Started-with-AWS-Amplify/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="大多數應用程序的核心是 data/API 層。該層包含很多東西，在無伺服器世界中，這通常由 API 端點和無伺服器函式的組合而成。 這些無伺服器函式可能執行某些邏輯並返回數據、與某種資料庫進行互動，甚至與另一個 API 端點進行互動。 使用 Amplify 創建 API 有兩種主要方法：  Amazon API Gateway 和 Lambda 函式的組合。 連接到某種類型的數據源(資料庫、Lam">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/30/Getting-Started-with-AWS-Amplify/20201102-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/30/Getting-Started-with-AWS-Amplify/20201102-02.png">
+<meta property="og:updated_time" content="2020-12-24T10:13:30.808Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AWS Amplify 入門">
+<meta name="twitter:description" content="大多數應用程序的核心是 data/API 層。該層包含很多東西，在無伺服器世界中，這通常由 API 端點和無伺服器函式的組合而成。 這些無伺服器函式可能執行某些邏輯並返回數據、與某種資料庫進行互動，甚至與另一個 API 端點進行互動。 使用 Amplify 創建 API 有兩種主要方法：  Amazon API Gateway 和 Lambda 函式的組合。 連接到某種類型的數據源(資料庫、Lam">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/10/30/Getting-Started-with-AWS-Amplify/20201102-01.png">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/10/30/Getting-Started-with-AWS-Amplify/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>AWS Amplify 入門 | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/10/30/Getting-Started-with-AWS-Amplify/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AWS Amplify 入門
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-10-30 13:58:21" itemprop="dateCreated datePublished" datetime="2020-10-30T13:58:21+08:00">2020-10-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-12-24 18:13:30" itemprop="dateModified" datetime="2020-12-24T18:13:30+08:00">2020-12-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>大多數應用程序的核心是 data/API 層。該層包含很多東西，在無伺服器世界中，這通常由 API 端點和無伺服器函式的組合而成。 這些無伺服器函式可能執行某些邏輯並返回數據、與某種資料庫進行互動，甚至與另一個 API 端點進行互動。</p>
+<p>使用 Amplify 創建 API 有兩種主要方法：</p>
+<ul>
+<li>Amazon API Gateway 和 Lambda 函式的組合。</li>
+<li>連接到某種類型的數據源(資料庫、Lambda 函式或 HTTP 端點)的 GraphQL API。</li>
+</ul>
+<p>API Gateway 是一項 AWS 服務，可讓您創建 API 終端節點，並將它們透過 Lambda 函式路由到不同的服務。 當進行 API 調用時，它將透過 API Gateway 路由，調用 Lambda 函式，然後返迴結果。 使用 Amplify CLI，您可以創建 API Gateway 端點和 Lambda 函式，CLI 會自動將 API 配置為能夠透過 HTTP 請求調用 Lambda 函式。</p>
+<p>創建 API 後，您需要一種與之互動的方法。 使用 Amplify client，您將能夠使用 Amplify API class 從客戶端將請求發送到 API Gateway 端點。 API class 允許你與 GraphQL API 以及 API Gateway 端點進行互動。</p>
+<img src="/2020/10/30/Getting-Started-with-AWS-Amplify/20201102-01.png" title="AWS API Gateway">
+
+<p>在這個範例中，您將創建第一個簡單的全棧無伺服器應用程序，這個應用程序將透過 API Gateway 端點與無伺服器函式進行互動。 你將會使用 CLI 創建 API 端點以及無伺服器函式，然後使用 Amplify 客戶端程式庫與 API 進行互動。 從這個範例我們將可以學習到無伺服器應用程序的基本運作。</p>
+<h3 id="創建和部署無伺服器函式"><a href="#創建和部署無伺服器函式" class="headerlink" title="創建和部署無伺服器函式"></a>創建和部署無伺服器函式</h3><p><strong>無伺服器函式(serverless functions)</strong>是許多無伺服器應用程序的核心。無伺服器函式在無狀態計算容器(stateless compute containers)中運行代碼，這些容器是事件驅動(event-driven)的、短暫的(short-lived，可能只持續一次調用)，並由雲提供商完全管理。 這些函式可以動態的擴展，不需要擴增額外的伺服器。</p>
+<p>大多數人認為無伺服器函式是透過 API 的調用而觸發的，但這些函式也可以由各種不同的事件觸發。 除 HTTP 請求外，一些無伺服器函式常會用在例如將圖像上傳存儲服務、資料庫的新增、更新、或刪除資料，甚至來自其他無伺務器函式。</p>
+<p>無伺服器函式會自動擴展，因此，如果流量激增，則無需擔心你的應用程序效能。 第一次調用函式時，服務提供者將創建該函式的實例並運行其處理程序方法(handler method)以處理事件。 函式完成並返迴結果後，它將會被保留並繼續處理其他事件(如果有)。如果在第一個事件仍在處理過程中發生其他調用，則服務將創建另一個實例。</p>
+<p>無伺服器函式還具有不同於傳統基礎架構的支付模型。 像 AWS Lambda 之類的服務，您只需對根據函式的請求數量以及代碼執行所耗的時間付費。 這與其他基礎架構之類的服務(無論是否正在使用它們)不同。</p>
+<p>現在了解了無伺服器函式的運作概念，我們要來創建一個無伺服器函式，並將其掛接到 HTTP API。</p>
+<h4 id="創建-React-應用程序及安裝所需的程式庫"><a href="#創建-React-應用程序及安裝所需的程式庫" class="headerlink" title="創建 React 應用程序及安裝所需的程式庫"></a>創建 React 應用程序及安裝所需的程式庫</h4><p>首先需要創建客戶端 React 應用程序:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn create react-app amplify-react-api-app</span><br><span class="line"></span><br><span class="line">cd amplify-react-api-app</span><br></pre></td></tr></table></figure>
+
+<p>接下來，需要安裝依賴項。對於此應用程序，只需要 AWS Amplify 程式庫：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn add aws-amplify</span><br></pre></td></tr></table></figure>
+
+<p>安裝依賴項後，現在可以在 React 應用程序的根目錄中初始化一個新的 Amplify 專案：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify init</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">? Enter a name for the project cryptoapp</span><br><span class="line">? Enter a name for the environment local</span><br><span class="line">? Choose your default editor: Visual Studio Code</span><br><span class="line">? Choose the type of app that you're building javascript</span><br><span class="line">Please tell us about your project</span><br><span class="line">? What javascript framework are you using react</span><br><span class="line">? Source Directory Path:  src</span><br><span class="line">? Distribution Directory Path: build</span><br><span class="line">? Build Command:  npm.cmd run-script build</span><br><span class="line">? Start Command: npm.cmd run-script start</span><br><span class="line">Using default provider  awscloudformation</span><br><span class="line"></span><br><span class="line">For more information on AWS Profiles, see:</span><br><span class="line">https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html</span><br><span class="line"></span><br><span class="line">? Do you want to use an AWS profile? Yes</span><br><span class="line">? Please choose the profile you want to use default</span><br></pre></td></tr></table></figure>
+
+<p>現在，已經創建了 Amplify 專案和 React 應用程序，可以開始添加新功能。</p>
+<h4 id="創建新的無伺服器函式"><a href="#創建新的無伺服器函式" class="headerlink" title="創建新的無伺服器函式"></a>創建新的無伺服器函式</h4><p>下一步，我們將創建將用於此應用程序的無伺服器函式。 在本範例中我們要構建一個加密貨幣應用程序。 首先，將在函式中使用一組硬編碼的加密貨幣的陣列資料，然後將其返回給客戶端。 稍後，我們將更新此函式以調用實際的 API(CoinLore)，以異步方式獲取即時的加密貨幣現值。</p>
+<p>要創建無伺服器函式，執行以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify add function</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">? Select which capability you want to add: Lambda function (serverless function)</span><br><span class="line">? Provide a friendly name for your resource to be used as a label for this category in the project: cryptofunction</span><br><span class="line">? Provide the AWS Lambda function name: cryptofunction</span><br><span class="line">? Choose the runtime that you want to use: NodeJS</span><br><span class="line">? Choose the function template that you want to use: Serverless ExpressJS function (Integration </span><br><span class="line">with API Gateway)</span><br><span class="line">? Do you want to access other resources in this project from your Lambda function? No</span><br><span class="line">? Do you want to invoke this function on a recurring schedule? No</span><br><span class="line">? Do you want to configure Lambda layers for this function? No</span><br><span class="line">? Do you want to edit the local lambda function now? (Y/n) No</span><br></pre></td></tr></table></figure>
+
+<p>現在在專案的根目錄下會產生一個新的子文件夾 <em>amplify</em>，在 amplify 目錄中會看到一個新的子文件夾: amplify/backend/function/cryptofunction</p>
+<h4 id="無伺服器函式代碼"><a href="#無伺服器函式代碼" class="headerlink" title="無伺服器函式代碼"></a>無伺服器函式代碼</h4><p>創建此資源時，會在 <em>amplify/backend</em> 中創建了一個 <em>function</em> 的新文件夾。 CLI 創建的所有函式都將存儲在此文件夾中。 目前，您只有一個函式，<strong>cryptofunction</strong> 。 在<em>crytpofunction</em> 文件夾中，您將看到幾個配置文件以及主要功能代碼所在的 src 目錄。</p>
+<p>無伺服器函式本質上僅是獨立運行的封裝應用程序。 由於您創建的函式是使用 JavaScript 編寫的，因此你會看到在所有 JavaScript 應用程序中通常都會看到的所有內容，包括 package.json 和 index.js。</p>
+<p>接下來，看一下位於 <em>cryptofunction</em> 文件夾中 <em>src/index.js</em> 的函式入口點。 </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> awsServerlessExpress = <span class="built_in">require</span>(<span class="string">'aws-serverless-express'</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="built_in">require</span>(<span class="string">'./app'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = awsServerlessExpress.createServer(app);</span><br><span class="line"></span><br><span class="line">exports.handler = <span class="function">(<span class="params">event, context</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`EVENT: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(event)&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">return</span> awsServerlessExpress.proxy(server, event, context, <span class="string">'PROMISE'</span>).promise;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在此文件中，您將看到一個名為 <strong>exports.handler</strong> 的函式。 這是無伺服器函式調用的入口點。 調用該無伺服器函式時，這就是運行的代碼。</p>
+<p>您可以根據需要直接在此函式中處理事件，但是由於這裡將使用 API，因此更好的方式是透過代理使用 Express 的路由。 這樣做可以在一個函式中提供多個路由，每個路由提供不同的 HTTP 請求方法，例如 get、put、post 、和 delete。 無伺服器框架提供了一種簡便的方法，並且已為您在 <em>src/app.js</em> 文件中內置了函式樣板。</p>
+<p>在 index.js 中，你看到的代碼：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">awsServerlessExpress.proxy(server, event, context, 'PROMISE').promise;</span><br></pre></td></tr></table></figure>
+
+<p>此代碼就是將事件，上下文和路徑代理到在 app.js 中運行的 Express 伺務器的地方。</p>
+<p>然後，在 app.js 中，你將能夠針對為 API 創建任何的 HTTP 請求路由。</p>
+<h4 id="創建-coins-路由"><a href="#創建-coins-路由" class="headerlink" title="創建 /coins 路由"></a>創建 /coins 路由</h4><p>現在了解了應用程序的結構，讓我們在 app.js 中創建一個新的路由，並返回一些數據。 將創建的路由是 /coins 路由。 此路由將返回包含 coins 陣列的物件。</p>
+<p>開啟 <em>amplify/backend/function/cryptofunction/src/app.js</em>，在第一個 app.get(‘/items’) 路由之前，添加以下代碼：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">app.get(<span class="string">'/coins'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> coins = [</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">'Bitcoin'</span>, <span class="attr">symbol</span>: <span class="string">'BTC'</span>, <span class="attr">price_usd</span>: <span class="string">"10000"</span>&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">'Ethereum'</span>, <span class="attr">symbol</span>: <span class="string">'ETH'</span>, <span class="attr">price_usd</span>: <span class="string">"400"</span>&#125;,</span><br><span class="line">    &#123;<span class="attr">name</span>: <span class="string">'Litecoin'</span>, <span class="attr">symbol</span>: <span class="string">'LTC'</span>, <span class="attr">price_usd</span>: <span class="string">"150"</span>&#125;</span><br><span class="line">  ];</span><br><span class="line">  </span><br><span class="line">  res.json(&#123; coins &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>這裡暫時使用一組硬編碼的加密貨幣信息陣列。 使用此路由調用該函式時，它將以一個物件方式作為回應，該物件包含一個名為 coins 的屬性。</p>
+<h4 id="創建一個新的-API"><a href="#創建一個新的-API" class="headerlink" title="創建一個新的 API"></a>創建一個新的 API</h4><p>創建並配置了函式後，現在要在其前端放置一個 API，以便你可以透過 HTTP 請求來觸發它。</p>
+<p>為此，我們將使用 Amazon API Gateway。 API Gateway 是一項完全託管的服務，使開發人員能夠創建、發佈、維護、監控、和保護 REST 與 WebSocket API。 Amplify CLI 和 Amplify client 程式庫都有支援 API Gateway。</p>
+<p>在這裡，我們會將創建一個新的 API Gateway 端點並將其配置為調用之前所創建的 Lambda 函式。</p>
+<p>要創建 API，可以從專案的根目錄使用 Amplify add 命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify add api</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">? Please select from one of the below mentioned services: REST</span><br><span class="line">? Provide a friendly name for your resource to be used as a label for this category in the project: cryptoapi</span><br><span class="line">? Provide a path (e.g., /book/&#123;isbn&#125;): /icons</span><br><span class="line">? Choose a Lambda source: Use a Lambda function already added in the current Amplify project</span><br><span class="line">? Choose the Lambda function to invoke by this path: cryptofunction</span><br><span class="line">? Restrict API access: No</span><br><span class="line">? Do you want to add another path? No</span><br></pre></td></tr></table></figure>
+
+<h4 id="部署-API-和-Lambda-函式"><a href="#部署-API-和-Lambda-函式" class="headerlink" title="部署 API 和 Lambda 函式"></a>部署 API 和 Lambda 函式</h4><p>現在已經創建了函式和 API，現在需要將它們部署到你的帳戶中。 為此，要執行 Amplify push 命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify push</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">√ Successfully pulled backend environment local from the cloud.</span><br><span class="line"></span><br><span class="line">Current Environment: local</span><br><span class="line"></span><br><span class="line">| Category | Resource name  | Operation | Provider plugin   |</span><br><span class="line">| -------- | -------------- | --------- | ----------------- |</span><br><span class="line">| Function | cryptofunction | Create    | awscloudformation |</span><br><span class="line">| Api      | cryptoapi      | Create    | awscloudformation |</span><br><span class="line">? Are you sure you want to continue? Yes</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">√ All resources are updated in the cloud</span><br><span class="line"></span><br><span class="line">REST API endpoint: https://k1zvup7xx7.execute-api.ap-southeast-1.amazonaws.com/local</span><br></pre></td></tr></table></figure>
+
+<p>您可以隨時使用 Amplify CLI status 命令來查看專案的當前狀態。status 命令將列出專案中所有當前配置的服務並為您提供每個服務的狀態：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify status</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Current Environment: local</span><br><span class="line"></span><br><span class="line">| Category | Resource name  | Operation | Provider plugin   |</span><br><span class="line">| -------- | -------------- | --------- | ----------------- |</span><br><span class="line">| Function | cryptofunction | No Change | awscloudformation |</span><br><span class="line">| Api      | cryptoapi      | No Change | awscloudformation |</span><br><span class="line"></span><br><span class="line">REST API endpoint: https://k1zvup7xx7.execute-api.ap-southeast-1.amazonaws.com/local</span><br></pre></td></tr></table></figure>
+
+<p>在此狀態輸出中要注意的主要是 <strong>Operation</strong>。 <strong>Operation</strong> 告訴你下次在專案中執行 <strong>push</strong> 時將發生什麼。 <strong>Operation</strong> 屬性會設置為 <strong>Create</strong>、<strong>Update</strong>、<strong>Delete</strong>、或 <strong>No Change</strong>。</p>
+<p>這裡也顯示了我們創建的 REST API 端點，你可以測試一下我們創建的 /coins 路由:</p>
+<p><a href="https://k1zvup7xx7.execute-api.ap-southeast-1.amazonaws.com/local/coins" target="_blank" rel="noopener">https://k1zvup7xx7.execute-api.ap-southeast-1.amazonaws.com/local/coins</a></p>
+<h4 id="與-API-互動"><a href="#與-API-互動" class="headerlink" title="與 API 互動"></a>與 API 互動</h4><p>現在伺服端已經部署了資源，可以開始從客戶端 React 應用程序與 API 進行互動。</p>
+<p>要在任何應用程序中使用 Amplify client 客戶端程式庫，通常需要在應用程序最上層 root 層級進行基本配置。</p>
+<p>在創建資源時，CLI 會將有關的資源信息記錄在 <strong>aws-exports.js</strong> 文件中。 我們將使用此文件來配置客戶端應用程序以便能與 Amplify 架構一起使用。</p>
+<p>要配置該應用，請打開專案根目錄下的 src/index.js，並將以下內容添加到最後一個 import 後面：</p>
+<figure class="highlight js"><figcaption><span>src/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Amplify <span class="keyword">from</span> <span class="string">'aws-amplify'</span>;</span><br><span class="line"><span class="keyword">import</span> config <span class="keyword">from</span> <span class="string">'./aws-exports'</span>;</span><br><span class="line">Amplify.configure(config);</span><br></pre></td></tr></table></figure>
+
+<h5 id="Amplify-Client-API-類別"><a href="#Amplify-Client-API-類別" class="headerlink" title="Amplify Client API 類別"></a>Amplify Client API 類別</h5><p>在配置客戶端應用程序之後，您可以開始與資源進行互動了。</p>
+<p>Amplify client 客戶端程式庫具有各種 API 類別，可以將其導入並用於各種類型的函式中，包括用於身份驗證的 <strong>Auth</strong>，用於 S3 中存儲項目的 <strong>Storage</strong> 以及用於與 REST 和 GraphQL API 進行互動的 API。</p>
+<p>在這裡，您將使用 API 類別。 API 有多種可用方法，包括用於與 REST API 互動的 API.get、API.post、API.put、與 API.del。以及用於與 GraphQL API 互動的 API.graphql。</p>
+<p>使用 REST API 時，API 包含三個參數：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">API.get(apiName: <span class="built_in">String</span>, <span class="attr">path</span>: <span class="built_in">String</span>, data?: <span class="built_in">Object</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>apiName<br>從創建 API 時提供的名稱。 在我們的範例中，將是 cryptoapi。</li>
+<li>path<br>要與之互動的路徑。 在我們的範例中，將是 /coins。</li>
+<li>data<br>這是一個可選的物件，其中包含你要傳遞給 API 的所有屬性，包括 headers、query 字符串參數、或 body。</li>
+</ul>
+<p>在我們的範例中，API 調用將如下所示：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">API.get(<span class="string">'cryptoapi'</span>, <span class="string">'/coins'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>API 返回一個 promise，這意味著您可以使用 promise 或 async 函式處理所有內容。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">API.get(<span class="string">'cryptoapi'</span>, <span class="string">'/coins'</span>)</span><br><span class="line">  .then(<span class="function"><span class="params">data</span> =&gt;</span> <span class="built_in">console</span>.log(data))</span><br><span class="line">  .catch(<span class="function"><span class="params">error</span> =&gt;</span> <span class="built_in">console</span>.log(error))</span><br></pre></td></tr></table></figure>
+
+<p>或</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> data = <span class="keyword">await</span> API.get(<span class="string">'cryptoapi'</span>, <span class="string">'/coins'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>接下來，讓我們從客戶端調用 API 並渲染數據。 修改專案根目錄下的 src/App.js：</p>
+<figure class="highlight jsx"><figcaption><span>src/App.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; API &#125; <span class="keyword">from</span> <span class="string">'aws-amplify'</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">'./App.css'</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [coins, updateCoins] = useState([])</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">fetchCoins</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> data = <span class="keyword">await</span> API.get(<span class="string">'cryptoapi'</span>, <span class="string">'/coins'</span>)</span><br><span class="line">    updateCoins(data.coins)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    fetchCoins()</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div className=<span class="string">"App"</span>&gt;</span><br><span class="line">      &#123;</span><br><span class="line">        coins.map(<span class="function">(<span class="params">coin, index</span>) =&gt;</span> (</span><br><span class="line">          &lt;div key=&#123;index&#125;&gt;</span><br><span class="line">            &lt;h2&gt;&#123;coin.name&#125; - &#123;coin.symbol&#125;&lt;<span class="regexp">/h2&gt;</span></span><br><span class="line"><span class="regexp">            &lt;h5&gt;$&#123;coin.price_usd&#125;&lt;/</span>h5&gt;</span><br><span class="line">          &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        ))</span></span><br><span class="line"><span class="regexp">      &#125;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App;</span><br></pre></td></tr></table></figure>
+
+<p>然後，啟動 app:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn start</span><br></pre></td></tr></table></figure>
+
+<p>現在你可以從瀏覽器看到:</p>
+<img src="/2020/10/30/Getting-Started-with-AWS-Amplify/20201102-02.png" title="AWS API Gateway Example">
+
+<h5 id="調用另一個-API"><a href="#調用另一個-API" class="headerlink" title="調用另一個 API"></a>調用另一個 API</h5><p>接下來，我們將更新 AWS Lambda 函式以調用另一個 API，即 CoinLore API，它將從 CoinLore 服務返回動態的數據。使用者也將能夠設置過濾器，例如 <strong>limit</strong> 與 <strong>start</strong>，限制從 API 返回的項目數量。</p>
+<p>首先，你需要一種可以在 Lambda 函式中與 HTTP 端點進行互動的方法。 在本範例中要使用的是 Axios 程式庫。 Axios 是可用於瀏覽器和 Node.js 且是基於 Promise 的 HTTP 客戶端程式庫。</p>
+<p>您需要做的第一件事是在 <em>function</em> 文件夾中安裝 Axios 程式庫，以便從 Lambda 函式發送 HTTP 請求。 切換到 <em>amplify/backend/function/cryptofunction/src</em> 目錄，安裝 Axios，然後切換回應用程序的根目錄：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> amplify/backend/<span class="keyword">function</span>/cryptofunction/src</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> yarn add axios</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> ../../../../../</span></span><br></pre></td></tr></table></figure>
+
+<p>接下來，更新 amplify/backend/function/cryptofunction/src/app.js 中的 /coins 路由：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> axios = <span class="built_in">require</span>(<span class="string">'axios'</span>)</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/coins'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> apiUrl = <span class="string">`https://api.coinlore.com/api/tickers/?start=0&amp;limit=10`</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (req.apiGateway &amp;&amp; req.apiGateway.event.queryStringParameters) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; start = <span class="number">0</span>, limit = <span class="number">10</span> &#125; = req.apiGateway.event.queryStringParameters;</span><br><span class="line">    apiUrl = <span class="string">`https://api.coinlore.com/api/tickers/?start=<span class="subst">$&#123;start&#125;</span>&amp;limit=<span class="subst">$&#123;limit&#125;</span>`</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  axios.get(apiUrl)</span><br><span class="line">    .then(<span class="function"><span class="params">response</span> =&gt;</span> &#123;</span><br><span class="line">      res.json(&#123; <span class="attr">coins</span>: response.data.data &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">    .catch(<span class="function"><span class="params">err</span> =&gt;</span> res.json(&#123; <span class="attr">error</span>: err &#125;))</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>在前面的函式中，我們導入了 Axios 程式庫，然後對 CoinLore API 進行了 API 調用。 在 API 調用中，你可以將 start 和 limit 參數傳遞給請求，以定義要返回的項目數量以及起始點。</p>
+<p>在 req 參數中，有一個 apiGateway 屬性，用於保存事件(event)和上下文(context)變數。 在函式中，檢查該事件是否存在以及該事件的 queryStringParameters 屬性。 如果 queryStringParameters 屬性存在，我們將使用這些值來更新基本的 URL。 使用 queryStringParameters，用戶可以在查詢 CoinLore API 時指定起始值和極限值。</p>
+<p>要注意，這裡修改的是伺服器端的函式，使用的是 Node.js 環境，導入程式庫用的是 require 函式。</p>
+<p>函式更新後，在終端中執行 push 命令來部署更新：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify push</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">√ Successfully pulled backend environment local from the cloud.</span><br><span class="line"></span><br><span class="line">Current Environment: local</span><br><span class="line"></span><br><span class="line">| Category | Resource name  | Operation | Provider plugin   |</span><br><span class="line">| -------- | -------------- | --------- | ----------------- |</span><br><span class="line">| Function | cryptofunction | Update    | awscloudformation |</span><br><span class="line">| Api      | cryptoapi      | No Change | awscloudformation |</span><br><span class="line">? Are you sure you want to continue? Yes</span><br></pre></td></tr></table></figure>
+
+<h5 id="更新客戶端"><a href="#更新客戶端" class="headerlink" title="更新客戶端"></a>更新客戶端</h5><p>現在，我們要更新客戶端的 React 應用程序，為用戶提供指定 limit 和 start 參數的選項。</p>
+<p>為此，您需要添加用於用戶輸入的字段(field)，並為用戶提供一個按鈕以觸發新的 API 請求。</p>
+<p>更改專案根目錄下的 src/App.js：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [coins, updateCoins] = useState([])</span><br><span class="line">  <span class="keyword">const</span> [input, updateInput] = useState(&#123; <span class="attr">limit</span>: <span class="number">5</span>, <span class="attr">start</span>: <span class="number">0</span> &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">updateInputValues</span>(<span class="params">type, value</span>) </span>&#123;</span><br><span class="line">    updateInput(&#123; ...input, [type]: value &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">fetchCoins</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; limit, start &#125; = input;</span><br><span class="line">    <span class="keyword">const</span> data = <span class="keyword">await</span> API.get(<span class="string">'cryptoapi'</span>, <span class="string">`/coins?limit=<span class="subst">$&#123;limit&#125;</span>&amp;start=<span class="subst">$&#123;start&#125;</span>`</span>)</span><br><span class="line">    updateCoins(data.coins)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    fetchCoins()</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div className=<span class="string">"App"</span>&gt;</span><br><span class="line">      &lt;input</span><br><span class="line">        placeholder=<span class="string">"limit"</span></span><br><span class="line">        onChange=&#123;e =&gt; updateInputValues(<span class="string">'limit'</span>, e.target.value)&#125;</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;input </span><br><span class="line">        placeholder=<span class="string">"start"</span></span><br><span class="line">        onChange=&#123; e =&gt; updateInputValues(<span class="string">'start'</span>, e.target.value)&#125;</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;button onClick=&#123;fetchCoins&#125;&gt;Fetch Coins&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div&gt;</span></span><br><span class="line"><span class="regexp">        &#123;</span></span><br><span class="line"><span class="regexp">          coins.map((coin, index) =&gt; (</span></span><br><span class="line"><span class="regexp">            &lt;div key=&#123;index&#125;&gt;</span></span><br><span class="line"><span class="regexp">              &lt;h2&gt;&#123;coin.name&#125; - &#123;coin.symbol&#125;&lt;/</span>h2&gt;</span><br><span class="line">              &lt;h5&gt;$&#123;coin.price_usd&#125;&lt;<span class="regexp">/h5&gt;</span></span><br><span class="line"><span class="regexp">            &lt;/</span>div&gt;</span><br><span class="line">          ))</span><br><span class="line">        &#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然後，啟動 app:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn start</span><br></pre></td></tr></table></figure>
+
+<p>恭喜，你已經部署了第一個無伺務器 API!</p>
+<p>這裡要牢記以下幾點：</p>
+<ul>
+<li>Lambda 函式可以從各種事件中觸發。 在此範例中，我們使用來自 API Gateway 的 API 調用觸發了該函式。</li>
+<li>可以使用 Amplify CLI 的指令 amplify add function 創建 Lambda 函式，並且可以使用 amplify add api 創建 API。</li>
+<li>可以將單個 API Gateway 端點配置為與多個 Lambda 函式一起使用。 在此範例中，我們僅將其連接到單個函式。</li>
+<li>Lambda 函式本質上是獨立的 Node.js 應用程序。 在此範例中，我們選擇 Express 應用程序來處理諸如 get、post、和 delete 之類的 REST 方法。在這個範例中我們僅使用了 get 調用。</li>
+<li>Amplify client 客戶端程式庫中的 API 類別可同時用於 GraphQL 以及 REST API。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/27/Full-Stack-Serverless/" rel="prev" title="Full Stack Serverless">
+      <i class="fa fa-chevron-left"></i> Full Stack Serverless
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/03/AWS-Serverless-GraphQL-API/" rel="next" title="AWS Serverless GraphQL API">
+      AWS Serverless GraphQL API <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#創建和部署無伺服器函式"><span class="nav-number">1.</span> <span class="nav-text">創建和部署無伺服器函式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#創建-React-應用程序及安裝所需的程式庫"><span class="nav-number">1.1.</span> <span class="nav-text">創建 React 應用程序及安裝所需的程式庫</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#創建新的無伺服器函式"><span class="nav-number">1.2.</span> <span class="nav-text">創建新的無伺服器函式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#無伺服器函式代碼"><span class="nav-number">1.3.</span> <span class="nav-text">無伺服器函式代碼</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#創建-coins-路由"><span class="nav-number">1.4.</span> <span class="nav-text">創建 /coins 路由</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#創建一個新的-API"><span class="nav-number">1.5.</span> <span class="nav-text">創建一個新的 API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署-API-和-Lambda-函式"><span class="nav-number">1.6.</span> <span class="nav-text">部署 API 和 Lambda 函式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#與-API-互動"><span class="nav-number">1.7.</span> <span class="nav-text">與 API 互動</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Amplify-Client-API-類別"><span class="nav-number">1.7.1.</span> <span class="nav-text">Amplify Client API 類別</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#調用另一個-API"><span class="nav-number">1.7.2.</span> <span class="nav-text">調用另一個 API</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#更新客戶端"><span class="nav-number">1.7.3.</span> <span class="nav-text">更新客戶端</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

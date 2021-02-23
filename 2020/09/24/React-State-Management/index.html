@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="數據活化我們的 React 組件。 沒有數據，我們構建的使用者介面就沒有用。我們的使用者介面是創建用來生成數據內容的工具。 為了為我們的數據內容創建者構建最好的工具，我們需要知道如何有效地操作和更改數據。 之前，我們建構了一個組件樹(component tree)：數據能夠作為屬性流經整個組件層次結構。 屬性(properties)是整體構圖的一半。另一半則是狀態(state)。 React 應用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React State Management">
+<meta property="og:url" content="https://1184yang.github.io/2020/09/24/React-State-Management/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="數據活化我們的 React 組件。 沒有數據，我們構建的使用者介面就沒有用。我們的使用者介面是創建用來生成數據內容的工具。 為了為我們的數據內容創建者構建最好的工具，我們需要知道如何有效地操作和更改數據。 之前，我們建構了一個組件樹(component tree)：數據能夠作為屬性流經整個組件層次結構。 屬性(properties)是整體構圖的一半。另一半則是狀態(state)。 React 應用">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://1184yang.github.io/2020/09/24/React-State-Management/20200925-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/09/24/React-State-Management/20200925-02.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/09/24/React-State-Management/20200925-01.png">
+<meta property="og:updated_time" content="2020-10-10T05:48:16.364Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React State Management">
+<meta name="twitter:description" content="數據活化我們的 React 組件。 沒有數據，我們構建的使用者介面就沒有用。我們的使用者介面是創建用來生成數據內容的工具。 為了為我們的數據內容創建者構建最好的工具，我們需要知道如何有效地操作和更改數據。 之前，我們建構了一個組件樹(component tree)：數據能夠作為屬性流經整個組件層次結構。 屬性(properties)是整體構圖的一半。另一半則是狀態(state)。 React 應用">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/09/24/React-State-Management/20200925-01.png">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/09/24/React-State-Management/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>React State Management | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/09/24/React-State-Management/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          React State Management
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-09-24 07:28:43" itemprop="dateCreated datePublished" datetime="2020-09-24T07:28:43+08:00">2020-09-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-10-10 13:48:16" itemprop="dateModified" datetime="2020-10-10T13:48:16+08:00">2020-10-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/React/" itemprop="url" rel="index"><span itemprop="name">React</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>數據活化我們的 React 組件。 沒有數據，我們構建的使用者介面就沒有用。我們的使用者介面是創建用來生成數據內容的工具。 為了為我們的數據內容創建者構建最好的工具，我們需要知道如何有效地操作和更改數據。</p>
+<p>之前，我們建構了一個組件樹(component tree)：數據能夠作為屬性流經整個組件層次結構。 屬性(properties)是整體構圖的一半。另一半則是狀態(state)。 React 應用程序的狀態由具有更改能力的數據驅動。 應用程序有了狀態，讓我們可以創建、修改、刪除現有的數據。</p>
+<p>狀態和屬性相互之間具有聯繫性。當我們使用 React 應用程序時，我們會根據狀態和屬性這種關係，將所有的組件組合在一起。當組件樹的狀態更改時，屬性也會更改。 新數據流過組件樹，導致特定的終端組件和分支重新渲染以呈現反映新的內容。</p>
+<p>我們將使用狀態來活化應用程序，創建<strong>有狀態組件(stateful components)</strong>，將狀態由根組件往下發送到整個組件樹，及如何將使用者使用表單收集的互動數據由組件樹的末端往上回溯。</p>
+<h3 id="Star-Rating-Component"><a href="#Star-Rating-Component" class="headerlink" title="Star Rating Component"></a>Star Rating Component</h3><p>這裡要建立一個星級評分組件，五星級評分，可以讓我們評論東西的好壞。也能讓使用者驅動我們對內容的改進。</p>
+<img src="/2020/09/24/React-State-Management/20200925-01.png" title="Star Rating">
+
+<p>我們要建立一個 StarRating 組件，StarRating 組件將允許使用者根據特定的星星數對內容進行評分。不好的內容獲得一顆星。高度推薦的內容獲得五顆星。用戶可以透過單擊特定的星號來設置內容的等級。</p>
+<p>首先我們需要一個星星圖標。<a href="https://apex.oracle.com/pls/apex/apex_pm/r/ut/icons" target="_blank" rel="noopener">Oracle APEX - Universal Theme</a> 內建有許多 icons 可以直接使用。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"react-root"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; render &#125; = ReactDOM;</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> FaStar = <span class="function">(<span class="params">&#123; color &#125;</span>) =&gt;</span> ( </span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">span</span> <span class="attr">className</span>=<span class="string">"fa fa-star fa-2x"</span> <span class="attr">style</span>=<span class="string">&#123;&#123;color&#125;&#125;</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> StarRating = <span class="function"><span class="params">()</span> =&gt;</span> (</span></span><br><span class="line">    [</span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">FaStar</span> <span class="attr">color</span>=<span class="string">"gold"</span> /&gt;</span>,</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">FaStar</span> <span class="attr">color</span>=<span class="string">"gold"</span> /&gt;</span>,</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">FaStar</span> <span class="attr">color</span>=<span class="string">"gold"</span> /&gt;</span>,</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">FaStar</span> <span class="attr">color</span>=<span class="string">"grey"</span> /&gt;</span>,</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">FaStar</span> <span class="attr">color</span>=<span class="string">"grey"</span> /&gt;</span></span></span><br><span class="line">    ]</span><br><span class="line">  );  </span><br><span class="line">   </span><br><span class="line"><span class="javascript">  render(<span class="xml"><span class="tag">&lt;<span class="name">StarRating</span> /&gt;</span></span>, <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>)); </span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在這裡，我們創建了 FaStar 組件將 APEX Universal Theme 的圖標 fa-star 包裝起來。然後創建一個 StarRating 組件，該組件渲染了五個 FaStar 組件，產生五顆星星， 前三顆填滿了金色，後兩顆是灰色。</p>
+<p>首先渲染了五顆星星，它們為我們提供了構建的基礎。 選定的星星填滿金色，未選擇的星星是灰色。</p>
+<p>讓我們再創建一個 Star 組件，該組件會根據 selected 屬性自動填滿星星的顏色：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Star = <span class="function">(<span class="params">&#123; selected = <span class="literal">false</span> &#125;</span>) =&gt;</span> (</span><br><span class="line">  &lt;FaStar color=&#123;selected ? <span class="string">"gold"</span> : <span class="string">"grey"</span>&#125; /&gt;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>Star 組件將渲染單個星星，並使用 selected 屬性為其填充適當的顏色。如果未將 selected 屬性傳遞給此組件，則假定該星星沒有被選，並且預設填充灰色。</p>
+<p>5 星級評分很好，但 10 星級可以提供更詳細的評分。我們應該允許開發人員將組件添加到應用程序時，可以選擇希望使用的總星數。這可以透過在 StarRating 組件中添加 totalStars 屬性來實現。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> createArray = <span class="function"><span class="params">length</span> =&gt;</span> [...Array(length)];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> StarRating = <span class="function">(<span class="params">&#123; totalStars = <span class="number">5</span> &#125;</span>) =&gt;</span> (</span><br><span class="line">  createArray(totalStars).map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> <span class="xml"><span class="tag">&lt;<span class="name">Star</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span> /&gt;</span></span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>我們添加了 createArray 函式。我們要做的就是提供要創建的陣列長度，然後用該長度取得一個新的陣列。 我們將此函式與 totalStars 屬性一起使用，就可以用陣列 map 渲染 Star 組件。 預設情況下，totalStars 等於 5，將渲染 5 個灰色星星。</p>
+<img src="/2020/09/24/React-State-Management/20200925-02.png" title="Star Rating">
+
+<h4 id="useState-Hook"><a href="#useState-Hook" class="headerlink" title="useState Hook"></a>useState Hook</h4><p>現在要使星級評分組件可以單擊，這將允許使用者更改評分。</p>
+<p>由於評分是一個會改變的值，因此我們將使用 React 狀態(state)來儲存和更改該值。我們要使用稱為 <a href="https://zh-hant.reactjs.org/docs/hooks-intro.html" target="_blank" rel="noopener">Hook</a> 的 React 功能將狀態合併到組件中。 Hook 包含與組件樹分開的可重用代碼邏輯。它使我們能夠將所要處裡的功能連接到我們的組件。React 有幾個內建的 Hooks，我們可以直接使用它們。這裡，我們想向 React 組件添加狀態，因此我們要使用的第一個 Hook 是 React 的 useState。這個 Hook 已經包含在 react 程式包中，我們只需要將它加入我們的程式：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; useState &#125; = React;</span><br></pre></td></tr></table></figure>
+
+<p>使用者所選擇的星號代表等級。我們將創建一個名為 selectedStars 的狀態變數(state variable)，它將保存用戶的評分。我們將透過將 useState Hook 直接添加到 StarRating 組件中來創建此狀態變數：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> StarRating = <span class="function">(<span class="params">&#123; totalStars = <span class="number">5</span> &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [selectedStars] = useState(<span class="number">3</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &#123;createArray(totalStars).map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> (</span><br><span class="line">        &lt;Star key=&#123;i&#125; selected=&#123;selectedStars &gt; i&#125; /&gt;</span><br><span class="line">      ))&#125;</span><br><span class="line">      &lt;p style=&#123;&#123;<span class="attr">fontSize</span>: <span class="string">"1.5em"</span>, <span class="attr">margin</span>: <span class="string">"10px"</span>&#125;&#125;&gt;&#123;selectedStars&#125; <span class="keyword">of</span> &#123;totalStars&#125; stars&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我們只是將該組件與狀態掛鉤。useState 掛鉤是一個函式，調用它會返回一個陣列。返回的陣列的第一個值是我們要使用的狀態變數。在這裡，該變數為 selectedStars，也就是 StarRating 組件將顏色變為金色的星數。useState 返回一個陣列，我們可以利用陣列解構賦值，這使我們可以隨意命名狀態變數。我們調用 useState 函式時給的引數值是狀態變數的初始預設值。在這裡，selectedStars 初始預設值將設置為 3。</p>
+<img src="/2020/09/24/React-State-Management/20200925-01.png" title="Star Rating">
+
+<p>為了從使用者那裡獲得不同的評分，我們需要允許他們點擊我們的任何一顆星星。 所以，我們需要透過向 FaStar 組件中的星形圖標 fa-star 添加 onClick 處理程序來使星星可點擊：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> FaStar = <span class="function">(<span class="params">&#123; color, onSelect =  f =&gt; f &#125;</span>) =&gt;</span> ( </span><br><span class="line">  &lt;span className=<span class="string">"fa fa-star fa-2x"</span> style=&#123;&#123;color&#125;&#125; onClick=&#123;onSelect&#125; &gt;&lt;<span class="regexp">/span&gt;</span></span><br><span class="line"><span class="regexp">);</span></span><br></pre></td></tr></table></figure>
+
+<p>這裡，我們修改了星形圖標 fa-star 以包含 onClick 事件，這個事件的處理程序是由父組件傳入的 onSelect 屬性。 注意，此屬性是一個函式。 當用戶單擊星形圖標時，我們將調用此函式，該函式可以通知其父組件已單擊星形圖標。該函式的預設值為 f =&gt; f。 這只是一個偽造的函式，什麼也不做。它只是返回發送給它的任何參數。但是，如果我們未設置預設函式並且未定義 onSelect 屬性，則在我們單擊星形圖標時會發生錯誤，因為 onSelect 的值必須是一個函式。 即使 f =&gt; f 什麼也不做，它還是一個函式，可以調用它而不會引起錯誤。如果沒有定義 onSelect 屬性，沒有問題，React 將簡單地調用偽函式，而不會發生任何事情。</p>
+<p>現在我們的星形圖標 fa-star 是可單擊的，我們將使用它來更改 StarRating 的狀態。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> StarRating = <span class="function">(<span class="params">&#123; totalStars = <span class="number">5</span> &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [selectedStars, setSelectedStars] = useState(<span class="number">0</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &#123;createArray(totalStars).map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> (</span><br><span class="line">        &lt;Star</span><br><span class="line">          key=&#123;i&#125; </span><br><span class="line">          selected=&#123;selectedStars &gt; i&#125;</span><br><span class="line">          onSelect=&#123;() =&gt; setSelectedStars(i + <span class="number">1</span>)&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">      ))&#125;</span><br><span class="line">      &lt;p style=&#123;&#123;<span class="attr">fontSize</span>: <span class="string">"1.5em"</span>, <span class="attr">margin</span>: <span class="string">"10px"</span>&#125;&#125;&gt;&#123;selectedStars&#125; <span class="keyword">of</span> &#123;totalStars&#125; stars&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>為了更改 StarRating 組件的狀態，我們需要一個可以修改 selectedStars 值的函式。 useState 掛鉤返回的陣列中的第二項是可用於更改狀態值的函式。同樣，透過陣列解構賦值，我們可以隨心所欲地命名該函式。在這裡，我們稱其為 setSelectedStars，因為它就是用來設置 selectedStars 的值。</p>
+<p>關於 Hooks，要記住的最重要的事情是，Hooks 可能導致掛鉤他們的組件重新渲染。每次我們調用 setSelectedStars 函式來更改 selectedStars 的值時，該掛鉤將重新調用 StarRating 函式組件，並且它將再次重新渲染。 這就是為什麼 Hooks 是殺手級功能的原因。當 Hook 中的數據發生更改時，他們會使用新數據重新渲染掛接它們的組件。</p>
+<p>每次使用者單擊星形圖標 fa-star 時，將重新渲染 StarRating 組件。當使用者單擊星形圖標 fa-star 時，將調用該星星的 onSelect 屬性。 調用 onSelect 屬性時，我們將調用 setSelectedStars 函式並將剛選擇的星星編號當為函式的引數傳入。 我們使用 map 函數中的 i 變數來幫助我們計算該數字。當 map 函式渲染第一個 Star 時，i 的值為 0，我們需要在該值上加上 1 以獲取正確的 star 編號。 新的 selectedStars 的值發生變化會導致 StarRating 組件的重新渲染。</p>
+<p>你如果現在單擊星形圖標，將不會發生任何作用，因為 FaStar 組件與 StarRating 組件並沒有直接關連，它是透過 Star 組件組成一個階層式組件樹，數據透過屬性流經整個組件層次結構。onSelect 屬性也必須透過 Star 組件流到 FaStar 組件，因為 FaStar 組件中的星形圖標 fa-star 才是使用者單擊的標的，onClick 事件是由此被觸發的。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Star = <span class="function">(<span class="params">&#123; selected = <span class="literal">false</span>, onSelect = f =&gt; f &#125;</span>) =&gt;</span> (</span><br><span class="line">  &lt;FaStar color=&#123;selected ? <span class="string">"gold"</span> : <span class="string">"grey"</span>&#125; onSelect=&#123;onSelect&#125; /&gt;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>整個程式碼現在如下:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"react-root"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; useState &#125; = React;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; render &#125; = ReactDOM;</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> FaStar = <span class="function">(<span class="params">&#123; color, onSelect =  f =&gt; f &#125;</span>) =&gt;</span> ( </span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">span</span> <span class="attr">className</span>=<span class="string">"fa fa-star fa-2x"</span> <span class="attr">style</span>=<span class="string">&#123;&#123;color&#125;&#125;</span> <span class="attr">onClick</span>=<span class="string">&#123;onSelect&#125;</span> &gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Star = <span class="function">(<span class="params">&#123; selected = <span class="literal">false</span>, onSelect = f =&gt; f &#125;</span>) =&gt;</span> (</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">FaStar</span> <span class="attr">color</span>=<span class="string">&#123;selected</span> ? "<span class="attr">gold</span>" <span class="attr">:</span> "<span class="attr">grey</span>"&#125; <span class="attr">onSelect</span>=<span class="string">&#123;onSelect&#125;</span> /&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">   </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> createArray = <span class="function"><span class="params">length</span> =&gt;</span> [...Array(length)];</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> StarRating = <span class="function">(<span class="params">&#123; totalStars = <span class="number">5</span> &#125;</span>) =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> [selectedStars, setSelectedStars] = useState(<span class="number">0</span>);</span></span><br><span class="line">    </span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> (</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;&gt;</span></span></span><br><span class="line"><span class="javascript">        &#123;createArray(totalStars).map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> (</span></span><br><span class="line">          &lt;Star</span><br><span class="line">            key=&#123;i&#125; </span><br><span class="line">            selected=&#123;selectedStars &gt; i&#125;</span><br><span class="line">            onSelect=&#123;() =&gt; setSelectedStars(i + 1)&#125;</span><br><span class="line">          /&gt;</span><br><span class="line">        ))&#125;</span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">p</span> <span class="attr">style</span>=<span class="string">&#123;&#123;fontSize:</span> "<span class="attr">1.5em</span>", <span class="attr">margin:</span> "<span class="attr">10px</span>"&#125;&#125;&gt;</span>&#123;selectedStars&#125; of &#123;totalStars&#125; stars<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">  &#125;;  </span><br><span class="line">   </span><br><span class="line"><span class="javascript">  render(<span class="xml"><span class="tag">&lt;<span class="name">StarRating</span> <span class="attr">totalStars</span>=<span class="string">&#123;5&#125;</span> /&gt;</span></span>, <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>)); </span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>你可以將第 34 行的 totalStars 改為 10 就變成 10 星級評分了。</p>
+<p>在 v16.8.0 之前的 React 早期版本中，向組件添加狀態的唯一方法是使用類組件(class component)。這不僅需要大量的代碼，而且還使得跨組件重用功能變得更加困難。Hooks 旨在透過將功能掛鉤到函式組件來解決類組件所帶來的問題。目前，類組件代碼仍然有效，但我們已不再需要它們，可能會有一天類組件會正式被棄用。</p>
+<p>函式組件和 Hooks 是 React 的未來。</p>
+<h3 id="延續傳遞風格-CPS"><a href="#延續傳遞風格-CPS" class="headerlink" title="延續傳遞風格(CPS)"></a>延續傳遞風格(CPS)</h3><p>在這個星級評分組件中我們用到了 JavaScript 的一種很重要的概念，延續傳遞風格(Continuation-passing style)，簡稱 CPS。</p>
+<p>JavaScript 的回呼 (callback) 是作為參數傳遞給其他函式，並在操作完成時呼叫以傳遞結果。在函式化的程式設計風格，這種傳遞結果的方式稱為延續傳遞風格(Continuation-passing style)，簡稱 CPS 。這是ㄧ個通用的概念，而不一定與非同步操作相關。事實上，它只是指出操作結果是以傳給另一個函式(回呼)的方式來傳遞，而不是直接傳給呼叫者。</p>
+<p>程式碼的第 26 行的 onSelect 屬性是一個函式，這個函式我們是定義在 StarRating 組件上，以組件屬性的方式傳遞到 FaStar 組件中的星形圖標 fa-star，當使用者單擊星形圖標 fa-star 時將結果透過函式回傳 StarRating 根組件。每一個星形圖標 fa-star 的函式看起來都一樣，但它其實是一個閉包 (closure)，函式 ( ) =&gt; setSelectedStars( i + 1 ) 中 i 變數的值都不同。</p>
+<p>閉包與延續傳遞風格在 JavaScript 中是很重要的概念，需要花點時間熟悉它。</p>
+<p>思考一下這一段 JavaScript:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> stars = [...Array(<span class="number">5</span>)].map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">console</span>.log(<span class="string">`Star =&gt; <span class="subst">$&#123;i&#125;</span>`</span>));</span><br><span class="line"></span><br><span class="line">stars[<span class="number">2</span>]();</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/22/React-with-JSX/" rel="prev" title="React with JSX">
+      <i class="fa fa-chevron-left"></i> React with JSX
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/26/React-State-in-Component-Trees/" rel="next" title="React State in Component Trees">
+      React State in Component Trees <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Star-Rating-Component"><span class="nav-number">1.</span> <span class="nav-text">Star Rating Component</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#useState-Hook"><span class="nav-number">1.1.</span> <span class="nav-text">useState Hook</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#延續傳遞風格-CPS"><span class="nav-number">2.</span> <span class="nav-text">延續傳遞風格(CPS)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

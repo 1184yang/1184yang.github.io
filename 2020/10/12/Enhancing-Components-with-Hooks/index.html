@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="渲染 (rendering) 是 React 應用程序的心臟，當某些東西（屬性，狀態）發生變化時，組件樹會重新渲染，將最新數據反映給使用者界面。到目前為止，useState 一直是描述組件渲染方式的主要工作。但是我們可以做的更多。還有更多的 Hooks 可以定義有關為什麼以及何時進行渲染的規則。還有更多的掛鉤可以增強渲染效能。 之前，我們介紹了 useState，useContext，我們看到可以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Enhancing Components with Hooks (Ⅰ)">
+<meta property="og:url" content="https://1184yang.github.io/2020/10/12/Enhancing-Components-with-Hooks/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="渲染 (rendering) 是 React 應用程序的心臟，當某些東西（屬性，狀態）發生變化時，組件樹會重新渲染，將最新數據反映給使用者界面。到目前為止，useState 一直是描述組件渲染方式的主要工作。但是我們可以做的更多。還有更多的 Hooks 可以定義有關為什麼以及何時進行渲染的規則。還有更多的掛鉤可以增強渲染效能。 之前，我們介紹了 useState，useContext，我們看到可以">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:updated_time" content="2020-12-24T10:13:30.783Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Enhancing Components with Hooks (Ⅰ)">
+<meta name="twitter:description" content="渲染 (rendering) 是 React 應用程序的心臟，當某些東西（屬性，狀態）發生變化時，組件樹會重新渲染，將最新數據反映給使用者界面。到目前為止，useState 一直是描述組件渲染方式的主要工作。但是我們可以做的更多。還有更多的 Hooks 可以定義有關為什麼以及何時進行渲染的規則。還有更多的掛鉤可以增強渲染效能。 之前，我們介紹了 useState，useContext，我們看到可以">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/10/12/Enhancing-Components-with-Hooks/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>Enhancing Components with Hooks (Ⅰ) | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/10/12/Enhancing-Components-with-Hooks/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Enhancing Components with Hooks (Ⅰ)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-10-12 13:29:32" itemprop="dateCreated datePublished" datetime="2020-10-12T13:29:32+08:00">2020-10-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-12-24 18:13:30" itemprop="dateModified" datetime="2020-12-24T18:13:30+08:00">2020-12-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/React/" itemprop="url" rel="index"><span itemprop="name">React</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>渲染 (rendering) 是 React 應用程序的心臟，當某些東西（屬性，狀態）發生變化時，組件樹會重新渲染，將最新數據反映給使用者界面。到目前為止，useState 一直是描述組件渲染方式的主要工作。但是我們可以做的更多。還有更多的 Hooks 可以定義有關為什麼以及何時進行渲染的規則。還有更多的掛鉤可以增強渲染效能。</p>
+<p>之前，我們介紹了 useState，useContext，我們看到可以將這些 Hooks 組合到我們自己的自定義 Hooks 中：useInput 和 useColors。 不過，還有更多，React 附帶了更多可用的 Hooks。再來，我們將仔細研究 useEffect，useLayoutEffect 和 useReducer。所有這些對於構建應用程序都至關重要。我們還將介紹 useCallback 和 useMemo，它們可以幫助優化我們的組件以提高性能。</p>
+<h4 id="使用-useEffect"><a href="#使用-useEffect" class="headerlink" title="使用 useEffect"></a>使用 useEffect</h4><p>現在，我們對渲染組件時發生的情況有了很好的了解。組件僅僅是渲染用戶界面的函式。渲染在應用程序<strong>首次加載</strong>以及<strong>屬性和狀態(props and state)值更改</strong>時發生。但是，有時候我們希望在 React 渲染更新 DOM 之後執行一些額外的程式碼。網路請求、手動變更 DOM、和 logging，該如何做？</p>
+<p>我們使用一個簡單的 Checkbox 複選框組件來觀察組件的渲染週期。我們使用 useState 設置一個 checked 值，並使用 setChecked 函式來更改 checked 的值。用戶可以選擇和取消選擇該複選框，但是我們如何提醒用戶該複選框已被選擇呢？</p>
+<p>我們使用 console.log 來觀察一下組件的渲染週期:</p>
+<figure class="highlight html"><figcaption><span>Checkbox</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"react-container"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; useState &#125; = React;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; render &#125; = ReactDOM;</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Checkbox = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">    <span class="keyword">const</span> [checked, setChecked] = useState(<span class="literal">false</span>);</span></span><br><span class="line">    </span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="string">`before render: checked: <span class="subst">$&#123;checked.toString()&#125;</span>`</span>);</span></span><br><span class="line">    </span><br><span class="line"><span class="javascript">    <span class="keyword">return</span> (</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;&gt;</span></span></span><br><span class="line">        &lt;input </span><br><span class="line"><span class="javascript">          type=<span class="string">"checkbox"</span></span></span><br><span class="line">          value=&#123;checked&#125;</span><br><span class="line"><span class="javascript">          onChange=&#123;() =&gt; setChecked(<span class="function"><span class="params">checked</span> =&gt;</span> !checked)&#125;</span></span><br><span class="line">        /&gt;</span><br><span class="line"><span class="javascript">        &lt;span className=<span class="string">"margin-left-sm"</span>&gt;&#123;checked ? <span class="string">"checked"</span> : <span class="string">"not checked"</span>&#125;&lt;<span class="regexp">/span&gt;</span></span></span><br><span class="line"><span class="javascript">        &#123;<span class="built_in">console</span>.log(<span class="string">`rendering: checked: <span class="subst">$&#123;checked.toString()&#125;</span>`</span>)&#125;</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/&gt;</span></span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line"><span class="javascript">    <span class="built_in">console</span>.log(<span class="string">`after render: checked: <span class="subst">$&#123;checked.toString()&#125;</span>`</span>);</span></span><br><span class="line">  &#125;;</span><br><span class="line"> </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> (</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello Tainan!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">Checkbox</span> /&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line">  render (</span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">App</span> /&gt;</span>,</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">"react-container"</span>)</span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>組件的渲染主要是第 12 行到第 22 行 return 的 JSX 程式碼。我們在第 10 行渲染之前、第 20 行渲染時與第 24 行渲染後添加了 console.log。執行的結果是:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">before render: checked: false</span><br><span class="line">rendering: checked: false</span><br></pre></td></tr></table></figure>
+
+<p>第 24 行渲染後調用的 console.log 沒有被執行，因為它位於 return 之後，將永遠無法到達該代碼。</p>
+<p>為確保渲染後按預期方式看到 console.log，我們可以使用 useEffect。放置在 useEffect 函式內的 console.log 意味著該函式將在渲染後被當成一種<strong>副作用(side effect)</strong>而被調用。</p>
+<figure class="highlight js"><figcaption><span>Checkbox</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; useState, useEffect &#125; = React;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> Checkbox = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [checked, setChecked] = useState(<span class="literal">false</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`before render: checked: <span class="subst">$&#123;checked.toString()&#125;</span>`</span>);</span><br><span class="line">  </span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`after render: checked: <span class="subst">$&#123;checked.toString()&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;input </span><br><span class="line">        type=<span class="string">"checkbox"</span></span><br><span class="line">        value=&#123;checked&#125;</span><br><span class="line">        onChange=&#123;() =&gt; setChecked(<span class="function"><span class="params">checked</span> =&gt;</span> !checked)&#125;</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;span className=<span class="string">"margin-left-sm"</span>&gt;&#123;checked ? <span class="string">"checked"</span> : <span class="string">"not checked"</span>&#125;&lt;<span class="regexp">/span&gt;</span></span><br><span class="line"><span class="regexp">      &#123;console.log(`rendering: checked: $&#123;checked.toString()&#125;`)&#125;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>第 1 行加入 useEffect；第 9 行將原來在渲染後調用的 console.log 放置在 useEffect 函式裡，而 useEffect 函式將在渲染後作為副作用而被調用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">before render: checked: false</span><br><span class="line">rendering: checked: false</span><br><span class="line">after render: checked: false</span><br></pre></td></tr></table></figure>
+
+<p>當渲染需要引起副作用時，我們使用 useEffect。 可以將副作用視為函式除了使用 return 所返回的結果之外還可以完成並影響函式外的事情。 Checkbox 函式使用 return 渲染 UI，但是我們希望 Checkbox 組件做更多的事情。組件執行除 return UI 之外的其他操作稱為 <strong>effect</strong>。</p>
+<p>console.log 或與瀏覽器或本機 API 的互動都不是渲染的一部分，這不是 return 的一部分。在 React 應用程序中，<strong>渲染會影響這些事件的結果，我們可以使用 useEffect 等待渲染之後</strong>，再將值提供給 console.log：</p>
+<figure class="highlight js"><figcaption><span>useEffect</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(checked ? <span class="string">"Yes, checked"</span> : <span class="string">"No, not checked"</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>同樣，我們可以使用渲染時的 checked 值，然後將其存儲到 localStorage 中。</p>
+<figure class="highlight js"><figcaption><span>useEffect</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  localStorage.setItem(<span class="string">"checkbox-value"</span>, checked);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>將 useEffect 視為渲染後發生的函式。當渲染觸發時，我們可以訪問組件中當前的狀態值，並使用它們執行其他操作，這些操作都必須在渲染後調用，否則就與渲染的 UI 不相等了。然後，一旦我們再次渲染，整個過程就會重新開始。 新值，新渲染，新 effects。</p>
+<h4 id="依賴陣列-The-Dependency-Array"><a href="#依賴陣列-The-Dependency-Array" class="headerlink" title="依賴陣列 (The Dependency Array)"></a>依賴陣列 (The Dependency Array)</h4><p>useEffect 的設計旨在與其他有狀態的 Hooks，例如 useState 和迄今未提及的 useReducer 結合使用。當狀態改變時，React 將重新渲染組件樹。然後，在這些渲染之後調用 useEffect。</p>
+<p>我們來看看與 useState 結合使用的範例。</p>
+<figure class="highlight js"><figcaption><span>useState and useEffect</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; useState, useEffect &#125; = React;</span><br><span class="line">  <span class="keyword">const</span> &#123; render &#125; = ReactDOM;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> [val, <span class="keyword">set</span>] = useState("");</span><br><span class="line">    const [phrase, setPhrase] = useState("example phrase");</span><br><span class="line">    </span><br><span class="line">    const createPhrase = (e) =&gt; &#123;</span><br><span class="line">      e.preventDefault();</span><br><span class="line">      </span><br><span class="line">      setPhrase(val);</span><br><span class="line">      <span class="keyword">set</span>("");</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    useEffect(() =&gt; &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">`typing "<span class="subst">$&#123;val&#125;</span>"`</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">`saved phrase: "<span class="subst">$&#123;phrase&#125;</span>"`</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;&gt;</span><br><span class="line">        &lt;label className=<span class="string">"margin-right-sm"</span>&gt;Favorite phrase:&lt;<span class="regexp">/label&gt;</span></span><br><span class="line"><span class="regexp">        &lt;input</span></span><br><span class="line"><span class="regexp">          value=&#123;val&#125;</span></span><br><span class="line"><span class="regexp">          placeholder=&#123;phrase&#125;</span></span><br><span class="line"><span class="regexp">          onChange=&#123;e =&gt; set(e.target.value)&#125;</span></span><br><span class="line"><span class="regexp">        /</span>&gt;</span><br><span class="line">        &lt;button </span><br><span class="line">          className=<span class="string">"t-Button t-Button--hot margin-left-sm"</span> </span><br><span class="line">          onClick=&#123;createPhrase&#125;</span><br><span class="line">        &gt;Send&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>&gt;</span><br><span class="line">    );  </span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line">  render (</span><br><span class="line">    &lt;App /&gt;,</span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">"react-container"</span>)</span><br><span class="line">  );</span><br></pre></td></tr></table></figure>
+
+<p>val 是一個狀態變數，表示輸入字段的值。每次輸入字段的值時 val 都會更改，這會使組件在用戶每次鍵入新字符時渲染 App 組件。當用戶單擊 “Send” 按鈕時，文本區域的 val 會被保存到 phrase 狀態變數，並且重置 val 為空字串，這將清空文本字段。這是一個不斷渲染的過程。</p>
+<p>這可以按預期工作，但是 useEffect 掛鉤被調用的次數超過了應有的次數。 每次鍵入新字符渲染後，兩個 useEffect Hooks 均會被調用：</p>
+<figure class="highlight plain"><figcaption><span>console.log</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">typing &quot;&quot;                             // First Render</span><br><span class="line">saved phrase: &quot;example phrase&quot;        // First Render</span><br><span class="line">typing &quot;H&quot;                            // Second Render</span><br><span class="line">saved phrase: &quot;example phrase&quot;        // Second Render</span><br><span class="line">typing &quot;He&quot;                           // Third Render </span><br><span class="line">saved phrase: &quot;example phrase&quot;        // Third Render</span><br><span class="line">typing &quot;Hel&quot;                          // Fourth Render</span><br><span class="line">saved phrase: &quot;example phrase&quot;        // Fourth Render</span><br><span class="line">typing &quot;Hell&quot;                         // Fifth Render</span><br><span class="line">saved phrase: &quot;example phrase&quot;        // Fifth Render</span><br><span class="line">typing &quot;Hello&quot;                        // Sixth Render</span><br><span class="line">saved phrase: &quot;example phrase&quot;        // Sixth Render</span><br></pre></td></tr></table></figure>
+
+<p>我們不希望在每個渲染調用所有的 effect。 我們需要將 useEffect 掛鉤與特定的數據更改相關聯，當某些數據更改時才調用 useEffect。為了解決這個問題，我們可以合併<strong>依賴陣列(Dependency array)</strong>。依賴陣列可用於控制何時調用 useEffect：</p>
+<figure class="highlight js"><figcaption><span>Dependency array</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`typing "<span class="subst">$&#123;val&#125;</span>"`</span>);</span><br><span class="line">&#125;, [val]);</span><br><span class="line"></span><br><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`saved phrase: "<span class="subst">$&#123;phrase&#125;</span>"`</span>);</span><br><span class="line">&#125;, [phrase]);</span><br></pre></td></tr></table></figure>
+
+<p>第 3 與第 7 行我們將依賴陣列添加到兩個 effect 中，以控制它們何時被調用。現在，僅在依賴陣列中的值更改時才會調用這些 effect。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typing &quot;&quot;                             // First Render</span><br><span class="line">saved phrase: &quot;example phrase&quot;        // First Render</span><br><span class="line">typing &quot;H&quot;                            // Second Render</span><br><span class="line">typing &quot;He&quot;                           // Third Render</span><br><span class="line">typing &quot;Hel&quot;                          // Fourth Render</span><br><span class="line">typing &quot;Hell&quot;                         // Fifth Render</span><br><span class="line">typing &quot;Hello&quot;                        // Sixth Render</span><br><span class="line">typing &quot;&quot;                             // Seventh Render</span><br><span class="line">saved phrase: &quot;Hello&quot;                 // Seventh Render</span><br></pre></td></tr></table></figure>
+
+<p>依賴陣列畢竟是一個陣列，因此可以檢查依賴陣列中的多個值。假設我們想在 val 或 phreae 發生變化時調用 useEffect。</p>
+<figure class="highlight js"><figcaption><span>Dependency array</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"either val or phrase has changed"</span>);</span><br><span class="line">&#125;, [val, phrase]);</span><br></pre></td></tr></table></figure>
+
+<p>還可以提供一個空陣列，空的依賴陣列會導致 effect 在初始渲染之後<strong>僅被調用一次</strong>。</p>
+<figure class="highlight js"><figcaption><span>Dependency array</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"only once after initial render"</span>);</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+
+<p>依賴陣列中沒有依賴項意味著沒有更改，因此 effect 將不再被調用。 僅在第一個渲染上調用的 effects 對於初始化非常有用：</p>
+<figure class="highlight js"><figcaption><span>Dependency array</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  welcome();</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+
+<p>如果從 effect 中返回一個函式，則從組件樹中刪除該組件時將會調用該函式：</p>
+<figure class="highlight js"><figcaption><span>Dependency array</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  welcome();</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> goodbye();</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+
+<p>這意味著，您可以使用 useEffect 進行初始設定和卸載。空陣列意味著 welcome 將在第一次渲染時只被調用一次。然後，當組件從組件樹中刪除時，我們將返回一個 goodbye 函式作為清理函式。</p>
+<p>此模式在許多情況下很有用。我們可以在第一次渲染時訂閱 WebSocket 服務。 然後，我們將使用清理函式退訂 WebSocket 服務。</p>
+<figure class="highlight js"><figcaption><span>useEffect</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> [messages, setMessages] = useState([]);</span><br><span class="line"><span class="keyword">const</span> addMessage = <span class="function"><span class="params">message</span> =&gt;</span> setMessages(<span class="function"><span class="params">allMessages</span> =&gt;</span> [message, ...allMessages]);</span><br><span class="line"></span><br><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  wsService.subscribe(addMessage);</span><br><span class="line">  welcome();</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    wsService.unsubscribe();</span><br><span class="line">    goodbye();</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+
+<p>在一個 useEffect 進行太多工作，看起來很雜亂，也較容易出錯。將功能分為多個 useEffect 調用，通常是一個比較好的主意。</p>
+<figure class="highlight js"><figcaption><span>useEffect</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  wsService.subscribe(addMessage);</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span>  wsService.unsubscribe();</span><br><span class="line">&#125;, []);</span><br><span class="line"></span><br><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  welcome();</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> goodbye();</span><br><span class="line">&#125;, []);</span><br></pre></td></tr></table></figure>
+
+<p>我們還可以進一步增強它。這是自定義掛鉤 (custom hook) 的好地方。</p>
+<figure class="highlight js"><figcaption><span>useWsMessages custom hook</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> useWsMessages = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [messages, setMessages] = useState([]);</span><br><span class="line">  <span class="keyword">const</span> addMessage = <span class="function"><span class="params">message</span> =&gt;</span> setMessages(<span class="function"><span class="params">allMessages</span> =&gt;</span> [message, ...allMessages]);</span><br><span class="line">    </span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    wsService.subscribe(addMessage);</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span>  wsService.unsubscribe();</span><br><span class="line">  &#125;, []);</span><br><span class="line">  </span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    welcome();</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> goodbye();</span><br><span class="line">  &#125;, []);</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">return</span> messages;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我們的自定義掛鉤包含處理數據的所有功能，這意味著，我們可以輕鬆地與其他的組件共享此功能。在一個名為 MessageList 的新組件中，我們將可以使用自定義掛鉤:</p>
+<figure class="highlight js"><figcaption><span>MessageList</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> MessageList = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> messages = useWsMessages();</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;h1&gt;&#123;messages.length&#125;&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">      &#123;messages.map(message =&gt; (</span></span><br><span class="line"><span class="regexp">        &lt;Message key=&#123;message.id&#125; &#123;...message&#125; /</span>&gt;    </span><br><span class="line">      ))&#125;</span><br><span class="line">    &lt;<span class="regexp">/&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>我們可以輕鬆的使用 useWsMessages 自定義掛鉤，當有訂閱的數據到達時，MessageList 組件將會重新渲染。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/07/React-Context/" rel="prev" title="React Context">
+      <i class="fa fa-chevron-left"></i> React Context
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/14/WebSocket-Service-and-React/" rel="next" title="WebSocket Service and React">
+      WebSocket Service and React <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-useEffect"><span class="nav-number">1.</span> <span class="nav-text">使用 useEffect</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#依賴陣列-The-Dependency-Array"><span class="nav-number">2.</span> <span class="nav-text">依賴陣列 (The Dependency Array)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

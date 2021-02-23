@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Hexo 是一個快速，簡單且功能強大的 Blog 框架。 用 Markdown (或其他標記語言) 編寫文章，然後 Hexo 會快速的生成帶有精美主題的靜態文件。 其實除了編寫部落格，也可以利用它來編寫:  應用系統的使用者操作手冊 應用系統文件 公佈欄  你也可以開啟一個家庭部落格，讓家裡的成員一起來創作。 這裡有一篇快速的參考，撰寫 Hexo 文章 - Markdown 語法大全。除了標準的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo 快速入門">
+<meta property="og:url" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="Hexo 是一個快速，簡單且功能強大的 Blog 框架。 用 Markdown (或其他標記語言) 編寫文章，然後 Hexo 會快速的生成帶有精美主題的靜態文件。 其實除了編寫部落格，也可以利用它來編寫:  應用系統的使用者操作手冊 應用系統文件 公佈欄  你也可以開啟一個家庭部落格，讓家裡的成員一起來創作。 這裡有一篇快速的參考，撰寫 Hexo 文章 - Markdown 語法大全。除了標準的">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0723-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0723-02.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0724-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0724-02.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0724-03.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-02.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-03.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-04.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-05.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-06.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-12.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-07.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-08.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-09.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-10.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0727-11.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0728-01.png">
+<meta property="og:updated_time" content="2020-10-02T01:34:20.112Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hexo 快速入門">
+<meta name="twitter:description" content="Hexo 是一個快速，簡單且功能強大的 Blog 框架。 用 Markdown (或其他標記語言) 編寫文章，然後 Hexo 會快速的生成帶有精美主題的靜態文件。 其實除了編寫部落格，也可以利用它來編寫:  應用系統的使用者操作手冊 應用系統文件 公佈欄  你也可以開啟一個家庭部落格，讓家裡的成員一起來創作。 這裡有一篇快速的參考，撰寫 Hexo 文章 - Markdown 語法大全。除了標準的">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/hexo-0723-01.png">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>Hexo 快速入門 | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/07/23/Hexo-Quickstart/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Hexo 快速入門
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-07-23 13:15:25" itemprop="dateCreated datePublished" datetime="2020-07-23T13:15:25+08:00">2020-07-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-10-02 09:34:20" itemprop="dateModified" datetime="2020-10-02T09:34:20+08:00">2020-10-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Hexo/" itemprop="url" rel="index"><span itemprop="name">Hexo</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://hexo.io/zh-tw/" target="_blank" rel="noopener">Hexo</a> 是一個快速，簡單且功能強大的 Blog 框架。 用 <a href="https://zh.wikipedia.org/wiki/Markdown" target="_blank" rel="noopener">Markdown</a> (或其他標記語言) 編寫文章，然後 Hexo 會快速的生成帶有精美主題的靜態文件。</p>
+<p>其實除了編寫部落格，也可以利用它來編寫:</p>
+<ul>
+<li>應用系統的使用者操作手冊</li>
+<li>應用系統文件</li>
+<li>公佈欄</li>
+</ul>
+<p>你也可以開啟一個家庭部落格，讓家裡的成員一起來創作。</p>
+<p>這裡有一篇快速的參考，<a href="https://ed521.github.io/2019/08/hexo-markdown/" target="_blank" rel="noopener">撰寫 Hexo 文章 - Markdown 語法大全</a>。除了標準的 Markdown 語法，Hexo 也提供了<a href="https://hexo.io/zh-tw/docs/tag-plugins" target="_blank" rel="noopener">標籤外掛（Tag Plugins）</a>。</p>
+<p>我們就來快速啟動一個部落格專案，最後則將它部署到雲端。這裡將部署到 <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>，你也可以選擇其他的雲。</p>
+<h4 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h4><p>安裝 Hexo 伺服器非常簡單，只需要幾分鐘你就可以開始撰寫文章。</p>
+<p>但首先你必須先安裝</p>
+<ul>
+<li><a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">Node.js</a>  </li>
+<li><a href="https://git-scm.com/download/win" target="_blank" rel="noopener">Git</a></li>
+</ul>
+<p>在軟體開發專案中你不能不知道 Git。Node.js 則是最近幾年來最熱門的軟體語言。身為專業的軟體開發人員，建議你一定要花點時間學習。</p>
+<p>編寫軟體代碼，則建議你使用 <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">Visual Studio Code</a>。</p>
+<p>安裝所有要求後，您可以使用 npm 安裝 Hexo：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo --version</span><br><span class="line">hexo: 3.9.0</span><br><span class="line">hexo-cli: 3.1.0</span><br><span class="line">os: Windows_NT 10.0.18363 win32 x64</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>接下來我要用 <a href="https://classic.yarnpkg.com/zh-Hant/" target="_blank" rel="noopener">Yarn</a> 來取代 npm 管理 JavaScript 套件。 Yarn 是 Facebook 與 Exponent、 Google、Tilde 所合作開發的套件管理工具，其功能與 npm 相同，但 npm 最為人詬病的是安裝速度很慢、安裝相依套件沒有順序性，而 Yarn 不但解決了這些問題，還加入了方便的 Cache 機制使套件均只要下載一次，多個專案若使用相同套件時不必重新下載。 官方也表示 Yarn 是快速、安全、可靠的，且能支援多系統。</p>
+<h4 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a>Setup</h4><p>一旦安裝了 Hexo，可以執行以下命令以在目標 &lt;文件夾&gt; 中初始化 Hexo。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo init hello-tainan</span><br><span class="line">INFO  Cloning hexo-starter https://github.com/hexojs/hexo-starter.git</span><br><span class="line">Cloning into <span class="string">'I:\u01\hexo\hello-tainan'</span>...</span><br><span class="line">...</span><br><span class="line">success Saved lockfile.</span><br><span class="line">Done <span class="keyword">in</span> 54.22s.</span><br><span class="line">INFO  Start blogging with Hexo!</span><br></pre></td></tr></table></figure>
+
+<p>這樣我們就初始化了一個 Hexo 部落格專案了。切換到專案目錄，開始安裝套件。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> hello-tainan</span><br><span class="line"></span><br><span class="line">$ yarn install</span><br></pre></td></tr></table></figure>
+
+<p>你如果不想使用 yarn 則可以改用 <strong>npm install</strong>。 可以啟動伺服器了:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ yarn server</span><br><span class="line">yarn run v1.22.4</span><br><span class="line">hexo server</span><br><span class="line">INFO  Start processing</span><br><span class="line">INFO  Hexo is running at http://localhost:4000 . Press Ctrl+C to stop.</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0723-01.png" title="Hello World">
+
+<p>這就開始了!</p>
+<h4 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h4><p>初始化後，您的專案文件夾將如下所示：</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0723-02.png" title="hello-tainan project">
+
+<p><strong>package.json</strong></p>
+<p>應用程序數據。 預設情況下會安裝 EJS，Stylus 和 Markdown 渲染器。 如果需要，可以稍後將其卸載。</p>
+<figure class="highlight json"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"name"</span>: <span class="string">"hexo-site"</span>,</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"0.0.0"</span>,</span><br><span class="line">  <span class="attr">"private"</span>: <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">"scripts"</span>: &#123;</span><br><span class="line">    <span class="attr">"start"</span>: <span class="string">"hexo server --port 8484"</span>,</span><br><span class="line">    <span class="attr">"build"</span>: <span class="string">"hexo generate"</span>,</span><br><span class="line">    <span class="attr">"clean"</span>: <span class="string">"hexo clean"</span>,</span><br><span class="line">    <span class="attr">"deploy"</span>: <span class="string">"hexo deploy"</span>,</span><br><span class="line">    <span class="attr">"server"</span>: <span class="string">"hexo server"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"hexo"</span>: &#123;</span><br><span class="line">    <span class="attr">"version"</span>: <span class="string">"4.2.1"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"dependencies"</span>: &#123;</span><br><span class="line">    <span class="attr">"hexo"</span>: <span class="string">"^4.2.1"</span>,</span><br><span class="line">    <span class="attr">"hexo-generator-archive"</span>: <span class="string">"^1.0.0"</span>,</span><br><span class="line">    <span class="attr">"hexo-generator-category"</span>: <span class="string">"^1.0.0"</span>,</span><br><span class="line">    <span class="attr">"hexo-generator-index"</span>: <span class="string">"^1.0.0"</span>,</span><br><span class="line">    <span class="attr">"hexo-generator-tag"</span>: <span class="string">"^1.0.0"</span>,</span><br><span class="line">    <span class="attr">"hexo-renderer-ejs"</span>: <span class="string">"^1.0.0"</span>,</span><br><span class="line">    <span class="attr">"hexo-renderer-stylus"</span>: <span class="string">"^1.1.0"</span>,</span><br><span class="line">    <span class="attr">"hexo-renderer-marked"</span>: <span class="string">"^2.0.0"</span>,</span><br><span class="line">    <span class="attr">"hexo-server"</span>: <span class="string">"^1.0.0"</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第 6 行是我加入的，可以更改啟動預設的 port。現在可以用 <strong>yarn start</strong> 啟動。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ yarn start</span><br><span class="line">yarn run v1.22.4</span><br><span class="line">hexo server --port 8484</span><br><span class="line">INFO  Start processing</span><br><span class="line">INFO  Hexo is running at http://localhost:8484 . Press Ctrl+C to stop.</span><br></pre></td></tr></table></figure>
+
+<p><strong>_config.yml</strong></p>
+<p>站點(Site)配置文件。 您可以在此處配置大多數設置。</p>
+<p>在加入新的部落格文章前，這裡先做一些修改 _config.yml 站點配置文件。</p>
+<figure class="highlight yaml"><figcaption><span>_config.yml</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="comment"># Site</span></span><br><span class="line"><span class="attr">title:</span> <span class="string">Hello</span> <span class="string">Tainan</span></span><br><span class="line"><span class="attr">subtitle:</span> <span class="string">''</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">''</span></span><br><span class="line"><span class="attr">keywords:</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">Your</span> <span class="string">name</span> </span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-TW</span></span><br><span class="line"><span class="attr">timezone:</span> <span class="string">Asia/Taipei</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="attr">post_asset_folder:</span> <span class="literal">true</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p>post_asset_folder 設為 true，這會在我們創建一個新的部落格文章時也會同時建立一個同名的目錄，這目錄可用來存放與同名部落格文章有關的檔案，例如，圖片、照片等。</p>
+<h4 id="建立新文章"><a href="#建立新文章" class="headerlink" title="建立新文章"></a>建立新文章</h4><p>接下來，我們要在部落格中建立第一篇新文章，你可以直接從現有的範例文章「Hello World」改寫，但我們要使用 new 指令來創建新的文章。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"Hello Tainan"</span></span><br><span class="line">INFO  Created: I:\u01\hexo\hello-tainan\<span class="built_in">source</span>\_posts\Hello-Tainan.md</span><br></pre></td></tr></table></figure>
+
+<p>網站馬上發生了變動，左邊的圖示是專案目錄的目前的樣子 source\_posts 目錄下多了 Hello-Tainan 目錄與 Hello-Tainan.md 檔案。右邊圖示則是目前網站的樣子，多了ㄧ篇空白的部落格文章。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0724-01.png" title="Hello World">
+
+<p>開始編輯 Hello-Tainan.md 檔案:</p>
+<figure class="highlight markdown"><figcaption><span>Hello-Tainan.md</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: Hello Tainan</span><br><span class="line">date: 2020-07-24 09:41:25</span><br><span class="line">tags:</span><br><span class="line">categories:</span><br><span class="line"><span class="bullet">  - </span>[Hello]</span><br><span class="line"><span class="bullet">  - </span>[Hexo]</span><br><span class="line"><span class="bullet">  - </span>[JavaScript]</span><br><span class="line">---</span><br><span class="line"><span class="section">## Hello Tainan, 就從這裡開始!</span></span><br><span class="line"></span><br><span class="line">&#123;% asset_img tainan.png "Hello Tainan" %&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">##### Hello Tainan 程式碼</span></span><br><span class="line"></span><br><span class="line"><span class="code">```</span>javascript hello-tainan.js</span><br><span class="line">const Hello = (name) =&gt; console.log(<span class="code">`Hello $&#123;name&#125;!`</span>);</span><br><span class="line"></span><br><span class="line">Hello('Tainan');</span><br><span class="line"><span class="code">```</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">使用 Hexo [標籤外掛(Tag Plugins)](https://hexo.io/zh-tw/docs/tag-plugins)語法。</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">&#123;% codeblock hello-tainan.js lang:javascript %&#125;</span></span><br><span class="line"><span class="code">const Hello = (name) =&gt; console.log(`Hello $&#123;name&#125;!`);</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">Hello('Tainan');</span></span><br><span class="line"><span class="code">&#123;% endcodeblock %&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">&#123;% codeblock line_number:false lang:bash %&#125;</span></span><br><span class="line"><span class="code">$ node hello-tainan</span></span><br><span class="line"><span class="code">Hello Tainan!</span></span><br><span class="line"><span class="code">&#123;% endcodeblock %&#125;</span></span><br><span class="line"><span class="code"></span></span><br><span class="line"><span class="code">**Ok! 保持下去!**</span></span><br></pre></td></tr></table></figure>
+
+<p>檔案附屬名是 .md 表示這是一個 markdown 檔案，檔案中使用的都是 markdown 語法。</p>
+<ul>
+<li>第 5 行加入了 categories 分類，Hexo 會自動分類並在網頁上顯示連結。</li>
+<li>第 12 行可以顯示圖檔，圖檔則放在 Hello-Tainan 目錄下。</li>
+<li>程式碼可以用 markdown 標準語法，也可以使用 Hexo 標籤外掛語法。</li>
+<li>第 22 行可以對外連結。</li>
+</ul>
+<p>結果應該會如下面的圖示。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0724-02.png" title="Hello World">
+
+<p>OK! 這就可以開始經營你的部落格了。再來我們就要將部落格發佈出去供大家閱讀。</p>
+<p>首先我們要先加入 Git 版本控制，然後部署到 GitHub。</p>
+<h4 id="Git-與-GitHub"><a href="#Git-與-GitHub" class="headerlink" title="Git 與 GitHub"></a>Git 與 GitHub</h4><h5 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h5><p>Git 是一個版本控制系統。版本控制系統是設計用於跟踪文件隨時間變化狀態的一種軟體。更具體的說，Git 是一個<strong>分布式</strong>的版本控制系統。在 Git 中參與項目的每個程式員不僅能擁有文件的當前狀態，還能擁有項目完整的歷史紀錄。</p>
+<h5 id="GitHub"><a href="#GitHub" class="headerlink" title="GitHub"></a>GitHub</h5><p><a href="https://github.com/" target="_blank" rel="noopener">GitHub</a> 是一個網站，你可以向該網站上傳一個 Git 儲存庫(git repository)。使用 GitHub 使你與他人合作一個項目變得更容易，而這歸功於 GitHub 提供的一些機制:</p>
+<ul>
+<li>一個用以共享儲存庫的集中位置。</li>
+<li>一個基於 Web 介面以及分叉(forking)、拉請求(pull request)、提出問題(issue)、維基(WiKi)。</li>
+</ul>
+<p>這些功能使你和你的團隊能更有效的對所做的修改進行說明、討論和評估。</p>
+<p>GitHub 改變了軟體編寫的方式。它最初的構想是為開發者提供一種更容易開發源代碼項目的途徑。目前，GitHub 迅速成為預設的軟體開發平台。GitHub 不僅用於儲存源代碼，還可以對軟體提供詳細說明、討論和評估軟體。</p>
+<p>2018 年六月初，在開發者社群中最震撼的新聞事件莫過於微軟以 75 億美元收購軟體原始碼代管服務 GitHub。 2019 年，GitHub 就在官方部落格宣布了兩項更新，首先是將過去按照空間大小收費的私人儲存庫(private repositories)功能提供給免費版用戶使用。並整併「GitHub Enterprise」企業版，企業用戶可以利用 GitHub Connect 安全的在產品間連結，並混合選擇產品功能。</p>
+<h4 id="使用-Git-版本控制"><a href="#使用-Git-版本控制" class="headerlink" title="使用 Git 版本控制"></a>使用 Git 版本控制</h4><p>現在我們要將 hello-tainan 專案導入 Git 版本控制，目前專案目錄內容如下:</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0724-03.png" title="hello-tainan project">
+
+<p>使用 Git 查閱目前專案的 Git 儲存庫(git repository)狀態。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git status</span><br><span class="line">fatal: not a git repository (or any of the parent directories): .git</span><br></pre></td></tr></table></figure>
+
+<p>報告反映錯誤，專案目前不是一個 Git 儲存庫，我們必須先初始化 Git 儲存庫。初始化 Git 儲存庫之前，先看一下專案目錄下有一個檔案 <strong>.gitignore</strong>，這個檔案是在初始化 Hexo 專案時自動產生的。如果專案目錄下這個檔案不存在，則可手動將它加入。它必須位於專案的根目錄下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.DS_Store</span><br><span class="line">Thumbs.db</span><br><span class="line">db.json</span><br><span class="line">*.log</span><br><span class="line">node_modules/</span><br><span class="line">public/</span><br><span class="line">.deploy*/</span><br></pre></td></tr></table></figure>
+
+<p>在專案中並不是所有資料都必須做版本控制，例如，暫存檔、日誌資料與一些開源的軟體套件， .gitignore 就是在記載這些可以排除的目錄或檔案。例如，node_modules/ 目錄都是存放一些套件，有些套件會佔據非常大的空間，我們也不會去修改它，所以不必將它納入專案的 Git 儲存庫。</p>
+<h5 id="初始化專案"><a href="#初始化專案" class="headerlink" title="初始化專案"></a>初始化專案</h5><p>現在可以初始化專案。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git init</span><br><span class="line">Initialized empty Git repository <span class="keyword">in</span> I:/u01/hexo/hello-tainan/.git/</span><br></pre></td></tr></table></figure>
+
+<p>可以再用 git status 查看目前專案的 Git 儲存庫狀態:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git status</span><br><span class="line">On branch master</span><br><span class="line"></span><br><span class="line">No commits yet  </span><br><span class="line"></span><br><span class="line">Untracked files:</span><br><span class="line">  (use <span class="string">"git add &lt;file&gt;..."</span> to include <span class="keyword">in</span> what will be committed)</span><br><span class="line">        .gitignore</span><br><span class="line">        _config.yml</span><br><span class="line">        package.json</span><br><span class="line">        scaffolds/</span><br><span class="line">        <span class="built_in">source</span>/</span><br><span class="line">        themes/</span><br><span class="line">        useful/</span><br><span class="line">        yarn.lock</span><br><span class="line"></span><br><span class="line">nothing added to commit but untracked files present (use <span class="string">"git add"</span> to track)</span><br></pre></td></tr></table></figure>
+
+<h5 id="第一次提交"><a href="#第一次提交" class="headerlink" title="第一次提交"></a>第一次提交</h5><p>目前還沒有任何的提交(commits), 我們要做第一次提交，將目前專案的檔案存入 Git 儲存庫。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git add .</span><br><span class="line"></span><br><span class="line">$ git commit -m <span class="string">"Begin Project Hello Tainan"</span></span><br><span class="line"></span><br><span class="line">$ git <span class="built_in">log</span> --oneline</span><br><span class="line">fa0c917 (HEAD -&gt; master) Begin Project Hello Tainan</span><br></pre></td></tr></table></figure>
+
+<h5 id="Git-中央儲存庫"><a href="#Git-中央儲存庫" class="headerlink" title="Git 中央儲存庫"></a>Git 中央儲存庫</h5><p>目前專案的 Git 儲存庫只存在本地端的電腦中，如果要與人共享或團隊開發，必須把 Git 儲存庫存入一個中央儲存區。這個中央儲存區可以在公司內部，也可以在雲端。這裡就要使用 GitHub 當中央儲存區與人共享、或協同合作共同開發這個專案。</p>
+<ul>
+<li>首先到 <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a> 註冊一個帳號。</li>
+</ul>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-01.png" title="hello-tainan project">
+
+<ul>
+<li>登入後，在右上角選擇 New repository。</li>
+</ul>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-02.png" title="hello-tainan project">
+
+<p>輸入儲存庫名稱，並選擇 Public 分享給所有人。在微軟併購 GitHub 之前 Private 儲存庫是要收費的，現在則已開放。目前我使用的是免費的方案，<a href="https://github.com/pricing" target="_blank" rel="noopener">這裡</a>可以查到收費標準。GitHub 也有提供企業方案。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-03.png" title="hello-tainan project">
+
+<p>在新產生的 Public 儲存庫網址下，會有一些快速的指引你如何結合本地端的 Git 儲存庫。</p>
+<p>我們在本地端已經有一個存在的 Git 儲存庫，但這個本地端 Git 儲存庫並不是一開始就從中央儲存庫複製(clone)下來的，所以它沒有遠端(remote)容器參照，我們必須手動建立本地端的儲存庫對 GitHub 儲存庫的遠端參照。這個參照名子通常會命名為 <strong>origin</strong>。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-04.png" title="hello-tainan project">
+
+<p>回到專案目錄下。新增遠端參照，然後將本地端儲存庫推入(push)遠端儲存庫。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git remote add origin https://github.com/1184yang/hello-tainan.git</span><br><span class="line"></span><br><span class="line">$ git push -u origin master</span><br><span class="line">Enumerating objects: 119, <span class="keyword">done</span>.</span><br><span class="line">Counting objects: 100% (119/119), <span class="keyword">done</span>.</span><br><span class="line">Delta compression using up to 4 threads</span><br><span class="line">Compressing objects: 100% (108/108), <span class="keyword">done</span>.</span><br><span class="line">Writing objects: 100% (119/119), 554.83 KiB | 3.30 MiB/s, <span class="keyword">done</span>.</span><br><span class="line">Total 119 (delta 0), reused 0 (delta 0)</span><br><span class="line">To https://github.com/1184yang/hello-tainan.git</span><br><span class="line"> * [new branch]      master -&gt; master</span><br><span class="line">Branch <span class="string">'master'</span> <span class="built_in">set</span> up to track remote branch <span class="string">'master'</span> from <span class="string">'origin'</span>.</span><br></pre></td></tr></table></figure>
+
+<p>重新載入 <a href="https://github.com/1184yang/hello-tainan" target="_blank" rel="noopener">https://github.com/1184yang/hello-tainan</a> 網頁。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-05.png" title="hello-tainan project">
+
+<p>本地端的 Git 儲存庫已經上傳到 GitHub 的儲存庫。 右下角有一個按鈕可以新增 README 專案自述文件。</p>
+<p>撰寫 README 使用的是 markdown 語法，下端會有提交按鈕。提交以後 README 內容會出現在網頁下端，這就是專案的自述文件。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-06.png" title="hello-tainan project">
+
+<p>現在在本地端的專案目錄下可以用 <strong>git pull</strong> 將 GitHub 儲存庫的異動抓到本地端 Git 儲存庫。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git pull</span><br><span class="line">remote: Enumerating objects: 4, <span class="keyword">done</span>.</span><br><span class="line">remote: Counting objects: 100% (4/4), <span class="keyword">done</span>.</span><br><span class="line">remote: Compressing objects: 100% (3/3), <span class="keyword">done</span>.</span><br><span class="line">remote: Total 3 (delta 1), reused 0 (delta 0), pack-reused 0</span><br><span class="line">Unpacking objects: 100% (3/3), <span class="keyword">done</span>.</span><br><span class="line">From https://github.com/1184yang/hello-tainan</span><br><span class="line">   fa0c917..660d744  master     -&gt; origin/master</span><br><span class="line">Updating fa0c917..660d744</span><br><span class="line">Fast-forward</span><br><span class="line"> README.md | 5 +++++</span><br><span class="line"> 1 file changed, 5 insertions(+)</span><br><span class="line"> create mode 100644 README.md</span><br></pre></td></tr></table></figure>
+
+<p> 現在可以在本地端修改 README.md，提交本地端儲存庫，然後 push 到 GitHub 儲存庫。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git add .</span><br><span class="line"></span><br><span class="line">$ git commit -m <span class="string">"修改 README.md"</span></span><br><span class="line">[master 36da9c2] 修改 README.md</span><br><span class="line"> 1 file changed, 2 insertions(+)</span><br><span class="line"></span><br><span class="line">$ git push origin master</span><br><span class="line">Enumerating objects: 5, <span class="keyword">done</span>.</span><br><span class="line">Counting objects: 100% (5/5), <span class="keyword">done</span>.</span><br><span class="line">Delta compression using up to 4 threads</span><br><span class="line">Compressing objects: 100% (3/3), <span class="keyword">done</span>.</span><br><span class="line">Writing objects: 100% (3/3), 386 bytes | 193.00 KiB/s, <span class="keyword">done</span>.</span><br><span class="line">Total 3 (delta 2), reused 0 (delta 0)</span><br><span class="line">remote: Resolving deltas: 100% (2/2), completed with 2 <span class="built_in">local</span> objects.</span><br><span class="line">remote:</span><br><span class="line">remote: GitHub found 1 vulnerability on 1184yang/hello-tainan<span class="string">'s default branch (1 moderate). To find out more, visit:</span></span><br><span class="line"><span class="string">remote:      https://github.com/1184yang/hello-tainan/network/alert/yarn.lock/minimist/open</span></span><br><span class="line"><span class="string">remote:</span></span><br><span class="line"><span class="string">To https://github.com/1184yang/hello-tainan.git</span></span><br><span class="line"><span class="string">   660d744..36da9c2  master -&gt; master</span></span><br></pre></td></tr></table></figure> 
+
+<p>更新 <a href="https://github.com/1184yang/hello-tainan" target="_blank" rel="noopener">https://github.com/1184yang/hello-tainan</a> 專案網頁可以看到被更新後的 README 內容。</p>
+<p>你可以比對本地端與 GitHub 儲存庫的提交編號。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-12.png" title="hello-tainan project">
+
+<p>到這裡所描述的，都還沒有談到如何部屬 Hexo 部落格網頁，我們只將專案使用 Git 做版本控制，然後使用一個中央儲存區來共享、並可協同合作一個專案。</p>
+<p>接下來就要用這個 Git 儲存庫來部署網頁。</p>
+<h4 id="使用-GitHub-Pages-部署網頁"><a href="#使用-GitHub-Pages-部署網頁" class="headerlink" title="使用 GitHub Pages 部署網頁"></a>使用 GitHub Pages 部署網頁</h4><p>我們要使用 <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a> 來部署我們的部落格網誌。</p>
+<p>GitHub Pages 是 GitHub 提供的一個網頁寄存服務，於2008年推出。可以用於存放靜態網頁，包括部落格、項目文檔、甚至整本書。</p>
+<ul>
+<li>登入 GitHub，新增一個 Repository。</li>
+</ul>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-07.png" title="hello-tainan project">
+
+<p>我們需要修改這個新增的 Repository 的設定。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-08.png" title="hello-tainan project">
+
+<p>拉到網頁的底部，選擇一個主題(theme)。可以隨便選擇一個，因為最後會被 Hexo 的主題覆蓋掉。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-09.png" title="hello-tainan project">
+
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-10.png" title="hello-tainan project">
+
+<p>在瀏覽器網址列輸入 <a href="https://username.github.io/" target="_blank" rel="noopener">https://username.github.io/</a>  (username 是你的 GitHub 帳號)，就能看到剛架好的 GitHub Pages 了。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0727-11.png" title="hello-tainan project">
+
+<h5 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h5><ul>
+<li>首先安裝 Hexo git 部署套件</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ yarn add hexo-deployer-git</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>接著修改 Hexo 站點(Site)配置文件 _config.yml。用你的 GitHub 帳戶名稱取代文中的 username。</li>
+</ul>
+<figure class="highlight yaml"><figcaption><span>_config.yml</span></figcaption><table><tr><td class="code"><pre><span class="line"><span class="comment"># URL</span></span><br><span class="line"><span class="comment">## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://username.github.io/</span> </span><br><span class="line"><span class="attr">root:</span> <span class="string">/</span></span><br><span class="line"></span><br><span class="line"><span class="string">...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Deployment</span></span><br><span class="line"><span class="comment">## Docs: https://hexo.io/docs/deployment.html</span></span><br><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">https://github.com/username/username.github.io.git</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">master</span></span><br><span class="line"></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>部署 Hexo</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo clean</span><br><span class="line">$ hexo generate</span><br><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>hexo clean &nbsp; &nbsp; &nbsp; 清除之前建立的靜態檔案。</li>
+<li>hexo generate 建立靜態檔案。</li>
+<li>hexo deploy &nbsp; &nbsp; 部署至 Github Pages。</li>
+</ul>
+</blockquote>
+<p>瀏覽器網址列輸入 <a href="https://username.github.io/" target="_blank" rel="noopener">https://username.github.io/</a> (username 是你的 GitHub 帳號)，這就可以開始經營你的部落格了。</p>
+<img src="/2020/07/23/Hexo-Quickstart/hexo-0728-01.png" title="hello-tainan project">
+
+<p>透過 GitHub，現在我到哪裡都可以撰寫、發佈部落格。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/13/Sequential-Execution/" rel="prev" title="Node.js 非同步控制流程模式 - 並行限制與循序執行">
+      <i class="fa fa-chevron-left"></i> Node.js 非同步控制流程模式 - 並行限制與循序執行
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/18/Oracle-Pivot-Clause/" rel="next" title="Oracle PIVOT 語法範例">
+      Oracle PIVOT 語法範例 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Installation"><span class="nav-number">1.</span> <span class="nav-text">Installation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Setup"><span class="nav-number">2.</span> <span class="nav-text">Setup</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Configuration"><span class="nav-number">3.</span> <span class="nav-text">Configuration</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#建立新文章"><span class="nav-number">4.</span> <span class="nav-text">建立新文章</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Git-與-GitHub"><span class="nav-number">5.</span> <span class="nav-text">Git 與 GitHub</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Git"><span class="nav-number">5.1.</span> <span class="nav-text">Git</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GitHub"><span class="nav-number">5.2.</span> <span class="nav-text">GitHub</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-Git-版本控制"><span class="nav-number">6.</span> <span class="nav-text">使用 Git 版本控制</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#初始化專案"><span class="nav-number">6.1.</span> <span class="nav-text">初始化專案</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#第一次提交"><span class="nav-number">6.2.</span> <span class="nav-text">第一次提交</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Git-中央儲存庫"><span class="nav-number">6.3.</span> <span class="nav-text">Git 中央儲存庫</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-GitHub-Pages-部署網頁"><span class="nav-number">7.</span> <span class="nav-text">使用 GitHub Pages 部署網頁</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#部署"><span class="nav-number">7.1.</span> <span class="nav-text">部署</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

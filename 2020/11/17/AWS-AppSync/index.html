@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="之前，我們學習了 GraphQL 並創建了一個基本的 GraphQL API。 在此示例中，我們將擴展這些概念，使用 AWS AppSync 創建一個音樂節應用程序。 此應用程序將會有以下內容：  Amazon DynamoDB Tables，將用於存儲節目和表演廳。 GraphQL API 用於創建、讀取、更新、刪除、和列出節目和表演廳。 只有管理員才能創建、更新、或刪除節目或表演廳。 所有用戶">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS AppSync GraphQL API 身份驗證與授權">
+<meta property="og:url" content="https://1184yang.github.io/2020/11/17/AWS-AppSync/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="之前，我們學習了 GraphQL 並創建了一個基本的 GraphQL API。 在此示例中，我們將擴展這些概念，使用 AWS AppSync 創建一個音樂節應用程序。 此應用程序將會有以下內容：  Amazon DynamoDB Tables，將用於存儲節目和表演廳。 GraphQL API 用於創建、讀取、更新、刪除、和列出節目和表演廳。 只有管理員才能創建、更新、或刪除節目或表演廳。 所有用戶">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://1184yang.github.io/2020/11/17/AWS-AppSync/20201119-01.png">
+<meta property="og:updated_time" content="2020-12-24T10:13:30.639Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AWS AppSync GraphQL API 身份驗證與授權">
+<meta name="twitter:description" content="之前，我們學習了 GraphQL 並創建了一個基本的 GraphQL API。 在此示例中，我們將擴展這些概念，使用 AWS AppSync 創建一個音樂節應用程序。 此應用程序將會有以下內容：  Amazon DynamoDB Tables，將用於存儲節目和表演廳。 GraphQL API 用於創建、讀取、更新、刪除、和列出節目和表演廳。 只有管理員才能創建、更新、或刪除節目或表演廳。 所有用戶">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/11/17/AWS-AppSync/20201119-01.png">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/11/17/AWS-AppSync/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>AWS AppSync GraphQL API 身份驗證與授權 | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/11/17/AWS-AppSync/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AWS AppSync GraphQL API 身份驗證與授權
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-11-17 08:15:14" itemprop="dateCreated datePublished" datetime="2020-11-17T08:15:14+08:00">2020-11-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-12-24 18:13:30" itemprop="dateModified" datetime="2020-12-24T18:13:30+08:00">2020-12-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>之前，我們學習了 GraphQL 並創建了一個基本的 GraphQL API。 在此示例中，我們將擴展這些概念，使用 AWS AppSync 創建一個音樂節應用程序。</p>
+<p>此應用程序將會有以下內容：</p>
+<ul>
+<li>Amazon DynamoDB Tables，將用於存儲節目和表演廳。</li>
+<li>GraphQL API 用於創建、讀取、更新、刪除、和列出節目和表演廳。</li>
+<li>只有管理員才能創建、更新、或刪除節目或表演廳。</li>
+<li>所有用戶都應該能夠查看節目和表演廳。</li>
+<li>節目與表演廳之間的關連。</li>
+<li>用戶應該能夠查看所有節目以及查看節目的詳細信息。</li>
+</ul>
+<h3 id="GraphQL、AppSync-API-和-React-Router"><a href="#GraphQL、AppSync-API-和-React-Router" class="headerlink" title="GraphQL、AppSync API 和 React Router"></a>GraphQL、AppSync API 和 React Router</h3><p>首先，我們將介紹如何為 GraphQL 類型 (Type) 之間的關係建模；如何在 GraphQL 類型和字段 (fields) 上實現授權規則；如何為 AppSync API 啟用多種授權模式，以及如何使用 React Router 啟用路由參數。</p>
+<h4 id="GraphQL-類型之間的關係"><a href="#GraphQL-類型之間的關係" class="headerlink" title="GraphQL 類型之間的關係"></a>GraphQL 類型之間的關係</h4><p>創建 GraphQL API 或任何 API 時，了解數據之間的建模關係非常重要，例如，我們正在構建的應用程序將具有以下兩種類型：</p>
+<ul>
+<li>Stage<br>這類型將保存各個表演廳的信息，包括表演廳名稱、和表演廳 ID。 每個表演廳也都會有許多相關的節目。  </li>
+<li>Performance<br>這個類型將保存各個節目的信息，包括表演者、節目簡介、演出的表演廳、和表演時間。</li>
+</ul>
+<p>對於這類型的 API，理想情況下，至少要具有以下的存取模式：</p>
+<ul>
+<li>查詢單個表演廳和該表演廳的節目</li>
+<li>查詢所有表演廳以及每個表演廳的節目。</li>
+<li>查詢個別的表演節目和相應的表演廳。</li>
+<li>查詢所有的表演節目和相應的表演廳。</li>
+</ul>
+<p>現在的問題是，您如何啟用這些不同的關係和存取模式？ 在我們的案例中，如何使用像 DynamoDB 這樣的 NoSQL 數據庫來做到這一點？ 有兩種方法可以實現此目的：</p>
+<ul>
+<li>透過使用主鍵，排序鍵和本地次要索引(local secondary indexes)的組合，使 DynamoDB 中的數據模式化，從而可以使用單個表(single table)執行所有這些存取模式。 為了與 AppSync 配合使用，這必須手動並從頭開始編寫和維護所有解析器邏輯。</li>
+<li>直接在 GraphQL resolvers 解析器級別啟用這些關係。 因為我們使用的是 GraphQL，GraphQL 啟用了按字段解析器(per-field resolvers)，所以可以做到這一點。 為了更好地理解這一點，讓我們看一下將要使用的 Stage 類型。</li>
+</ul>
+<h5 id="Stage-type-in-GraphQL"><a href="#Stage-type-in-GraphQL" class="headerlink" title="Stage type in GraphQL"></a>Stage type in GraphQL</h5><figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Stage &#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  name: <span class="built_in">String</span>!</span><br><span class="line">  performances: [Performance]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>當為此類型創建一個或多個解析器時，以下是一個示例操作鏈。假設在請求表演廳和相對應的節目時會發生這種情況：</p>
+<ol>
+<li>主要的 Stage GraphQL 解析器將使用 Stage ID 從數據庫中的 Stage 表中檢索表演廳的信息。</li>
+<li>Stage 類型的 performances 字段將具有其自己的 GraphQL 解析器。該解析器使用 Stage ID 透過使用 GSI 查詢數據庫來檢索相關的節目，僅返回與該表演廳 ID 相關的節目。</li>
+</ol>
+<blockquote>
+<blockquote>
+<p><strong>Global secondary indexes(GSIs)</strong> 允許我們添加可用於查詢表並啟用其他數據存取模式的其他索引。DynamoDB 和 NoSQL 數據庫最強大的功能之一通常是建立其他索引，以實現多種存取模式 (DynamoDB 最多可擁有 20 個 GSIs)。這就像關聯式數據庫中的 indexes 與相關的 constraints (foreign key、unique index 等)。</p>
+</blockquote>
+</blockquote>
+<h5 id="GraphQL-Transform-connection"><a href="#GraphQL-Transform-connection" class="headerlink" title="GraphQL Transform: @connection"></a>GraphQL Transform: @connection</h5><p>在之前，我們使用了 GraphQL Transform 程式庫的 @model 指令來搭建整個後端，包括解析器、數據庫和其他 GraphQL schema。 GraphQL Transform 是一個程式庫，這些指令不是 GraphQL SDL 的一部分，它使我們可以 “裝飾(decorate)” GraphQL schema，並添加其他功能。</p>
+<p>這裡，我們將介紹幾個新的指令，包括 @connection，它使我們能夠僅用幾行代碼建立這些關係模式所需要的解析器。</p>
+<h4 id="多重身份驗證類型"><a href="#多重身份驗證類型" class="headerlink" title="多重身份驗證類型"></a>多重身份驗證類型</h4><p>在之前，我們使用 API key 作為身份驗證類型創建了 GraphQL API。 這在某些情況下是很好的，例如當你想讓應用程序的所有用戶都可以使用 GraphQL 查詢時。</p>
+<p>除了 API key 外，AppSync 支援四種主要的身份驗證方法：</p>
+<ul>
+<li>The API key<br>使用 API key 時，要在發出 HTTP 請求時，在 header 以 x-api-key 的形式發送 API key。 如果使用 Amplify 客戶端，則會自動發送。</li>
+<li>Amazon Cognito user pools<br>在這個範例，我們要使用 Amazon Cognito 的身份驗證託管服務。 使用 Amazon Cognito，我們可以針對 API 本身以及 GraphQL 類型和字段的存取，做進階的權限和群組的控管。</li>
+<li>OpenID Connect<br>OpenID Connect 使你能夠使用自己的身份驗證提供者。因此，如果你喜歡其他身份驗證服務(如 Auth0)，或者你的公司具有自己的身份驗證方式，則仍可以使用它來對 AppSync API 進行身份驗證。</li>
+<li>IAM<br>AWS IAM 類型會在 GraphQL API 上使用 AWS Signature Version 4 簽章過程。您可以使用 Cognito identity pools 中未經身份驗證的 IAM 角色給予 public 的存取權限，這會比使用 API key 啟用 public 的存取權限更安全。</li>
+</ul>
+<p>這裡，我們將結合使用 API key 和 Amazon Cognito 為 API 提供的多種身份驗證類型，從而實現公共讀取和私有存取的權限控管。</p>
+<h4 id="授權"><a href="#授權" class="headerlink" title="授權"></a>授權</h4><p>使用 GraphQL Transform 程式庫，我們還可以使用 @auth 指令為 API 定義不同的授權規則。</p>
+<p>使用 @auth，我們可以定義不同類型的規則，例如：</p>
+<ul>
+<li>允許所有用戶創建和讀取，但僅允許創建項目的所有者可以更新和刪除。</li>
+<li>只允許特定群組的用戶能夠創建，更新或刪除。</li>
+<li>只允許所有用戶都能讀取，但不能執行任何其他操作。</li>
+<li>上述規則的組合。</li>
+</ul>
+<p>在這理，我們將構建的應用程序將支援私有存取和公共的讀取。此外，我們還需要對這些規則進行更多的控管。我們需要支援以下內容：</p>
+<ul>
+<li>經過身份驗證而且是 Amazon Cagnito Admin 群組的用戶，將能夠執行所有操作：創建、讀取、更新、和刪除。</li>
+<li>未經身份驗證的用戶將有權訪問，但只能讀取。</li>
+</ul>
+<h4 id="使用-GSI-的自定義數據存取模式"><a href="#使用-GSI-的自定義數據存取模式" class="headerlink" title="使用 GSI 的自定義數據存取模式"></a>使用 GSI 的自定義數據存取模式</h4><p>DynamoDB 最強大的功能之一是，每個表允許 20 個額外的 GSI。 透過使用 GSI 或 GSI + sort key 的組合(也可以將其視為 filter key)，你可以為數據創建極其靈活而強大的數據存取模式。 GraphQL Transform 程式庫具有 @key 指令，可輕鬆為 @model 類型配置自定義的索引結構。</p>
+<p>我們將使用 @key 在 Performance 表上將表演廳 ID 設置為 GSI 以創建存取模式。這樣將使我們能夠在單個 GraphQL 查詢中讀取表演廳及其相關的節目表。</p>
+<p>現在瞭解了技能概述；讓我們開始構建應用程序。</p>
+<h3 id="開始構建-APP"><a href="#開始構建-APP" class="headerlink" title="開始構建 APP"></a>開始構建 APP</h3><p>首先，我們將創建新的 React 專案，安裝依賴項，初始化新的 Amplify 應用程序以及透過 CLI 添加功能。</p>
+<h5 id="創建-React-專案："><a href="#創建-React-專案：" class="headerlink" title="創建 React 專案："></a>創建 React 專案：</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn create react-app festivalapp</span><br><span class="line"></span><br><span class="line">cd festivalapp</span><br><span class="line"></span><br><span class="line">yarn add aws-amplify antd @aws-amplify/ui-react react-router-dom</span><br></pre></td></tr></table></figure>
+
+<h5 id="初始化一個新的-Amplify-專案："><a href="#初始化一個新的-Amplify-專案：" class="headerlink" title="初始化一個新的 Amplify 專案："></a>初始化一個新的 Amplify 專案：</h5><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify init</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 請按照步驟為專案命名，環境名稱並設置預設的文本編輯器。</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 接受其他所有設置的預設值，然後選擇你的 AWS Profile。</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="建立後端"><a href="#建立後端" class="headerlink" title="建立後端"></a>建立後端</h4><p>我們將添加的第一個功能是身份驗證。 此應用程序將需要具有基本的身份驗證，以及 Lambda 觸發器，使我們可以在用戶註冊確認後，動態的將一組預定義的用戶添加到 Admin 群組中。</p>
+<h5 id="Authentication"><a href="#Authentication" class="headerlink" title="Authentication"></a>Authentication</h5><p>使用 auth 類別添加 Cognito 身份驗證：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify add auth</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"> Do you want to use the default authentication and security configuration? Default configuration</span><br><span class="line"> How do you want users to be able to sign in? Username   </span><br><span class="line"> Do you want to configure advanced settings? Yes, I want to make some additional changes.</span><br><span class="line"> What attributes are required for signing up? Email</span><br><span class="line"> Do you want to enable any of the following capabilities? Add User to Group</span><br><span class="line">? Enter the name of the group to which users will be added. Admin</span><br><span class="line">? Do you want to edit your add-to-group function now? Yes</span><br></pre></td></tr></table></figure>
+
+<p>使用以下代碼更新函式，並設定 adminEmails 陣列，這個陣列就是預定義的 Admin 群組用戶：</p>
+<figure class="highlight javascript"><figcaption><span>amplify/backend/function/&lt;function_name&gt;/src/add-to-group.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> aws = <span class="built_in">require</span>(<span class="string">'aws-sdk'</span>);</span><br><span class="line"></span><br><span class="line">exports.handler = <span class="keyword">async</span> (event, context, callback) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> cognitoProvider = <span class="keyword">new</span> aws.CognitoIdentityServiceProvider(&#123; <span class="attr">apiVersion</span>: <span class="string">'2016-04-18'</span> &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> isAdmin = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">const</span> adminEmails = [<span class="string">'user1@somedomain.com'</span>, <span class="string">'user2@somedomain.com'</span>];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (adminEmails.indexOf(event.request.userAttributes.email) !== <span class="number">-1</span>) &#123;</span><br><span class="line">    isAdmin = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> groupParams = &#123;</span><br><span class="line">    UserPoolId: event.userPoolId,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> userParams = &#123;</span><br><span class="line">    UserPoolId: event.userPoolId,</span><br><span class="line">    Username: event.userName,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isAdmin) &#123;</span><br><span class="line">    groupParams.GroupName = <span class="string">'Admin'</span>;</span><br><span class="line">    userParams.GroupName = <span class="string">'Admin'</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">await</span> cognitoProvider.getGroup(groupParams).promise();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="keyword">await</span> cognitoProvider.createGroup(groupParams).promise();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">await</span> cognitoProvider.adminAddUserToGroup(userParams).promise();</span><br><span class="line">      callback(<span class="literal">null</span>, event);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      callback(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    callback(<span class="literal">null</span>, event)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>現在，身份驗證服務已設置完畢，我們可以繼續下一步：創建 AppSync API。</p>
+<h5 id="The-AppSync-API"><a href="#The-AppSync-API" class="headerlink" title="The AppSync API"></a>The AppSync API</h5><p>接下來，我們將創建 AppSync GraphQL API。 請記住，對於此 API，我們需要為公共和受保護的存取啟用多種身份驗證類型，所有這些都可以由 CLI 啟用。</p>
+<p>我們將使用 api 類別添加 AppSync API：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify add api</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">? Please select from one of the below mentioned services: GraphQL</span><br><span class="line">? Provide API name: festivalapi</span><br><span class="line">? Choose the default authorization type for the API Amazon Cognito User Pool</span><br><span class="line">Use a Cognito user pool configured as a part of this project.</span><br><span class="line">? Do you want to configure advanced settings for the GraphQL API Yes, I want to make some additional changes.</span><br><span class="line">? Configure additional auth types? Yes</span><br><span class="line">? Choose the additional authorization types you want to configure for the API API key</span><br><span class="line">API key configuration</span><br><span class="line">? Enter a description for the API key: public</span><br><span class="line">? After how many days from now the API key should expire (1-365): 365</span><br><span class="line">? Configure conflict detection? No</span><br><span class="line">? Do you have an annotated GraphQL schema? No</span><br><span class="line">? Choose a schema template: Single object with fields (e.g., “Todo” with ID, name, description)</span><br><span class="line">? Do you want to edit the schema now? (y/N) Yes</span><br></pre></td></tr></table></figure>
+
+<p>我們將使用的 GraphQL schema 有兩個主要類型: Stage 和 Performance。</p>
+<figure class="highlight ts"><figcaption><span>amplify/backend/api/festivalapi/schema.graphql</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Stage <span class="meta">@model</span></span><br><span class="line">  <span class="meta">@auth</span>(rules: [</span><br><span class="line">    &#123; allow: <span class="keyword">public</span>, operations: [read] &#125;,</span><br><span class="line">    &#123; allow: groups, groups: [<span class="string">"Admin"</span>] &#125;</span><br><span class="line">  ])</span><br><span class="line">&#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  name: <span class="built_in">String</span>!</span><br><span class="line">  performances: [Performance] <span class="meta">@connection</span>(keyName: <span class="string">"byStageId"</span>, fields: [<span class="string">"id"</span>])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Performance <span class="meta">@model</span></span><br><span class="line">  <span class="meta">@key</span>(name: <span class="string">"byStageId"</span>, fields: [<span class="string">"performanceStageId"</span>])</span><br><span class="line">  <span class="meta">@auth</span>(rules: [</span><br><span class="line">    &#123; allow: <span class="keyword">public</span>, operations: [read] &#125;,</span><br><span class="line">    &#123; allow: groups, groups: [<span class="string">"Admin"</span>] &#125;</span><br><span class="line">  ])</span><br><span class="line">&#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  performanceStageId: ID!</span><br><span class="line">  productId: ID</span><br><span class="line">  performer: <span class="built_in">String</span>!</span><br><span class="line">  imageUrl: <span class="built_in">String</span></span><br><span class="line">  description: <span class="built_in">String</span>!</span><br><span class="line">  time: <span class="built_in">String</span></span><br><span class="line">  stage: Stage <span class="meta">@connection</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>讓我們看看我們使用的指令及其工作方式。</p>
+<ul>
+<li><p>@auth<br>首先，@auth 指令允許我們傳入一個陣列的身份驗證規則。 每個規則都有一個 allow 字段(必要)以及其他元數據(可選)，包括諸如指定身份驗證提供者(如果它與預設授權類型不同)之類的事情。</p>
+<p>在 Stage 和 Performance 類型中，我們使用了兩種授權類型，一種用於群組存取 (groups)，另一種用於公共存取 (public)。 對於 public，我們還設置 operations 陣列。 該陣列應包含我們要在 API 上啟用的操作的列表。 如果未列出任何操作，則預設情況下將啟用所有操作。</p>
+</li>
+<li><p>@key<br>@key 指令使我們能夠添加 DynamoDB 表的 GSI 和對鍵進行排序。 在這個架構中，我們創建了一個名為 byStageId 的鍵，該鍵將允許我們使用 Performance 表上的 performanceStageId 字段按表演廳的 ID 查詢 Performance 表中的節目。 Stage 類型上的 performances 字段的解析器將使用該表演廳的 ID 來讀取該表演廳的所有節目。</p>
+</li>
+<li><p>@connection<br>@connection 指令允許我們對類型之間的關係進行建模。 可以創建的關係類型可以是: 一對多、多對一、或多對多。 在此示例中，我們創建了兩個關係。</p>
+<ul>
+<li>表演廳與節目之間的關係(一個表演廳有很多表演節目)</li>
+<li>節目與表演廳之間的關係(表演節目僅屬於一個表演廳)</li>
+</ul>
+</li>
+</ul>
+<h5 id="部署服務"><a href="#部署服務" class="headerlink" title="部署服務"></a>部署服務</h5><p>配置了所有服務之後，我們就可以部署後端了：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify push</span><br></pre></td></tr></table></figure>
+
+<p>部署完成後，你可以隨時查詢 Amplify 專案狀態:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify status</span><br><span class="line"></span><br><span class="line">Current Environment: pecftadev</span><br><span class="line"></span><br><span class="line">| Category | Resource name                       | Operation | Provider plugin   |</span><br><span class="line">| -------- | ----------------------------------- | --------- | ----------------- |</span><br><span class="line">| Function | festivalapp0ed53a88PostConfirmation | No Change | awscloudformation |</span><br><span class="line">| Auth     | festivalapp0ed53a88                 | No Change | awscloudformation |</span><br><span class="line">| Api      | festivalapi                         | No Change | awscloudformation |</span><br><span class="line"></span><br><span class="line">GraphQL endpoint: ... </span><br><span class="line">GraphQL API KEY: ...</span><br></pre></td></tr></table></figure>
+
+<p>服務已部署，我們可以開始編寫客戶端代碼。</p>
+<h4 id="建立前端"><a href="#建立前端" class="headerlink" title="建立前端"></a>建立前端</h4><p>我們要做的第一件事是在 src 目錄中創建此應用程序所需的程式檔：</p>
+<p>  Container.js、Footer.js、Nav.js、Admin.js、Router.js、Performance.js 、與 Home.js。</p>
+<p>下一步是打開 src/index.js 添加 Amplify 配置，導入 Ant Design 樣式，並用即將創建的 Router 組件替換主要組件。 </p>
+<figure class="highlight jsx"><figcaption><span>src/index.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> ReactDOM <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"><span class="keyword">import</span> Router <span class="keyword">from</span> <span class="string">'./Router'</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">'antd/dist/antd.css'</span></span><br><span class="line"><span class="keyword">import</span> Amplify <span class="keyword">from</span> <span class="string">'aws-amplify'</span></span><br><span class="line"><span class="keyword">import</span> config <span class="keyword">from</span> <span class="string">'./aws-exports'</span></span><br><span class="line">Amplify.configure(config)</span><br><span class="line"></span><br><span class="line">ReactDOM.render(</span><br><span class="line">  &lt;Router /&gt;,  </span><br><span class="line">  <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h5 id="Container"><a href="#Container" class="headerlink" title="Container"></a>Container</h5><p>現在，讓我們創建一個 Container 組件，該組件將用作<strong>可重用的組件</strong>，為我們的視圖添加間距與樣式：</p>
+<figure class="highlight jsx"><figcaption><span>src/Container.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Container = <span class="function">(<span class="params">&#123; children &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div style=&#123;container&#125;&gt;</span><br><span class="line">      &#123; children &#125;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">const container = &#123;</span></span><br><span class="line"><span class="regexp">  padding: '30px 40px',</span></span><br><span class="line"><span class="regexp">  minHeight: 'calc(100vh - 120px)'</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">export default Container</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Footer"><a href="#Footer" class="headerlink" title="Footer"></a>Footer</h5><p>這裡，我們將創建 Footer 組件，該組件也是一個可重用的組件，以添加基本的頁腳，並提供一個鏈接，使管理員可以註冊和登錄：</p>
+<figure class="highlight jsx"><figcaption><span>src/Footer.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; Link &#125; <span class="keyword">from</span> <span class="string">'react-router-dom'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Footer = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div style=&#123;footerStyle&#125;&gt;</span><br><span class="line">      &lt;Link to=<span class="string">"/admin"</span>&gt;</span><br><span class="line">        Admins</span><br><span class="line">      &lt;<span class="regexp">/Link&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> footerStyle = &#123;</span><br><span class="line">  borderTop: <span class="string">'1px solid #ddd'</span>,</span><br><span class="line">  display: <span class="string">'flex'</span>,</span><br><span class="line">  alignItems: <span class="string">'center'</span>,</span><br><span class="line">  padding: <span class="number">20</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> Footer</span><br></pre></td></tr></table></figure>
+
+<h5 id="Nav"><a href="#Nav" class="headerlink" title="Nav"></a>Nav</h5><p>現在，打開 src/Nav.js 創建基本的應用程序導航。 只有一個鏈接：回到主視圖的鏈接，其中將列出所有表演廳和節目表：</p>
+<figure class="highlight jsx"><figcaption><span>src/Nav.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; Link &#125; <span class="keyword">from</span> <span class="string">'react-router-dom'</span></span><br><span class="line"><span class="keyword">import</span> &#123; Menu &#125; <span class="keyword">from</span> <span class="string">'antd'</span></span><br><span class="line"><span class="keyword">import</span> &#123; HomeOutlined &#125; <span class="keyword">from</span> <span class="string">'@ant-design/icons'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Nav = <span class="function">(<span class="params">&#123; current &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;Menu selectedKeys=&#123;[current]&#125; mode=<span class="string">"horizontal"</span>&gt;</span><br><span class="line">        &lt;Menu.Item key=<span class="string">'home'</span>&gt;</span><br><span class="line">          &lt;Link to=&#123;<span class="string">'/'</span>&#125;&gt;</span><br><span class="line">            &lt;HomeOutlined /&gt;Home</span><br><span class="line">          &lt;<span class="regexp">/Link&gt;</span></span><br><span class="line"><span class="regexp">        &lt;/</span>Menu.Item&gt;</span><br><span class="line">      &lt;<span class="regexp">/Menu&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> Nav</span><br></pre></td></tr></table></figure>
+
+<h5 id="Admin"><a href="#Admin" class="headerlink" title="Admin"></a>Admin</h5><p>將創建的 Admin 組件僅做三件事：允許用戶註冊、登錄、和登出。 該組件是為管理員提供一種註冊方法，以便他們可以隨後以管理員身份創建和管理 API。</p>
+<p>請記住，當某人註冊時，如果在 Lambda 觸發器中驗證了他們的電子郵件，則他們將在註冊後被置於 Admin 群組中。 然後，他們將能夠執行 GraphQL mutations 操作來創建、更新、和刪除表演廳和節目。</p>
+<p>如果你需要更新諸如 GraphQL schema 或 Lambda 函式之類的後端代碼，可以先在本地端進行更改，然後執行 amplify push 將更改部署到後端。</p>
+<figure class="highlight js"><figcaption><span>src/Admin.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; withAuthenticator, AmplifySignOut &#125; <span class="keyword">from</span> <span class="string">'@aws-amplify/ui-react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Admin = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;h1 style=&#123;titleStyle&#125;&gt;Admin&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">      &lt;AmplifySignOut /</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">const titleStyle = &#123;</span></span><br><span class="line"><span class="regexp">  fontWeight: 'normal',</span></span><br><span class="line"><span class="regexp">  margin: '0px 0px 10px 0px'</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">export default withAuthenticator(Admin)</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h5><figure class="highlight jsx"><figcaption><span>src/Router.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; HashRouter, Switch, Route &#125; <span class="keyword">from</span> <span class="string">'react-router-dom'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> Home <span class="keyword">from</span> <span class="string">'./Home'</span></span><br><span class="line"><span class="keyword">import</span> Admin <span class="keyword">from</span> <span class="string">'./Admin'</span></span><br><span class="line"><span class="keyword">import</span> Nav <span class="keyword">from</span> <span class="string">'./Nav'</span></span><br><span class="line"><span class="keyword">import</span> Footer <span class="keyword">from</span> <span class="string">'./Footer'</span></span><br><span class="line"><span class="keyword">import</span> Container <span class="keyword">from</span> <span class="string">'./Container'</span></span><br><span class="line"><span class="keyword">import</span> Performance <span class="keyword">from</span> <span class="string">'./Performance'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Router = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [current, setCurrent] = useState(<span class="string">'home'</span>)</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    setRoute()</span><br><span class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'hashchange'</span>, setRoute)</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">window</span>.removeEventListener(<span class="string">'hashchange'</span>, setRoute)    </span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">setRoute</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> location = <span class="built_in">window</span>.location.href.split(<span class="string">'/'</span>)</span><br><span class="line">    <span class="keyword">const</span> pathname = location[location.length - <span class="number">1</span>]</span><br><span class="line">    setCurrent(pathname ? pathname : <span class="string">'home'</span>)  </span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;HashRouter&gt;</span><br><span class="line">      &lt;Nav current=&#123;current&#125; /&gt;</span><br><span class="line">      &lt;Container&gt;</span><br><span class="line">        &lt;Switch&gt;</span><br><span class="line">          &lt;Route exact path=<span class="string">"/"</span> component=&#123;Home&#125; /&gt;</span><br><span class="line">          &lt;Route exact path=<span class="string">"/performance/:id"</span> component=&#123;Performance&#125; /&gt;</span><br><span class="line">          &lt;Route exact path=<span class="string">"/admin"</span> component=&#123;Admin&#125; /&gt;</span><br><span class="line">        &lt;<span class="regexp">/Switch&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>Container&gt;</span><br><span class="line">      &lt;Footer /&gt;</span><br><span class="line">    &lt;<span class="regexp">/HashRouter&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">export default Router</span></span><br></pre></td></tr></table></figure>
+
+<p>在此組件中，我們將路由器與持久性 UI 組件 Container 和 Footer 結合在一起。</p>
+<p>這個應用程序具有三個路由：</p>
+<ul>
+<li>Home<br>這是呈現表演廳和節目的主要路由。</li>
+<li>Performance<br>這是呈現個別的節目和節目細節的路由。</li>
+<li>Admin<br>這是將為管理員提供 註冊/登錄 頁面的路由。</li>
+</ul>
+<p>在 Performance 路由中，你將看到我們使用的路由如下：</p>
+<pre><code>/performance/:id</code></pre><p>這是使用 URL 參數的方式，符合此路由將使我們能夠在組件本身中使用這個參數。 這很有用，透過路由參數使我們能夠使用節目的 <strong>id</strong> 來獲取節目的詳細信息。 路由參數還使我們能夠輕鬆構建支援深層鏈接的應用程序。</p>
+<h5 id="Performance"><a href="#Performance" class="headerlink" title="Performance"></a>Performance</h5><figure class="highlight jsx"><figcaption><span>src/Performance.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; useParams &#125; <span class="keyword">from</span> <span class="string">'react-router-dom'</span></span><br><span class="line"><span class="keyword">import</span> &#123; getPerformance &#125; <span class="keyword">from</span> <span class="string">'./graphql/queries'</span></span><br><span class="line"><span class="keyword">import</span> &#123; API &#125; <span class="keyword">from</span> <span class="string">'aws-amplify'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Performance = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [performance, setPerformance] = useState(<span class="literal">null</span>)</span><br><span class="line">  <span class="keyword">const</span> [loading, setLoading] = useState(<span class="literal">true</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> &#123; id &#125; = useParams()</span><br><span class="line">  </span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    fetchPerformanceInfo()</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">fetchPerformanceInfo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> performanceInfo = <span class="keyword">await</span> API.graphql(&#123;</span><br><span class="line">        query: getPerformance,</span><br><span class="line">        variables: &#123; id &#125;,</span><br><span class="line">        authMode: <span class="string">'API_KEY'</span></span><br><span class="line">      &#125;)</span><br><span class="line">      setPerformance(performanceInfo.data.getPerformance)</span><br><span class="line">      setLoading(<span class="literal">false</span>)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'error fetching performance info...'</span>, err)</span><br><span class="line">      setLoading(<span class="literal">false</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;p&gt;節目資訊&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">      &#123; loading &amp;&amp; &lt;h3&gt;Loading...&lt;/</span>h3&gt; &#125;</span><br><span class="line">      &#123;</span><br><span class="line">        performance &amp;&amp; (</span><br><span class="line">          &lt;div&gt;</span><br><span class="line">            &lt;h1&gt;&#123;performance.performer&#125;&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">            &lt;h3&gt;&#123;performance.time&#125;&lt;/</span>h3&gt;</span><br><span class="line">            &lt;p&gt;&#123;performance.description&#125;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">          &lt;/</span>div&gt;</span><br><span class="line">        )</span><br><span class="line">      &#125;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">export default Performance</span></span><br></pre></td></tr></table></figure>
+
+<p>這個組件的 render 方法非常基礎。 它只是呈現演出者、時間、和描述。 關於此組件的重點在於我們如何獲取該信息。</p>
+<ol>
+<li>我們使用 useState 掛鉤創建兩個狀態：loading (預設為 true) 和 performance (預設為 null)。 我們還創建了一個名為 id 的變數，該變數使用 React Router 中的 useParams 獲取路由參數 id 的值。</li>
+<li>加載組件時，我們使用 useEffect 掛鉤立即調用 fetchPerformanceInfo 函式。</li>
+<li>fetchPerformanceInfo 函式使用路由參數中的 id 來調用 AppSync API。 這裡的 API 調用使用 API.graphql，傳入 variables，query 和 authMode。 預設情況下，這裡的 API 使用 Cognito User Pools 作為身份驗證模式。 每當我們想覆蓋此預設 (例如在這裡的情況下進行 public API 調用) 時，我們需要在 API 調用本身中指定 authMode。</li>
+<li>從 API 返回數據後，我們調用 setLoading 和 setPerformance 來更新 UI 以呈現從 API 返回的數據。</li>
+</ol>
+<h5 id="Home"><a href="#Home" class="headerlink" title="Home"></a>Home</h5><p>現在，讓我們創建最後一個組件，Home 組件：</p>
+<figure class="highlight jsx"><figcaption><span>src/Home.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; useState, useEffect &#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; API &#125; <span class="keyword">from</span> <span class="string">'aws-amplify'</span></span><br><span class="line"><span class="keyword">import</span> &#123; listStages &#125; <span class="keyword">from</span> <span class="string">'./graphql/queries'</span></span><br><span class="line"><span class="keyword">import</span> &#123; Link &#125; <span class="keyword">from</span> <span class="string">'react-router-dom'</span></span><br><span class="line"><span class="keyword">import</span> &#123; List &#125; <span class="keyword">from</span> <span class="string">'antd'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Home = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [stages, setStages] = useState([])</span><br><span class="line">  <span class="keyword">const</span> [loading, setLoading] = useState(<span class="literal">true</span>)</span><br><span class="line">  </span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    getStages()</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">getStages</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> apiData = <span class="keyword">await</span> API.graphql(&#123;</span><br><span class="line">        query: listStages,</span><br><span class="line">        authMode: <span class="string">'API_KEY'</span></span><br><span class="line">      &#125;)</span><br><span class="line">      <span class="keyword">const</span> &#123; <span class="attr">data</span>: &#123; <span class="attr">listStages</span>: &#123; items &#125;&#125;&#125; = apiData</span><br><span class="line">      setStages(items)</span><br><span class="line">      setLoading(<span class="literal">false</span>)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'error fetching stages list...'</span>, err)</span><br><span class="line">      setLoading(<span class="literal">false</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;h1 style=&#123;heading&#125;&gt;表演廳院&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">      &#123; loading &amp;&amp; &lt;h2&gt;Loading...&lt;/</span>h2&gt; &#125;</span><br><span class="line">      &#123;</span><br><span class="line">        stages.map(<span class="function"><span class="params">stage</span> =&gt;</span> (</span><br><span class="line">          &lt;div key=&#123;stage.id&#125; style=&#123;stageInfo&#125;&gt;</span><br><span class="line">            &lt;p style=&#123;infoHeading&#125;&gt;&#123;stage.name&#125;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">            &lt;p style=&#123;infoTitle&#125;&gt;節目表&lt;/</span>p&gt;</span><br><span class="line">            &lt;List </span><br><span class="line">              itemLayout=<span class="string">"horizontal"</span></span><br><span class="line">              dataSource=&#123;stage.performances.items&#125;</span><br><span class="line">              renderItem=&#123;performance =&gt; (</span><br><span class="line">                &lt;List.Item&gt;</span><br><span class="line">                  &lt;List.Item.Meta </span><br><span class="line">                    title=&#123;&lt;Link style=&#123;performerInfo&#125; </span><br><span class="line">                                 to=&#123;<span class="string">`/performance/<span class="subst">$&#123;performance.id&#125;</span>`</span>&#125;</span><br><span class="line">                            &gt;&#123; performance.performer &#125;&lt;<span class="regexp">/Link&gt;</span></span><br><span class="line"><span class="regexp">                          &#125;</span></span><br><span class="line"><span class="regexp">                    description=&#123;performance.time&#125;</span></span><br><span class="line"><span class="regexp">                  /</span>&gt;</span><br><span class="line">                &lt;<span class="regexp">/List.Item&gt;</span></span><br><span class="line"><span class="regexp">              )&#125;</span></span><br><span class="line"><span class="regexp">            /</span>&gt;</span><br><span class="line">          &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        ))</span></span><br><span class="line"><span class="regexp">      &#125;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> heading = &#123; <span class="attr">fontSize</span>: <span class="number">44</span>, <span class="attr">fontWeight</span>: <span class="number">300</span>, <span class="attr">marginBottom</span>: <span class="number">5</span> &#125;</span><br><span class="line"><span class="keyword">const</span> stageInfo = &#123; <span class="attr">padding</span>: <span class="string">'20px 0px 10px'</span>, <span class="attr">borderBottom</span>: <span class="string">'2px solid #ddd'</span> &#125;</span><br><span class="line"><span class="keyword">const</span> infoTitle = &#123; <span class="attr">fontWeight</span>: <span class="string">'bold'</span>, <span class="attr">fontSize</span>: <span class="number">18</span> &#125;</span><br><span class="line"><span class="keyword">const</span> infoHeading = &#123; <span class="attr">fontSize</span>: <span class="number">30</span>, <span class="attr">marginBottom</span>: <span class="number">5</span> &#125;</span><br><span class="line"><span class="keyword">const</span> performerInfo = &#123; <span class="attr">fontSize</span>: <span class="number">24</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> Home</span><br></pre></td></tr></table></figure>
+
+<p>這個組件中的邏輯實際上與我們在 Performance 組件中所做的非常相似。</p>
+<p>現在，應用程序已完成，但還有一件事。 因為我們為 performances 解析器創建了自定義存取模式，所以我們需要更新 listStages 查詢定義，以便也能返回與表演廳相關的節目表。 為此，使用以下命令更新 listStages 查詢：</p>
+<figure class="highlight ts"><figcaption><span>src/graphql/queries.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> listStages = <span class="comment">/* GraphQL */</span> <span class="string">`</span></span><br><span class="line"><span class="string">  query ListStages(</span></span><br><span class="line"><span class="string">    $filter: ModelStageFilterInput</span></span><br><span class="line"><span class="string">    $limit: Int</span></span><br><span class="line"><span class="string">    $nextToken: String</span></span><br><span class="line"><span class="string">  ) &#123;</span></span><br><span class="line"><span class="string">    listStages(filter: $filter, limit: $limit, nextToken: $nextToken) &#123;</span></span><br><span class="line"><span class="string">      items &#123;</span></span><br><span class="line"><span class="string">        id</span></span><br><span class="line"><span class="string">        name</span></span><br><span class="line"><span class="string">        createdAt</span></span><br><span class="line"><span class="string">        updatedAt</span></span><br><span class="line"><span class="string">        performances &#123;</span></span><br><span class="line"><span class="string">          items &#123;</span></span><br><span class="line"><span class="string">            id</span></span><br><span class="line"><span class="string">            time</span></span><br><span class="line"><span class="string">            performer</span></span><br><span class="line"><span class="string">            description</span></span><br><span class="line"><span class="string">          &#125;</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">      nextToken</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<p>現在，我們可以加入一些數據。 啟動應用程序並註冊一個管理員用戶：</p>
+<pre><code>yarn start</code></pre><p>單擊頁腳中的 Admins 鏈接進行註冊。</p>
+<p>我們在這應用程序範例中沒有建立可以創建，更新或刪除表演廳與節目的 UI 介面，所以我們要直接使用 AWS AppSync 控制台來加入一些數據。註冊一個管理員用戶後，打開 AppSync 控制台：</p>
+<pre><code>amplify console api</code></pre><p>選擇 GraphQL。</p>
+<p>在控制台的 Queries 面板中，您需要單擊 <strong>Login with User Pools</strong> 然後用剛創建的用戶的 username 和 password 登錄。 當提示你輸入 ClientID 時，請使用專案的 src/aws-exports.js 文件中的 aws_user_pools_web_client_id。</p>
+<p>接下來在 AppSync 控制台的 Queries 面板中，創建表演廳和節目：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mutation createStage &#123;</span><br><span class="line">  createStage(input: &#123;</span><br><span class="line">    id: &quot;stage-1&quot;</span><br><span class="line">    name: &quot;音樂廳&quot;</span><br><span class="line">  &#125;) &#123;</span><br><span class="line">    id name</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">mutation createPerformance &#123;</span><br><span class="line">  createPerformance(input: &#123;</span><br><span class="line">    performanceStageId: &quot;stage-1&quot;</span><br><span class="line">    performer: &quot;小提琴家胡乃元&quot;</span><br><span class="line">    description: &quot;與大師有約　聽見不凡聲響。活躍於國內外藝術季及演出的對位室內樂團，邀請比利時伊莉莎白女王國際音樂大賽首獎得主–小提琴家胡乃元，演奏經典的布魯赫《第一號小提琴協奏曲》&quot;</span><br><span class="line">    time: &quot;2020/11/29 (日) 15:00&quot;</span><br><span class="line">  &#125;) &#123;</span><br><span class="line">    id performer description</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在，我們的數據庫具有一些數據，我們應該能夠在我們的應用程序中查看它，並在主畫面和節目詳細資訊畫面視圖之間切換導航。</p>
+<img src="/2020/11/17/AWS-AppSync/20201119-01.png" title="AWS AppSync">
+
+<p>在這個範例中學到了幾點：</p>
+<ul>
+<li>GraphQL Transform 指令使你能夠向 GraphQL API 添加強大的功能，例如身份驗證規則，關係和用於其他數據存取模式的自定義索引。</li>
+<li>@auth 指令允許你傳入規則陣列以定義類型和字段的授權規則。</li>
+<li>@connection 指令使你可以對 GraphQL 類型之間的關係進行建模。</li>
+<li>@key 指令使你能夠為自定義數據存取模式定義自定義索引並增強現有關係。</li>
+<li>當創建具有多種授權類型的 API 時，進行 API 調用時會使用預設的主要授權類型。 如果需要覆蓋主要授權類型時，可以使用 API 類 authMode 參數傳遞你要使用的授權類型。</li>
+</ul>
+<p>我們完成了一個 Serverless 的應用程序，而且幾乎沒有寫到伺服端的程式碼。也不需要擔心認證、授權、與資料庫的維護、安全、與效能問題。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/11/AWS-Offline-Apps-with-Amplify-DataStore/" rel="prev" title="AWS Offline Apps with Amplify DataStore">
+      <i class="fa fa-chevron-left"></i> AWS Offline Apps with Amplify DataStore
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/12/22/Oracle-Table-Functions/" rel="next" title="Oracle Table Functions">
+      Oracle Table Functions <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#GraphQL、AppSync-API-和-React-Router"><span class="nav-number">1.</span> <span class="nav-text">GraphQL、AppSync API 和 React Router</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GraphQL-類型之間的關係"><span class="nav-number">1.1.</span> <span class="nav-text">GraphQL 類型之間的關係</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Stage-type-in-GraphQL"><span class="nav-number">1.1.1.</span> <span class="nav-text">Stage type in GraphQL</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#GraphQL-Transform-connection"><span class="nav-number">1.1.2.</span> <span class="nav-text">GraphQL Transform: @connection</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#多重身份驗證類型"><span class="nav-number">1.2.</span> <span class="nav-text">多重身份驗證類型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#授權"><span class="nav-number">1.3.</span> <span class="nav-text">授權</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-GSI-的自定義數據存取模式"><span class="nav-number">1.4.</span> <span class="nav-text">使用 GSI 的自定義數據存取模式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#開始構建-APP"><span class="nav-number">2.</span> <span class="nav-text">開始構建 APP</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#創建-React-專案："><span class="nav-number">2.0.1.</span> <span class="nav-text">創建 React 專案：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#初始化一個新的-Amplify-專案："><span class="nav-number">2.0.2.</span> <span class="nav-text">初始化一個新的 Amplify 專案：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#建立後端"><span class="nav-number">2.1.</span> <span class="nav-text">建立後端</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Authentication"><span class="nav-number">2.1.1.</span> <span class="nav-text">Authentication</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#The-AppSync-API"><span class="nav-number">2.1.2.</span> <span class="nav-text">The AppSync API</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#部署服務"><span class="nav-number">2.1.3.</span> <span class="nav-text">部署服務</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#建立前端"><span class="nav-number">2.2.</span> <span class="nav-text">建立前端</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Container"><span class="nav-number">2.2.1.</span> <span class="nav-text">Container</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Footer"><span class="nav-number">2.2.2.</span> <span class="nav-text">Footer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Nav"><span class="nav-number">2.2.3.</span> <span class="nav-text">Nav</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Admin"><span class="nav-number">2.2.4.</span> <span class="nav-text">Admin</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Router"><span class="nav-number">2.2.5.</span> <span class="nav-text">Router</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Performance"><span class="nav-number">2.2.6.</span> <span class="nav-text">Performance</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Home"><span class="nav-number">2.2.7.</span> <span class="nav-text">Home</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

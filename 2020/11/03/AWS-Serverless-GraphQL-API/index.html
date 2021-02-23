@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="之前的範例中，我們結合使用 API Gateway 和無伺服器函式創建了一個基本的 API 層。 這種組合非常強大，但是我們尚未與真實的資料庫進行互動。 在本範例中，我們將創建一個與 DynamoDB NoSQL 資料庫互動以執行 CRUD + L (create，read，update，delete 和 list) 操作的 GraphQL API。 你將了解什麼是 GraphQL，為什麼開發人員">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS Serverless GraphQL API">
+<meta property="og:url" content="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="之前的範例中，我們結合使用 API Gateway 和無伺服器函式創建了一個基本的 API 層。 這種組合非常強大，但是我們尚未與真實的資料庫進行互動。 在本範例中，我們將創建一個與 DynamoDB NoSQL 資料庫互動以執行 CRUD + L (create，read，update，delete 和 list) 操作的 GraphQL API。 你將了解什麼是 GraphQL，為什麼開發人員">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/20201103-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/20201103-02.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/20201103-03.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/20201103-04.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/20201103-05.png">
+<meta property="og:updated_time" content="2020-12-24T10:13:30.708Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AWS Serverless GraphQL API">
+<meta name="twitter:description" content="之前的範例中，我們結合使用 API Gateway 和無伺服器函式創建了一個基本的 API 層。 這種組合非常強大，但是我們尚未與真實的資料庫進行互動。 在本範例中，我們將創建一個與 DynamoDB NoSQL 資料庫互動以執行 CRUD + L (create，read，update，delete 和 list) 操作的 GraphQL API。 你將了解什麼是 GraphQL，為什麼開發人員">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/20201103-01.png">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>AWS Serverless GraphQL API | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/11/03/AWS-Serverless-GraphQL-API/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AWS Serverless GraphQL API
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-11-03 10:55:37" itemprop="dateCreated datePublished" datetime="2020-11-03T10:55:37+08:00">2020-11-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-12-24 18:13:30" itemprop="dateModified" datetime="2020-12-24T18:13:30+08:00">2020-12-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>之前的範例中，我們結合使用 API Gateway 和無伺服器函式創建了一個基本的 API 層。 這種組合非常強大，但是我們尚未與真實的資料庫進行互動。</p>
+<p>在本範例中，我們將創建一個與 DynamoDB NoSQL 資料庫互動以執行 CRUD + L (create，read，update，delete 和 list) 操作的 GraphQL API。 你將了解什麼是 GraphQL，為什麼開發人員採用它，以及它是如何工作的。</p>
+<p>我們將構建一個便箋應用程序 (notes app)，該應用程序將允許用戶創建，更新和刪除便箋。 它還將啟用 GraphQL 訂閱，以便能即時取得更新，如果有用戶正在使用該應用程序，並且新增了便箋，則其他的用戶將會即時看到新增的便箋。</p>
+<p>有關 GraphQL，你可以參考之前的文章，<a href="/2019/07/05/What-is-GraphQL/">什麼是 GraphQL ?</a>。</p>
+<p>儘管有多種方法可以實現 GraphQL 伺服器，但在本範例中，我們將使用 AWS AppSync。 AppSync 是一項託管服務，使我們能夠使用 Amplify CLI 快速輕鬆地部署 GraphQL API，解析器 (resolvers) 和數據源。</p>
+<h4 id="創建-GraphQL-API"><a href="#創建-GraphQL-API" class="headerlink" title="創建 GraphQL API"></a>創建 GraphQL API</h4><p>現在，我們要使用 GraphQL API 來構建 Notes 應用程序。</p>
+<p>首先要創建一個新的 React 應用程序並安裝必要的依賴項。 該應用程序將使用 AWS Amplify client 程式庫與 API 互動，使用 uuid 用於創建唯一的 ID 和用於樣式設置的 Ant Design 程式庫。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn create react-app notesapp</span><br><span class="line"></span><br><span class="line">cd notesapp</span><br><span class="line"></span><br><span class="line">yarn add aws-amplify antd uuid</span><br></pre></td></tr></table></figure>
+
+<p>現在，在新應用程序的根目錄下，創建 Amplify 專案：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify init</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">? Enter a name for the project: notesapp</span><br><span class="line">? Enter a name for the environment: dev</span><br><span class="line">? Choose your default editor: Visual Studio Code</span><br><span class="line">? Choose the type of app that you're building: javascript</span><br><span class="line">Please tell us about your project</span><br><span class="line">? What javascript framework are you using: react</span><br><span class="line">? Source Directory Path: src</span><br><span class="line">? Distribution Directory Path: build</span><br><span class="line">? Build Command:  npm.cmd run-script build</span><br><span class="line">? Start Command: npm.cmd run-script start</span><br><span class="line">? Do you want to use an AWS profile? Yes</span><br><span class="line">? Please choose the profile you want to use default</span><br></pre></td></tr></table></figure>
+
+<p>初始化 Amplify 專案後，我們可以添加 GraphQL API：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify add api</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">? Please select from one of the below mentioned services: GraphQL</span><br><span class="line">? Provide API name: notesapi</span><br><span class="line">? Choose the default authorization type for the API: API key</span><br><span class="line">? Enter a description for the API key: public</span><br><span class="line">? After how many days from now the API key should expire (1-365): 365</span><br><span class="line">? Do you want to configure advanced settings for the GraphQL API: No, I am done.</span><br><span class="line">? Do you have an annotated GraphQL schema? No</span><br><span class="line">? Choose a schema template: Single object with fields (e.g., “Todo” with ID, name, description)</span><br><span class="line">? Do you want to edit the schema now? (y/N) Y</span><br></pre></td></tr></table></figure>
+
+<p>接下來，在你的編輯器中打開位於 notesapp/amplify/backend/api/notesapi/schema.graphql 的基本 GraphQL schema (由 CLI 生成)。 將 schema 更新為以下內容：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">type Note @model &#123;</span><br><span class="line">  id: ID!</span><br><span class="line">  clientId: ID</span><br><span class="line">  name: <span class="built_in">String</span>!</span><br><span class="line">  description: <span class="built_in">String</span></span><br><span class="line">  completed: <span class="built_in">Boolean</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這個 schema 具有一個主要的 Note 類型，其中包含五個字段。字段可以為可為 nullable (不是必需)或 non-nullable (必需)。 用 ！ 指定 non-nullable 字段。</p>
+<p>此架構中的 Note 類型以 @model 指令註釋。 該指令不是 GraphQL SDL 的一部分； 它是 AWS Amplify GraphQL Transform 程式庫的一部分。</p>
+<p>GraphQL Transform 程式庫允許你使用 @model、@connection、@auth 等不同的指令註釋GraphQL schema。</p>
+<p>我們在此架構中使用的 @model 指令會將基本 Note 類型轉換為擴展的 AWS AppSync GraphQL API，並具有：</p>
+<ol>
+<li>附加的 schema queries 和 mutations 的其他架構定義 (Create、Read、Update、Delete、和 List 操作)。</li>
+<li>附加的 GraphQL schema subscriptions 的架構定義。</li>
+<li>DynamoDB 資料庫。</li>
+<li>映射到 DynamoDB 資料庫的所有 GraphQL 操作的解析器代碼(resolver code)。</li>
+</ol>
+<p>只需定義好 GraphQL schema Note 類型，現在，執行 push 命令部署 API：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify push</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">? Are you sure you want to continue? Yes</span><br><span class="line">? Do you want to generate code for your newly created GraphQL API: Yes</span><br><span class="line">? Choose the code generation language target: javascript</span><br><span class="line">? Enter the file name pattern of graphql queries, mutations and subscriptions: src\graphql\**\*.js</span><br><span class="line">? Do you want to generate/update all possible GraphQL operations - queries, mutations and subscriptions: Yes</span><br><span class="line">? Enter maximum statement depth [increase from default if your schema is deeply nested]: 2</span><br></pre></td></tr></table></figure>
+
+<p>部署完成後，將在你的帳戶中成功創建 API 和資料庫。 接下來，讓我們在 AWS 控制台中打開新創建的 AppSync API，並測試一些 GraphQL 操作。</p>
+<h4 id="AWS-AppSync-控制台"><a href="#AWS-AppSync-控制台" class="headerlink" title="AWS AppSync 控制台"></a>AWS AppSync 控制台</h4><p>你隨時可以打開 AWS AppSync 控制台：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify console api</span><br></pre></td></tr></table></figure>
+
+<p>這會在瀏覽器打開 AppSync 控制台，單擊左側菜單中的 Queries 以打開查詢編輯器。在這裡，你可以使用 API 測試 GraphQL queries、mutations、和 subscriptions。</p>
+<p>首先，我們要用 mutation 新增一筆便箋資料。 在查詢編輯器中，執行以下的 mutation：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mutation createNote &#123;</span><br><span class="line">  createNote(input: &#123;</span><br><span class="line">    name: &quot;流感疫苗&quot;</span><br><span class="line">    description: &quot;門診時順便施打疫苗&quot;</span><br><span class="line">    completed: false</span><br><span class="line">  &#125;) &#123;</span><br><span class="line">    id name description completed</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/2020/11/03/AWS-Serverless-GraphQL-API/20201103-01.png" title="AWS AppSync Console">
+
+<p>現在，您已經建立了一個項目，你可以嘗試查詢它。 讓我們查詢應用程序中的所有便箋：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">query listNotes &#123;</span><br><span class="line">  listNotes &#123;</span><br><span class="line">    items &#123;</span><br><span class="line">      id</span><br><span class="line">      name</span><br><span class="line">      description</span><br><span class="line">      completed</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你也可以用 ID 查詢單筆便箋：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">query getNote &#123;</span><br><span class="line">  getNote(id: &quot;&lt;NOTE_ID&gt;&quot;) &#123;</span><br><span class="line">    id</span><br><span class="line">    name</span><br><span class="line">    description</span><br><span class="line">    completed</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用 AWS Serverless GraphQL API，定義好 GraphQL schema 後，我們沒有寫任何一行 GraphQL 代碼。現在 GraphQL API 已部署並且可以正常運行，讓我們開始編寫一些前端代碼。</p>
+<h4 id="構建前端-React-應用程序"><a href="#構建前端-React-應用程序" class="headerlink" title="構建前端 React 應用程序"></a>構建前端 React 應用程序</h4><p>我們需要做的第一件事是配置 React 應用程序以識別位於 src/aws-exports.js 的 Amplify 資源。 為此，請打開 src/index.js 並在最後一個 import 下面添加以下內容：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Amplify <span class="keyword">from</span> <span class="string">'aws-amplify'</span></span><br><span class="line"><span class="keyword">import</span> config <span class="keyword">from</span> <span class="string">'./aws-exports'</span></span><br><span class="line">Amplify.configure(config)</span><br></pre></td></tr></table></figure>
+
+<h5 id="Listing-Notes-GraphQL-Query"><a href="#Listing-Notes-GraphQL-Query" class="headerlink" title="Listing Notes (GraphQL Query)"></a>Listing Notes (GraphQL Query)</h5><p>現在已經配置了應用程序，可以開始對 GraphQL API 進行調用。 我們將要執行的第一個操作將是 GraphQL query 以列出所有便箋。</p>
+<p>這個查詢將返回一個陣列，我們將使用陣列的 map 映射所有項目，顯示便箋的 name，description 以及是否已經 completed。</p>
+<p>在 src/App.js 中，首先將以下內容加入文件頂部：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; useEffect, useReducer &#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; API &#125; <span class="keyword">from</span> <span class="string">'aws-amplify'</span></span><br><span class="line"><span class="keyword">import</span> &#123; List &#125; <span class="keyword">from</span> <span class="string">'antd'</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">'antd/dist/antd.css'</span></span><br><span class="line"><span class="keyword">import</span> &#123; listNotes &#125; <span class="keyword">from</span> <span class="string">'./graphql/queries'</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>useEffect and useReducer<br>這是 React Hooks。可參考<a href="/2020/10/12/Enhancing-Components-with-Hooks/">這裡</a>。</li>
+<li>API<br>這是我們將用於與 AppSync 端點進行互動的 GraphQL 客戶端(類似於 fetch 或 axios)。</li>
+<li>List<br><a href="https://ant.design/" target="_blank" rel="noopener">Ant Design</a> 程式庫中的 UI 組件 以渲染呈現列表。</li>
+<li>listNotes<br>用於獲取便箋陣列的 GraphQL query 查詢操作。</li>
+</ul>
+<p>接下來，我們將需要創建一個變數來保存我們的初始應用程序狀態。 因為我們的應用程序將保存並使用多個狀態變數，所以我們將使用 React 的 <a href="/2020/10/20/Enhancing-Components-with-Hooks-3/">useReducer 掛鉤</a>來管理狀態。</p>
+<p>useReducer 具有以下 API：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> [state, dispatch] = useReducer(reducer &lt;<span class="function"><span class="keyword">function</span>&gt;, <span class="title">initialState</span> &lt;<span class="title">any</span>&gt;)</span></span><br></pre></td></tr></table></figure>
+
+<p>useReducer 接受兩個參數，</p>
+<ol>
+<li>類型為 (state, action) =&gt; newState 的 reducer 函式。</li>
+<li>initialState 初始值。</li>
+</ol>
+<p>基本的用法如下:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Example of some basic state */</span></span><br><span class="line"><span class="keyword">const</span> initialState = &#123; <span class="attr">notes</span>: [] &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Example of a basic reducer */</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">reducer</span>(<span class="params">state, action</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span>(action.type) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'SET_NOTES'</span>:</span><br><span class="line">      <span class="keyword">return</span> &#123; ...state, <span class="attr">notes</span>: action.notes &#125;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="keyword">return</span> state</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Implementing useReducer */</span></span><br><span class="line"><span class="keyword">const</span> [state, dispatch] = useReducer(reducer: &lt;function&gt;, initialState: &lt;any&gt;)</span><br><span class="line"></span><br><span class="line">/* Sending an update to the reducer */</span><br><span class="line">const notes = [&#123; name: 'Hello Tainan' &#125;]</span><br><span class="line">dispatch(&#123; type: 'SET_NOTES', notes: notes &#125;)</span><br><span class="line"></span><br><span class="line">/* Using the state in your app */</span><br><span class="line">&#123;</span><br><span class="line">  state.notes.map(note =&gt; &lt;p&gt;&#123;note.name&#125;&lt;/p&gt;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>調用時，useReducer 掛鉤會返回一個包含兩個項目的陣列：</p>
+<ol>
+<li>state: 應用程序 state 變數並賦予初始狀態值。</li>
+<li>dispatch: 這是一個函式，此函式會調用 reducer 函式更新應用程序 state 變數值。</li>
+</ol>
+<p>這裡的 Notes 應用程序的初始狀態將包含一個用於便箋的 notes，form values 表單值，error 錯誤和 loading 加載狀態的陣列。</p>
+<p>在 src/App.js 中，在最後一個 import 之後添加 initialState 物件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> initialState = &#123;</span><br><span class="line">  notes: [],</span><br><span class="line">  loading: <span class="literal">true</span>,</span><br><span class="line">  error: <span class="literal">false</span>,</span><br><span class="line">  form: &#123; <span class="attr">name</span>: <span class="string">''</span>, <span class="attr">description</span>: <span class="string">''</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然後創建 reducer。 目前，reducer 只具有設置 notes 陣列或設置錯誤狀態兩種事例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">reducer</span>(<span class="params">state, action</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span>(action.type) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'SET_NOTES'</span>:</span><br><span class="line">      <span class="keyword">return</span> &#123; ...state, <span class="attr">notes</span>: action.notes, <span class="attr">loading</span>: <span class="literal">false</span> &#125;;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'ERROR'</span>:</span><br><span class="line">      <span class="keyword">return</span> &#123; ...state, <span class="attr">loading</span>: <span class="literal">false</span>, <span class="attr">error</span>: <span class="literal">true</span> &#125;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="keyword">return</span> state</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下來，我們要更新 App 主函式。最後整個 src/App.js 會如下:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; useEffect, useReducer &#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123; API &#125; <span class="keyword">from</span> <span class="string">'aws-amplify'</span></span><br><span class="line"><span class="keyword">import</span> &#123; List &#125; <span class="keyword">from</span> <span class="string">'antd'</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">'antd/dist/antd.css'</span></span><br><span class="line"><span class="keyword">import</span> &#123; listNotes &#125; <span class="keyword">from</span> <span class="string">'./graphql/queries'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> initialState = &#123;</span><br><span class="line">  notes: [],</span><br><span class="line">  loading: <span class="literal">true</span>,</span><br><span class="line">  error: <span class="literal">false</span>,</span><br><span class="line">  form: &#123; <span class="attr">name</span>: <span class="string">''</span>, <span class="attr">description</span>: <span class="string">''</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">reducer</span>(<span class="params">state, action</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">switch</span>(action.type) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'SET_NOTES'</span>:</span><br><span class="line">      <span class="keyword">return</span> &#123; ...state, <span class="attr">notes</span>: action.notes, <span class="attr">loading</span>: <span class="literal">false</span> &#125;;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'ERROR'</span>:</span><br><span class="line">      <span class="keyword">return</span> &#123; ...state, <span class="attr">loading</span>: <span class="literal">false</span>, <span class="attr">error</span>: <span class="literal">true</span> &#125;</span><br><span class="line">    <span class="keyword">default</span>:</span><br><span class="line">      <span class="keyword">return</span> state</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [state, dispatch] = useReducer(reducer, initialState)</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    fetchNotes()</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">fetchNotes</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> notesData = <span class="keyword">await</span> API.graphql(&#123;</span><br><span class="line">        query: listNotes</span><br><span class="line">      &#125;)</span><br><span class="line">      dispatch(&#123; <span class="attr">type</span>: <span class="string">'SET_NOTES'</span>, <span class="attr">notes</span>: notesData.data.listNotes.items &#125;)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'error: '</span>, err)</span><br><span class="line">      dispatch(&#123; <span class="attr">type</span>: <span class="string">'ERROR'</span> &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">renderItem</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;List.Item style=&#123;styles.item&#125;&gt;</span><br><span class="line">        &lt;List.Item.Meta </span><br><span class="line">          title=&#123;item.name&#125;</span><br><span class="line">          description=&#123;item.description&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">      &lt;<span class="regexp">/List.Item&gt;</span></span><br><span class="line"><span class="regexp">    )</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">  return (</span></span><br><span class="line"><span class="regexp">    &lt;div style=&#123;styles.container&#125;&gt;</span></span><br><span class="line"><span class="regexp">      &lt;List </span></span><br><span class="line"><span class="regexp">        loading=&#123;state.loading&#125;</span></span><br><span class="line"><span class="regexp">        dataSource=&#123;state.notes&#125;</span></span><br><span class="line"><span class="regexp">        renderItem=&#123;renderItem&#125;</span></span><br><span class="line"><span class="regexp">      /</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">const styles = &#123;</span></span><br><span class="line"><span class="regexp">  container: &#123; padding: 20 &#125;,</span></span><br><span class="line"><span class="regexp">  input: &#123; marginBottom: 10 &#125;,</span></span><br><span class="line"><span class="regexp">  item: &#123;textAlign: 'left' &#125;,</span></span><br><span class="line"><span class="regexp">  p: &#123; color: '#1890ff', cursor: 'pointer' &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">export default App;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 26 行，調用 useReducer 並傳入 reducer 和 initialState 以創建 state 和 dispatch 變數。</li>
+<li>第 32 行，fetchNotes 函式將調用 AppSync API，並在 API 調用成功後於第 37 行以一個 action 物件當引數調用 dispatch 函式，用來重置 notes 陣列。</li>
+<li>第 28 行，透過 useEffect 掛鉤來調用 fetchNotes 函式初始化 notes 陣列。</li>
+<li>第 57 行，我們使用 Ant Design 的 List 組件。 該組件將映射到陣列(dataSource)上，並調用 renderItem 函式為陣列中的每個項目返回一個 UI 組件。</li>
+<li>第 66 行，為我們將用於此應用程序的組件創建一些樣式。</li>
+</ul>
+<p>現在我們可以啟動 app 了！</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">yarn start</span><br></pre></td></tr></table></figure>
+
+<p>你應該會在瀏覽器上看到當前 notes 便箋列表。</p>
+<img src="/2020/11/03/AWS-Serverless-GraphQL-API/20201103-02.png" title="List notes">
+
+<h4 id="Creating-Notes-GraphQL-Mutation"><a href="#Creating-Notes-GraphQL-Mutation" class="headerlink" title="Creating Notes (GraphQL Mutation)"></a>Creating Notes (GraphQL Mutation)</h4><p>現在你已經知道要如何查詢便箋列表，再來讓我們看一下如何新增便箋。我們需要:</p>
+<ol>
+<li>用於建立新便箋的 HTML 表單。</li>
+<li>當用戶輸入表單時更新狀態的函式。</li>
+<li>將新便箋添加到 UI，並發送 API 調用 GraphQL API 以便將新便箋存入資料庫的函式。</li>
+</ol>
+<p>首先，導入 UUID 程式庫，以便可以為客戶端創建唯一的標識符，以便稍後在實現訂閱時，我們可以識別創建便箋的客戶端。 </p>
+<p>我們還將從 Ant Design 導入 Input 和 Button 組件：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; v4 <span class="keyword">as</span> uuid &#125; <span class="keyword">from</span> <span class="string">'uuid'</span></span><br><span class="line"><span class="keyword">import</span> &#123; List, Input, Button &#125; <span class="keyword">from</span> <span class="string">'antd'</span></span><br></pre></td></tr></table></figure>
+
+<p>接下來，您將需要導入 GraphQL createNote mutation 定義：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; createNote <span class="keyword">as</span> CreateNote &#125; <span class="keyword">from</span> <span class="string">'./graphql/mutations'</span></span><br></pre></td></tr></table></figure>
+
+<p>然後在最後一個 import 下面創建一個新的 CLIENT_ID 變數：</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> CLIENT_ID = uuid();</span><br></pre></td></tr></table></figure>
+
+<p>更新 reducer 函式中的 switch 語句以添加三個新案例。</p>
+<ol>
+<li>向本地端的狀態添加新便箋</li>
+<li>重置 HTML 表單狀態以清除表單</li>
+<li>用戶輸入時更新表單狀態</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="string">'ADD_NOTE'</span>:</span><br><span class="line">  <span class="keyword">return</span> &#123; ...state, <span class="attr">notes</span>: [action.note, ...state.notes]&#125;</span><br><span class="line"><span class="keyword">case</span> <span class="string">'RESET_FORM'</span>:</span><br><span class="line">  <span class="keyword">return</span> &#123; ...state, <span class="attr">form</span>: initialState.form &#125;</span><br><span class="line"><span class="keyword">case</span> <span class="string">'SET_INPUT'</span>:</span><br><span class="line">  <span class="keyword">return</span> &#123; ...state, <span class="attr">form</span>: &#123; ...state.form, [action.name]: action.value &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下來，在 App 主函式內創建 createNote 函式：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">createNote</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; form &#125; = state</span><br><span class="line">  <span class="keyword">if</span> (!form.name || !form.description) &#123;</span><br><span class="line">    <span class="keyword">return</span> alert(<span class="string">'please enter a name and description'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> note = &#123; ...form, <span class="attr">clientId</span>: CLIENT_ID, <span class="attr">completed</span>: <span class="literal">false</span>, <span class="attr">id</span>: uuid() &#125;</span><br><span class="line">  dispatch(&#123; <span class="attr">type</span>: <span class="string">'ADD_NOTE'</span>, note &#125;)</span><br><span class="line">  dispatch(&#123; <span class="attr">type</span>: <span class="string">'RESET_FORM'</span> &#125;)</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">await</span> API.graphql(&#123;</span><br><span class="line">      query: CreateNote,</span><br><span class="line">      variables: &#123; <span class="attr">input</span>: note &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'successfully created note!'</span>)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err ) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'error: '</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>  
+
+<p>在此函式中，我們在第 10 行 API 調用成功之前先在第 7 行更新本地狀態。 這被稱為 <strong>optimistic response</strong>。 這樣做是因為我們希望用戶在添加新便箋後立即更新用戶界面。 如果 API 調用失敗，則可以在 catch 區塊中實現某些功能並通知用戶錯誤訊息。</p>
+<p>現在，在 App 主函式內創建一個 onChange 處理函式，以在用戶輸入即時更新表單狀態：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">onChange</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">  dispatch(&#123; <span class="attr">type</span>: <span class="string">'SET_INPUT'</span>, <span class="attr">name</span>: e.target.name, <span class="attr">value</span>: e.target.value &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最後，我們將更新 UI 以添加表單組件。 在 List 組件之前，添加以下兩個輸入和按鈕：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Input</span> </span></span><br><span class="line"><span class="tag">  <span class="attr">onChange</span>=<span class="string">&#123;onChange&#125;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">value</span>=<span class="string">&#123;state.form.name&#125;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">placeholder</span>=<span class="string">"Note Name"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">name</span>=<span class="string">'name'</span></span></span><br><span class="line"><span class="tag">  <span class="attr">style</span>=<span class="string">&#123;styles.input&#125;</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Input</span> </span></span><br><span class="line"><span class="tag">  <span class="attr">onChange</span>=<span class="string">&#123;onChange&#125;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">value</span>=<span class="string">&#123;state.form.description&#125;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">placeholder</span>=<span class="string">"Note description"</span></span></span><br><span class="line"><span class="tag">  <span class="attr">name</span>=<span class="string">'description'</span></span></span><br><span class="line"><span class="tag">  <span class="attr">style</span>=<span class="string">&#123;styles.input&#125;</span></span></span><br><span class="line"><span class="tag">/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Button</span> </span></span><br><span class="line"><span class="tag">  <span class="attr">onClick</span>=<span class="string">&#123;createNote&#125;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">type</span>=<span class="string">"primary"</span></span></span><br><span class="line"><span class="tag">&gt;</span>Create Note<span class="tag">&lt;/<span class="name">Button</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>現在，我們應該能夠使用該表單建立新的便箋。</p>
+<img src="/2020/11/03/AWS-Serverless-GraphQL-API/20201103-03.png" title="Create new notes">
+
+<h4 id="Deleting-Notes-GraphQL-Mutation"><a href="#Deleting-Notes-GraphQL-Mutation" class="headerlink" title="Deleting Notes (GraphQL Mutation)"></a>Deleting Notes (GraphQL Mutation)</h4><p>接下來，讓我們看一下如何刪除便箋。</p>
+<p>首先，導入 deleteNote mutation。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; </span><br><span class="line">  createNote <span class="keyword">as</span> CreateNote,</span><br><span class="line">  deleteNote <span class="keyword">as</span> DeleteNote</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">'./graphql/mutations'</span>  </span><br></pre></td></tr></table></figure>
+
+<p>然後，在 App 主函式內創建一個 deleteNote 函式：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">deleteNote</span>(<span class="params">&#123; id &#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> index = state.notes.findIndex( <span class="function"><span class="params">n</span> =&gt;</span> n.id === id)</span><br><span class="line">  <span class="keyword">const</span> notes = [</span><br><span class="line">    ...state.notes.slice(<span class="number">0</span>, index),</span><br><span class="line">    ...state.notes.slice(index + <span class="number">1</span>)</span><br><span class="line">  ];</span><br><span class="line">  dispatch(&#123; <span class="attr">type</span>: <span class="string">'SET_NOTES'</span>, notes &#125;)</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">await</span> API.graphql(&#123;</span><br><span class="line">      query: DeleteNote,</span><br><span class="line">      variables: &#123; <span class="attr">input</span>: &#123; id &#125;&#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'successfully deleted note!'</span>)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(&#123; err &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在，更新 renderItem 函式中的 List.Item 組件，以將將會調用 deleteNote 函式的刪除按鈕添加到 actions 屬性中，並傳入該要刪除的項目：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">List.Item</span> </span></span><br><span class="line"><span class="tag">  <span class="attr">style</span>=<span class="string">&#123;styles.item&#125;</span></span></span><br><span class="line"><span class="tag">  <span class="attr">actions</span>=<span class="string">&#123;[</span></span></span><br><span class="line">    &lt;p style=&#123;styles.p&#125; onClick=&#123;() =&gt; deleteNote(item)&#125;&gt;Delete&lt;/p&gt;</span><br><span class="line">  ]&#125;</span><br><span class="line">&gt;</span><br><span class="line">  <span class="tag">&lt;<span class="name">List.Item.Meta</span> </span></span><br><span class="line"><span class="tag">    <span class="attr">title</span>=<span class="string">&#123;item.name&#125;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">description</span>=<span class="string">&#123;item.description&#125;</span></span></span><br><span class="line"><span class="tag">  /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">List.Item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>現在，我們應該可以刪除便箋。</p>
+<img src="/2020/11/03/AWS-Serverless-GraphQL-API/20201103-04.png" title="Create new notes">
+
+<h4 id="Updating-Notes-GraphQL-Mutation"><a href="#Updating-Notes-GraphQL-Mutation" class="headerlink" title="Updating Notes (GraphQL Mutation)"></a>Updating Notes (GraphQL Mutation)</h4><p>再來我們要添加更新便箋的功能。</p>
+<p>首先，導入 updateNote mutation。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; </span><br><span class="line">  createNote <span class="keyword">as</span> CreateNote,</span><br><span class="line">  deleteNote <span class="keyword">as</span> DeleteNote,</span><br><span class="line">  updateNote <span class="keyword">as</span> UpdateNote</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">'./graphql/mutations'</span></span><br></pre></td></tr></table></figure>
+
+<p>然後，在 App 主函式內創建一個 updateNote 函式：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">updateNote</span>(<span class="params">note</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> index = state.notes.findIndex( <span class="function"><span class="params">n</span> =&gt;</span> n.id === note.id)</span><br><span class="line">  <span class="keyword">const</span> notes = [...state.notes]</span><br><span class="line">  notes[index].completed = !note.completed</span><br><span class="line">  dispatch(&#123; <span class="attr">type</span>: <span class="string">'SET_NOTES'</span>, notes &#125;)</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">await</span> API.graphql(&#123;</span><br><span class="line">      query: UpdateNote,</span><br><span class="line">      variables: &#123; <span class="attr">input</span>: &#123; <span class="attr">id</span>: note.id, <span class="attr">completed</span>: notes[index].completed &#125;&#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'note successfully updated!'</span>)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'error: '</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最後，在 renderItem 函式中的 List.Item 組件新增一個更新按鈕。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;List.Item </span><br><span class="line">  style=&#123;styles.item&#125;</span><br><span class="line">  actions=&#123;[</span><br><span class="line">    &lt;p style=&#123;styles.p&#125; onClick=&#123;() =&gt; deleteNote(item)&#125;&gt;Delete&lt;<span class="regexp">/p&gt;,</span></span><br><span class="line"><span class="regexp">    &lt;p style=&#123;styles.p&#125; onClick=&#123;() =&gt; updateNote(item)&#125;&gt;</span></span><br><span class="line"><span class="regexp">      &#123;item.completed ? 'completed' : 'mark completed'&#125;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>p&gt;</span><br><span class="line">  ]&#125;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+
+<p>現在，我們應該能夠將便箋更新為 <em>completed</em> 或 <em>not completed</em>。</p>
+<img src="/2020/11/03/AWS-Serverless-GraphQL-API/20201103-05.png" title="Create new notes">
+
+<h4 id="Real-Time-Data-GraphQL-Subscriptions"><a href="#Real-Time-Data-GraphQL-Subscriptions" class="headerlink" title="Real-Time Data (GraphQL Subscriptions)"></a>Real-Time Data (GraphQL Subscriptions)</h4><p>最後，我們將實現的一個功能是 <strong>subscribe to updates in real time</strong> 即時訂閱。</p>
+<p>我們要訂閱的是當有新便箋新增時，要讓我們的應用程序能夠即時接收到新便箋，更新 notes 陣列，然後將更新後的 notes 陣列呈現到螢幕上。</p>
+<p>使用 GraphQL subscription，您可以訂閱不同的事件。 這些事件通常是某種類型的 mutation (on create、on update、on delete)。 當這些事件之一發生時，該事件的數據將發送到已初始化訂閱的客戶端，然後由你決定要如何處理送到客戶端的數據。</p>
+<p>要讓訂閱可以運作，你僅需在 useEffect 掛鉤中初始化訂閱，並在觸發訂閱時將 ADD_NOTE 類型與便箋數據一起用 dispatch 發送出去。</p>
+<p>首先，導入 onCreateNote subscription。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; onCreateNote &#125; <span class="keyword">from</span> <span class="string">'./graphql/subscriptions'</span></span><br></pre></td></tr></table></figure>
+
+<p>接下來，使用以下代碼更新 App 主函式內 useEffect 掛鉤：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  fetchNotes()</span><br><span class="line">  <span class="keyword">const</span> subscription = API.graphql(&#123;</span><br><span class="line">    query: onCreateNote</span><br><span class="line">  &#125;).subscribe(&#123;</span><br><span class="line">    next: <span class="function"><span class="params">noteData</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> note = noteData.value.data.onCreateNote</span><br><span class="line">      <span class="keyword">if</span> (CLIENT_ID === note.clientId) <span class="keyword">return</span></span><br><span class="line">      dispatch(&#123; <span class="attr">type</span>: <span class="string">'ADD_NOTE'</span>, note &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> subscription.unsubscribe()</span><br><span class="line">&#125;, [])</span><br></pre></td></tr></table></figure>
+
+<p>在此，我們訂閱了 onCreateNote 事件。 當有新便箋建立時，將觸發此事件，並用便箋數據作為引數調用 next 函式。</p>
+<p>在 next 函式中我們獲取便箋數據，並檢查我們的客戶端是否是創建便箋的應用程序。 如果我們的客戶創建了便箋，我們將不做任何運作，避免同一筆資料重複加入 notes 陣列。如果我們不是創建便箋的客戶，則將調用 diapatch 執行 ADD_NOTE 操作，加入便箋數據。</p>
+<p>現在你可以在瀏覽器開起兩個不同的客戶端，在一個客戶端新增一筆便箋數據，然後切換到另一個客戶端畫面，應該可以看到新增的便箋數據也顯示在螢幕上了。</p>
+<p>恭喜，您已經建立了一個無伺服器 GraphQL 應用程序！</p>
+<p>要記住以下幾點：</p>
+<ul>
+<li>GraphQL queries 用於在 GraphQL API 中讀取數據。</li>
+<li>GraphQL mutations 用於在 GraphQL API中 創建，更新或刪除數據。</li>
+<li>GraphQL subscription 可以用來訂閱 GraphQL API 中的 API 即時事件。</li>
+</ul>
+<p>使用 AWS Serverless GraphQL API 你可以只要定義 GraphQL schema，不用編寫任何一行的代碼，就可以有 CRUD + L (create，read，update，delete 和 list) 操作的 GraphQL API 與即時的訂閱事件。你只要專心在你客戶端應用程序的邏輯上，並且可以創造一個即時的現代化應用。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/30/Getting-Started-with-AWS-Amplify/" rel="prev" title="AWS Amplify 入門">
+      <i class="fa fa-chevron-left"></i> AWS Amplify 入門
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/11/05/AWS-Authentication/" rel="next" title="AWS Serverless Authentication">
+      AWS Serverless Authentication <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#創建-GraphQL-API"><span class="nav-number">1.</span> <span class="nav-text">創建 GraphQL API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AWS-AppSync-控制台"><span class="nav-number">2.</span> <span class="nav-text">AWS AppSync 控制台</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#構建前端-React-應用程序"><span class="nav-number">3.</span> <span class="nav-text">構建前端 React 應用程序</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Listing-Notes-GraphQL-Query"><span class="nav-number">3.1.</span> <span class="nav-text">Listing Notes (GraphQL Query)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Creating-Notes-GraphQL-Mutation"><span class="nav-number">4.</span> <span class="nav-text">Creating Notes (GraphQL Mutation)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Deleting-Notes-GraphQL-Mutation"><span class="nav-number">5.</span> <span class="nav-text">Deleting Notes (GraphQL Mutation)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Updating-Notes-GraphQL-Mutation"><span class="nav-number">6.</span> <span class="nav-text">Updating Notes (GraphQL Mutation)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Real-Time-Data-GraphQL-Subscriptions"><span class="nav-number">7.</span> <span class="nav-text">Real-Time Data (GraphQL Subscriptions)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

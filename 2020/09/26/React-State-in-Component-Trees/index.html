@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="組件樹中的狀態在每個組件中使用狀態不是一個好主意。 將狀態數據分佈在過多的組件中，將使追蹤錯誤和在應用程序中進行更改變得更加困難。發生這種情況，是因為很難追踪狀態值在組件樹中的位置。如果您統一從單一的位置進行狀態管理，將更容易理解應用程序的狀態。 在 React 有多種方法可達到此目的，這裡將分析的第一個方法是將狀態存儲在組件樹的根組件中，然後通過屬性(props)將其傳遞給子組件。 我們要構建一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React State in Component Trees">
+<meta property="og:url" content="https://1184yang.github.io/2020/09/26/React-State-in-Component-Trees/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="組件樹中的狀態在每個組件中使用狀態不是一個好主意。 將狀態數據分佈在過多的組件中，將使追蹤錯誤和在應用程序中進行更改變得更加困難。發生這種情況，是因為很難追踪狀態值在組件樹中的位置。如果您統一從單一的位置進行狀態管理，將更容易理解應用程序的狀態。 在 React 有多種方法可達到此目的，這裡將分析的第一個方法是將狀態存儲在組件樹的根組件中，然後通過屬性(props)將其傳遞給子組件。 我們要構建一">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://1184yang.github.io/2020/09/26/React-State-in-Component-Trees/20201005-01.png">
+<meta property="og:updated_time" content="2020-10-10T05:48:16.372Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React State in Component Trees">
+<meta name="twitter:description" content="組件樹中的狀態在每個組件中使用狀態不是一個好主意。 將狀態數據分佈在過多的組件中，將使追蹤錯誤和在應用程序中進行更改變得更加困難。發生這種情況，是因為很難追踪狀態值在組件樹中的位置。如果您統一從單一的位置進行狀態管理，將更容易理解應用程序的狀態。 在 React 有多種方法可達到此目的，這裡將分析的第一個方法是將狀態存儲在組件樹的根組件中，然後通過屬性(props)將其傳遞給子組件。 我們要構建一">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/09/26/React-State-in-Component-Trees/20201005-01.png">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/09/26/React-State-in-Component-Trees/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>React State in Component Trees | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/09/26/React-State-in-Component-Trees/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          React State in Component Trees
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-09-26 09:46:37" itemprop="dateCreated datePublished" datetime="2020-09-26T09:46:37+08:00">2020-09-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-10-10 13:48:16" itemprop="dateModified" datetime="2020-10-10T13:48:16+08:00">2020-10-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/React/" itemprop="url" rel="index"><span itemprop="name">React</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="組件樹中的狀態"><a href="#組件樹中的狀態" class="headerlink" title="組件樹中的狀態"></a>組件樹中的狀態</h3><p>在每個組件中使用狀態不是一個好主意。 將狀態數據分佈在過多的組件中，將使追蹤錯誤和在應用程序中進行更改變得更加困難。發生這種情況，是因為很難追踪狀態值在組件樹中的位置。如果您統一從單一的位置進行狀態管理，將更容易理解應用程序的狀態。</p>
+<p>在 React 有多種方法可達到此目的，這裡將分析的第一個方法是將狀態存儲在組件樹的根組件中，然後通過屬性(props)將其傳遞給子組件。</p>
+<p>我們要構建一個 “顏色管理器”，用於保存顏色列表的小型應用程序，它將允許用戶管理顏色列表、自定義標題並使用先前建立的 StarRating 組件評定顏色等級。</p>
+<p>首先，樣本數據如下所示。可以將它放在 APEX Page Properties 的 JavaScript &gt; Function and Global Variable Declaration 中。</p>
+<figure class="highlight js"><figcaption><span>Demo module</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> Demo = <span class="function">(<span class="params">(Demo</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> uuid = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> s4 = <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">Math</span>.floor((<span class="number">1</span> + <span class="built_in">Math</span>.random()) * <span class="number">0x10000</span>).toString(<span class="number">16</span>).substring(<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> s4() + s4() + <span class="string">'-'</span> + s4() + <span class="string">'-'</span> + s4() + <span class="string">'-'</span> + s4() + <span class="string">'-'</span> + s4() + s4() + s4()    </span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> colorData = [</span><br><span class="line">    &#123;</span><br><span class="line">      id: uuid(),</span><br><span class="line">      title: <span class="string">"ocean at dust"</span>,</span><br><span class="line">      color: <span class="string">"#00c4e2"</span>,</span><br><span class="line">      rating: <span class="number">5</span></span><br><span class="line">    &#125;,  </span><br><span class="line">    &#123;</span><br><span class="line">      id: uuid(),</span><br><span class="line">      title: <span class="string">"lawn"</span>,</span><br><span class="line">      color: <span class="string">"#26ac56"</span>,</span><br><span class="line">      rating: <span class="number">3</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      id: uuid(),</span><br><span class="line">      title: <span class="string">"bright red"</span>,</span><br><span class="line">      color: <span class="string">"#ff0000"</span>,</span><br><span class="line">      rating: <span class="number">0</span></span><br><span class="line">    &#125;,</span><br><span class="line">  ];</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">return</span> &#123; uuid, colorData, ...Demo &#125;;  </span><br><span class="line">&#125;)(Demo || &#123;&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>我們將創建一個由 React 組件組成的 UI，來顯示這些數據。也將允許用戶添加新顏色以及對顏色進行等級評定和刪除顏色。</p>
+<h4 id="由根組件向下發送狀態"><a href="#由根組件向下發送狀態" class="headerlink" title="由根組件向下發送狀態"></a>由根組件向下發送狀態</h4><p>我們將狀態存儲在 App 根組件中，並將顏色向下傳遞給子組件以處理渲染。App 組件將是我們應用程序中唯一擁有狀態的組件。我們將使用 useState 掛鉤將顏色列表添加到 App 中：</p>
+<figure class="highlight js"><figcaption><span>Color Organizer</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&lt;div id=<span class="string">"react-container"</span>&gt;&lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&lt;script type="text/</span>babel<span class="string">"&gt;</span></span><br><span class="line"><span class="string">  const &#123; useState &#125; = React;</span></span><br><span class="line"><span class="string">  const &#123; render &#125; = ReactDOM;</span></span><br><span class="line"><span class="string">  const &#123; colorData &#125; = Demo;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  const Color = (&#123; id, title, color, rating &#125;) =&gt; &#123;</span></span><br><span class="line"><span class="string">    return (</span></span><br><span class="line"><span class="string">      &lt;section&gt;</span></span><br><span class="line"><span class="string">        &lt;h1&gt;&#123;title&#125;&lt;/h1&gt;</span></span><br><span class="line"><span class="string">        &lt;div style=&#123;&#123; height: 50, backgroundColor: color &#125;&#125; /&gt;</span></span><br><span class="line"><span class="string">      &lt;/section&gt;</span></span><br><span class="line"><span class="string">    );</span></span><br><span class="line"><span class="string">  &#125;;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  const ColorList = (&#123; colors = [] &#125;) =&gt; &#123;</span></span><br><span class="line"><span class="string">    if(!colors.length) return &lt;div&gt;No Colors Listed.&lt;/div&gt;;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    return (</span></span><br><span class="line"><span class="string">      &lt;div&gt;</span></span><br><span class="line"><span class="string">        &#123;</span></span><br><span class="line"><span class="string">           colors.map(color =&gt; &lt;Color key=&#123;color.id&#125; &#123;...color&#125; /&gt;)</span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      &lt;/div&gt;</span></span><br><span class="line"><span class="string">    );</span></span><br><span class="line"><span class="string">  &#125;;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  const App = () =&gt; &#123;</span></span><br><span class="line"><span class="string">    const [colors] = useState(colorData);</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">    return &lt;ColorList colors=&#123;colors&#125; /&gt;</span></span><br><span class="line"><span class="string">  &#125;;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  render(&lt;App /&gt;, document.getElementById("</span>react-container<span class="string">")); </span></span><br><span class="line"><span class="string">&lt;/script&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>App 組件位於樹的根部，第 30 行在該組件添加 useState 使其與 colors 的狀態管理掛鉤。在第 32 行並將顏色數據通過屬性傳遞給 ColorList 組件。並依序在第 23 行將每種顏色的詳細信息傳遞到樹的更遠端 Color 組件。</p>
+<p>我們允許對顏色進行等級評定，所以要將先前建立的 StarRating 組件加到 Color 組件，這將允許每個 Color 組件擁有自己的 StarRating 子組件。並將顏色數據中的 rating 沿著樹向下傳遞到 StarRating 的子組件，以顯示評定的星星個數。</p>
+<figure class="highlight js"><figcaption><span>Color</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Color = <span class="function">(<span class="params">&#123; id, title, color, rating &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;section&gt;</span><br><span class="line">      &lt;h1&gt;&#123;title&#125;&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div style=&#123;&#123; height: 50, backgroundColor: color&#125;&#125; /</span>&gt;</span><br><span class="line">      &lt;StarRating selectedStars=&#123;rating&#125; /&gt;</span><br><span class="line">    &lt;<span class="regexp">/section&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>先前的 StarRating 組件將選擇的星星個數 selectedStars 儲存在自己組件的狀態中，我們必須修改 StarRating 組件將其變成純組件(pure component)。純組件是不包含狀態(state)的函式組件(function component)。</p>
+<p>我們將此組件設為純組件，因為顏色評級的數據 rating 將存儲在組件樹 App 根組件的 colors 數據中，而不再儲存在自己組件的狀態中。</p>
+<p>以下是修改前原先的 StarRating 組件，是一個包含狀態的組件。</p>
+<figure class="highlight js"><figcaption><span>StarRating</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> StarRating = <span class="function">(<span class="params">&#123; totalStars = <span class="number">5</span> &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [selectedStars, setSelectedStars] = useState(<span class="number">0</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &#123;createArray(totalStars).map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> (</span><br><span class="line">        &lt;Star</span><br><span class="line">          key=&#123;i&#125; </span><br><span class="line">          selected=&#123;selectedStars &gt; i&#125;</span><br><span class="line">          onSelect=&#123;() =&gt; setSelectedStars(i + <span class="number">1</span>)&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">      ))&#125;</span><br><span class="line">      &lt;p style=&#123;&#123;<span class="attr">fontSize</span>: <span class="string">"1.5em"</span>, <span class="attr">margin</span>: <span class="string">"10px"</span>&#125;&#125;&gt;&#123;selectedStars&#125; <span class="keyword">of</span> &#123;totalStars&#125; stars&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我們將拿掉第 2 行使用 useState 狀態管理的 selectedStars 變數、setSelectedStars 函式，與第 10 行 setSelectedStars 的調用。</p>
+<figure class="highlight js"><figcaption><span>StarRating</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> StarRating = <span class="function">(<span class="params">&#123; totalStars = <span class="number">5</span>, selectedStars = <span class="number">0</span> &#125;</span>) =&gt;</span> &#123;    </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &#123;createArray(totalStars).map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> (</span><br><span class="line">        &lt;Star</span><br><span class="line">          key=&#123;i&#125; </span><br><span class="line">          selected=&#123;selectedStars &gt; i&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">      ))&#125;</span><br><span class="line">      &lt;p style=&#123;&#123;<span class="attr">fontSize</span>: <span class="string">"1.5em"</span>, <span class="attr">margin</span>: <span class="string">"10px"</span>&#125;&#125;&gt;&#123;selectedStars&#125; <span class="keyword">of</span> &#123;totalStars&#125; stars&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>現在在第 1 行 selectedStars 直接由父組件 Color 通過屬性傳入，這將會是顏色數據中的 rating。 這裡也暫時拿掉 onSelect 屬性，稍後再來處理。</p>
+<p>現在應用程序執行後看起來會像是:</p>
+<img src="/2020/09/26/React-State-in-Component-Trees/20201005-01.png" title="Color Oraginer">
+
+<p>至此，我們已經完成了將狀態從 App 組件一直向下傳遞到 FaStar 組件的過程。</p>
+<h4 id="將互動由葉端向上傳送到根組件"><a href="#將互動由葉端向上傳送到根組件" class="headerlink" title="將互動由葉端向上傳送到根組件"></a>將互動由葉端向上傳送到根組件</h4><p>到目前為止，我們透過 props 屬性將數據從父組件向下傳遞到子組件。現在，如果我們要從列表中刪除顏色或更改列表中的顏色評等等級，會發生什麼？</p>
+<p>顏色數據以狀態存儲在樹的根組件 APP，但我們需要從子組件中收集使用者的互動，並將其沿著樹狀結構發送回根組件，以便在根組件中更改狀態。</p>
+<h5 id="Remove-Color"><a href="#Remove-Color" class="headerlink" title="Remove Color"></a>Remove Color</h5><p>例如，假設我們要在每種顏色的標題下端添加一個刪除按鈕，以允許用戶從狀態中刪除顏色。我們將該按鈕添加到 Color 組件中：</p>
+<figure class="highlight js"><figcaption><span>Color component</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> FaRemove = <span class="function"><span class="params">()</span> =&gt;</span>  <span class="xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">className</span>=<span class="string">"fa fa-remove"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Color = <span class="function">(<span class="params">&#123; id, title, color, rating, onRemove = f =&gt; f &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;section&gt;</span><br><span class="line">      &lt;h1&gt;&#123;title&#125;&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">      &lt;button className="t-Button" onClick=&#123;() =&gt; onRemove(id)&#125; &gt;</span></span><br><span class="line"><span class="regexp">        &lt;FaRemove /</span>&gt;</span><br><span class="line">      &lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div style=&#123;&#123; height: 50, backgroundColor: color&#125;&#125; /</span>&gt;</span><br><span class="line">      &lt;StarRating selectedStars=&#123;rating&#125; /&gt;</span><br><span class="line">    &lt;<span class="regexp">/section&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>第 1 行使用 APEX icons fa-remove 新增一個 FaRemove 圖標組件。 接下來 7 ~ 9 行將 FaRemove 圖標包裝在一個按鈕中，並在此按鈕上添加 onClick 處理程序，這使我們可以調用 onRemove 函式。 當用戶單擊 “刪除” 按鈕時，通過第 3 行的 onRemove 函式屬性將事件往上傳送到根組件(CPS 延續傳遞風格)，最終我們將在 App 根組件調用一個 onRemoveColor 函式將其想要刪除的顏色刪除。</p>
+<p>這裡我們使 Color 組件保持純淨。它沒有狀態，可以很容易地在別的地方重複使用。Color 組件與用戶單擊 “刪除” 按鈕時發生甚麼事無關，它關心的只是通知父組件該事件已發生，並傳遞有關用戶希望刪除的顏色的資料，這裡傳遞的是顏色的 id。</p>
+<p>現在，父組件有責任處理此事件：</p>
+<figure class="highlight js"><figcaption><span>ColorList</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ColorList = <span class="function">(<span class="params">&#123; colors = [], onRemoveColor = f =&gt; f &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span>(!colors.length) <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>No Colors Listed.<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &#123;</span><br><span class="line">         colors.map(<span class="function"><span class="params">color</span> =&gt;</span> <span class="xml"><span class="tag">&lt;<span class="name">Color</span> <span class="attr">key</span>=<span class="string">&#123;color.id&#125;</span> &#123;<span class="attr">...color</span>&#125;  <span class="attr">onRemove</span>=<span class="string">&#123;onRemoveColor&#125;</span> /&gt;</span></span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>Color 組件的父級是 ColorList，該組件也無權訪問狀態。它只是將事件繼續傳遞給其父組件。它通過添加 onRemoveColor 函式屬性來實現此目的。如果 Color 組件調用 onRemove 屬性，則 ColorList 將延續調用其 onRemoveColor 屬性，並將刪除顏色的責任發送給其父組件 App。 </p>
+<p>ColorList 的父級是 App。 該組件是最終與狀態掛勾的組件，在這裡我們可以刪除狀態下的顏色。</p>
+<figure class="highlight js"><figcaption><span>App</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [colors, setColors] = useState(colorData);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> ( </span><br><span class="line">    &lt;ColorList </span><br><span class="line">      colors=&#123;colors&#125;</span><br><span class="line">      onRemoveColor=&#123;id =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> newColors = colors.filter(<span class="function"><span class="params">color</span> =&gt;</span> color.id !== id);</span><br><span class="line">        setColors(newColors);</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    /&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>首先，我們在第 2 行添加一個 setColors 變數。請記住，useState 返回的陣列中的第二個參數是一個可以用來修改狀態的函式。當 ColorList 引發一個 onRemoveColor 事件時，我們使用參數中所要刪除的顏色的 id 來過濾，以排除使用者想要刪除的顏色。接下來，我們使用 setColors 函式更改狀態，將 colors 更改為新過濾的陣列。</p>
+<p>更改 colors 陣列的狀態會使 App 組件重新呈現新的 colors。這些新的 colors 也將透過屬性傳遞到所有相關的子組件，進而引發整個樹狀結構的重新渲染。</p>
+<h5 id="Color-Rating"><a href="#Color-Rating" class="headerlink" title="Color Rating"></a>Color Rating</h5><p>如果要對存儲在 App 組件狀態中的顏色進行評分，則必須使用 onRate 事件重複上述刪除顏色的過程。</p>
+<p>首先，我們將從被點擊的 FaStar 組件中觸發新的評分事件，並將事件往上傳送 Star 父組件，再經過 StarRating 組件，依序直到 App 根組件以修改顏色的評分 rating。</p>
+<p>FaStar 與 Star 組件都是無狀態組件，可以被重複使用，無須變動。我們只需從 StarRating 組件開始新增 onRate 函式屬性。</p>
+<figure class="highlight js"><figcaption><span>onRate:StarRating</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> StarRating = <span class="function">(<span class="params">&#123; totalStars = <span class="number">5</span>, selectedStars = <span class="number">0</span>, onRate = f =&gt; f &#125;</span>) =&gt;</span> &#123;    </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &#123;createArray(totalStars).map(<span class="function">(<span class="params">n, i</span>) =&gt;</span> (</span><br><span class="line">        &lt;Star</span><br><span class="line">          key=&#123;i&#125; </span><br><span class="line">          selected=&#123;selectedStars &gt; i&#125;</span><br><span class="line">          onSelect=&#123;() =&gt; onRate(i + <span class="number">1</span>)&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">      ))&#125;</span><br><span class="line">      &lt;p style=&#123;&#123;<span class="attr">fontSize</span>: <span class="string">"1.5em"</span>, <span class="attr">margin</span>: <span class="string">"10px"</span>&#125;&#125;&gt;&#123;selectedStars&#125; <span class="keyword">of</span> &#123;totalStars&#125; stars&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>第 8 行我們重新將 onSelect 屬性加進 Star 組件，並透過第 1 行的 onRate 函式屬性將事件與 rating 評分等級 (i + 1) 往上傳送給 StarRating 的父組件 Color。</p>
+<figure class="highlight js"><figcaption><span>onRate:Color</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Color = <span class="function">(<span class="params">&#123; id, title, color, rating, onRemove = f =&gt; f, onRate = f =&gt; f &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;section&gt;</span><br><span class="line">      &lt;h1&gt;&#123;title&#125;&lt;<span class="regexp">/h1&gt;</span></span><br><span class="line"><span class="regexp">      &lt;button className="t-Button" onClick=&#123;() =&gt; onRemove(id)&#125; &gt;</span></span><br><span class="line"><span class="regexp">        &lt;FaRemove /</span>&gt;</span><br><span class="line">      &lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div style=&#123;&#123; height: 50, backgroundColor: color&#125;&#125; /</span>&gt;</span><br><span class="line">      &lt;StarRating </span><br><span class="line">        selectedStars=&#123;rating&#125;</span><br><span class="line">        onRate=&#123;rating =&gt; onRate(id, rating)&#125;</span><br><span class="line">      /&gt;</span><br><span class="line">    &lt;<span class="regexp">/section&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>在 Color 組件第 11 行將新的評級 rating 以及將要評級的顏色 id 通過第 1 行的 onRate 函式屬性傳遞給 Color 組件的父項 ColorList 組件。</p>
+<p>在 ColorList 組件中，我們必須從各個顏色 Color 組件中捕獲 onRate 事件，然後通過第 1 行的 onRateColor 函式屬性將它們傳遞給其父級 App 組件：</p>
+<figure class="highlight js"><figcaption><span>onRate:ColorList</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ColorList = <span class="function">(<span class="params">&#123; colors = [], onRemoveColor = f =&gt; f, onRateColor = f =&gt; f &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span>(!colors.length) <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>No Colors Listed.<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &#123;</span><br><span class="line">         colors.map(<span class="function"><span class="params">color</span> =&gt;</span> (</span><br><span class="line">           &lt;Color </span><br><span class="line">             key=&#123;color.id&#125; </span><br><span class="line">             &#123;...color&#125;  </span><br><span class="line">             onRemove=&#123;onRemoveColor&#125;</span><br><span class="line">             onRate=&#123;onRateColor&#125;</span><br><span class="line">           /&gt;</span><br><span class="line">         ))</span><br><span class="line">      &#125;</span><br><span class="line">    &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">  );</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>最後，在將事件依序經過些組件往上傳遞之後，我們將到達應用程序存儲狀態的根組件 App，可以更改 colors 數據保存新的評分。</p>
+<figure class="highlight js"><figcaption><span>onRate:App</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [colors, setColors] = useState(colorData);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> ( </span><br><span class="line">    &lt;ColorList </span><br><span class="line">      colors=&#123;colors&#125;</span><br><span class="line">      onRateColor=&#123;(id, rating) =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> newColors = colors.map(<span class="function"><span class="params">color</span> =&gt;</span> color.id === id ? &#123;...color, rating&#125; : color);</span><br><span class="line">        setColors(newColors);</span><br><span class="line">      &#125;&#125;</span><br><span class="line">      onRemoveColor=&#123;id =&gt; &#123;</span><br><span class="line">        <span class="keyword">const</span> newColors = colors.filter(<span class="function"><span class="params">color</span> =&gt;</span> color.id !== id);</span><br><span class="line">        setColors(newColors);</span><br><span class="line">      &#125;&#125;</span><br><span class="line">    /&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>一旦我們的顏色陣列 colors 的狀態發生變化，相關的 UI 組件樹就會使用新數據進行渲染，新的評級將反映給用戶。</p>
+<p>就像我們通過 props 屬性將數據往下傳遞到整個組件樹一樣，使用者的互動也可以通過函式屬性與數據一起往上傳遞回樹根。</p>
+<h4 id="使用-Forms-新增數據"><a href="#使用-Forms-新增數據" class="headerlink" title="使用 Forms 新增數據"></a>使用 Forms 新增數據</h4><p>成為一名 Web 開發人員總是必須使用表單從使用者那裡收集大量的信息，那麼將會使用 React 構建許多表單組件。DOM 所有可用的 HTML 表單元素也都可以作為 React 元素使用，因此可以用 JSX 呈現表單。</p>
+<p>當需要在 React 中構建表單組件時，可以使用幾種模式。 模式之一使用稱為 refs 的 React 功能直接訪問 DOM 節點。在 React 中，ref 是一個物件，它存儲組件生命週期內的值。React 為我們提供了一個 useRef 掛鉤(hook)，我們可以使用它來創建一個 ref 物件。</p>
+<p>直接通過將 DOM 節點的 value 屬性設定值，稱為不受控制的組件(uncontrolled component)，因為它使用 DOM 來保存表單值。有時使用不受控制的組件可以使您解決一些麻煩。 例如，您可能想與 React 之外的代碼共享一個表單及其值。 但是，在 React 中使用受控制組件(controlled component)是比較好的方法。</p>
+<p>在受控制組件中，表單值由 React 而不是 DOM 管理。它們不需要我們使用 ref 物件，也不需要我們編寫命令性代碼。當使用受控組件時，添加表單驗證之類的功能要容易得多。</p>
+<p>這裡，我們不展示不受控制組件，直接使用受控制組件。</p>
+<p>受控制組件使用 React 狀態(state)保存表單的值。我們將用 useState 掛鉤建立兩個變數 title 與 color。此外，我們將也將定義可用於更改狀態的函式：setTitle 和 setColor。</p>
+<figure class="highlight js"><figcaption><span>AddColorForm</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> AddColorForm = <span class="function">(<span class="params">&#123; onNewColor = f =&gt; f &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [title, setTitle] = useState(<span class="string">""</span>);</span><br><span class="line">  <span class="keyword">const</span> [color, setColor] = useState(<span class="string">"#000000"</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> submit = <span class="function"><span class="params">e</span> =&gt;</span> &#123;</span><br><span class="line">    e.preventDefault();</span><br><span class="line">    onNewColor(title, color);</span><br><span class="line">    setTitle(<span class="string">""</span>);</span><br><span class="line">    setColor(<span class="string">"#000000"</span>);</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;form onSubmit=&#123;submit&#125; &gt;</span><br><span class="line">      &lt;input </span><br><span class="line">        value=&#123;title&#125;</span><br><span class="line">        onChange=&#123; event =&gt; setTitle(event.target.value)&#125;</span><br><span class="line">        type=<span class="string">"text"</span></span><br><span class="line">        placeholder=<span class="string">"color title..."</span></span><br><span class="line">        required</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;input </span><br><span class="line">        value=&#123;color&#125;</span><br><span class="line">        onChange=&#123; event =&gt; setColor(event.target.value)&#125;</span><br><span class="line">        type=<span class="string">"color"</span></span><br><span class="line">        required</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;button className=<span class="string">"t-Button t-Button--hot margin-left-sm"</span>&gt;Add&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>form&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>每當這些 input 元素引發 onChange 事件時，我們將調用 setTitle 或 setColor 來更改狀態中的值。更改該值將導致該組件重新渲染，會立即在 input 元素中顯示新的值。</p>
+<p>提交表單時，我們只需在第 7 行直接將 title 和 color 的狀態值作為參數傳遞給 onNewColor 函式屬性即可。</p>
+<p>知道受控組件會經常重新渲染，你將知道避免向該組件添加一些漫長且昂貴的處理過程。當您嘗試優化 React 組件時，這些知識將會派上用場。</p>
+<p>現在將 AddColorForm 加入我們的根組件 App，並定義 onNewColor 函式屬性。記得也將 Demo 模組的 uuid 函式加進來。</p>
+<figure class="highlight js"><figcaption><span>AddColorForm:App</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; uuid, colorData &#125; = Demo;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [colors, setColors] = useState(colorData);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> ( </span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;AddColorForm </span><br><span class="line">        onNewColor=&#123;(title, color) =&gt; &#123;</span><br><span class="line">          <span class="keyword">const</span> newColors = [</span><br><span class="line">            ...colors,</span><br><span class="line">            &#123;</span><br><span class="line">              id: uuid(),</span><br><span class="line">              rating: <span class="number">0</span>,</span><br><span class="line">              title,</span><br><span class="line">              color</span><br><span class="line">            &#125;</span><br><span class="line">          ];</span><br><span class="line">          setColors(newColors);</span><br><span class="line">        &#125;&#125;</span><br><span class="line">      /&gt;</span><br><span class="line">      &lt;ColorList </span><br><span class="line">        colors=&#123;colors&#125;</span><br><span class="line">        onRateColor=&#123;(id, rating) =&gt; &#123;</span><br><span class="line">          <span class="keyword">const</span> newColors = colors.map(<span class="function"><span class="params">color</span> =&gt;</span> color.id === id ? &#123;...color, rating&#125; : color);</span><br><span class="line">          setColors(newColors);</span><br><span class="line">        &#125;&#125;</span><br><span class="line">        onRemoveColor=&#123;id =&gt; &#123;</span><br><span class="line">          <span class="keyword">const</span> newColors = colors.filter(<span class="function"><span class="params">color</span> =&gt;</span> color.id !== id);</span><br><span class="line">          setColors(newColors);</span><br><span class="line">        &#125;&#125;</span><br><span class="line">      /&gt;</span><br><span class="line">    &lt;<span class="regexp">/&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;;</span></span><br></pre></td></tr></table></figure>
+
+<p>AddColorForm 組件通過 onNewColor 函式將 title 和 color 的值傳遞給父組件 App。調用 onNewColor 屬性時，我們會將新顏色保存在狀態中。</p>
+<p>將狀態統一存儲在樹狀結構的根的位置是一種重要的模式，這是早期版本 React 的重要模式。通過屬性上下傳遞狀態是任何 React 開發人員必須知道的概念，是我們所有人都應該知道的方法。 但是，隨著 React 的發展以及我們的組件樹越來越大，遵循此原理逐漸變得不切實際。對於復雜的應用程序來說，許多開發人員很難在組件樹根的單個位置維護狀態。通過數十個組件將狀態上下傳遞是繁瑣且容易出錯的。</p>
+<p>多數的 UI 元素都很複雜，樹的根通常離葉子很遠，將數據置於離使用數據組件許多層的位置，每個組件都必須收到只能傳遞給子組件的屬性，這將使我們的代碼變的臃腫，並使我們的 UI 難以擴展。</p>
+<p>將狀態數據作為屬性傳遞通過每個組件，直到到達需要使用的組件，就像乘火車從台南到台北。在火車上，您會經過每個站，但直到到達目的地，您都不會下車。</p>
+<p>搭飛機從台南飛往台北顯然效率較佳。這樣，您不必通過每個中間站，你直接飛越它們。</p>
+<p>下次我們將用比較有效率的方式，直接飛越它們: <strong>React Context</strong>。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/24/React-State-Management/" rel="prev" title="React State Management">
+      <i class="fa fa-chevron-left"></i> React State Management
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/07/React-Context/" rel="next" title="React Context">
+      React Context <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#組件樹中的狀態"><span class="nav-number">1.</span> <span class="nav-text">組件樹中的狀態</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#由根組件向下發送狀態"><span class="nav-number">1.1.</span> <span class="nav-text">由根組件向下發送狀態</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#將互動由葉端向上傳送到根組件"><span class="nav-number">1.2.</span> <span class="nav-text">將互動由葉端向上傳送到根組件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Remove-Color"><span class="nav-number">1.2.1.</span> <span class="nav-text">Remove Color</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Color-Rating"><span class="nav-number">1.2.2.</span> <span class="nav-text">Color Rating</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-Forms-新增數據"><span class="nav-number">1.3.</span> <span class="nav-text">使用 Forms 新增數據</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

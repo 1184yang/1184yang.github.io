@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="人們通常將雲計算與後端(backend)開發和開發與維運(DevOps)相關聯。但是，在過去幾年中，這種情況已經開始改變。隨著功能即服務(functions as a service, FaaS)的興起以及強大抽象式的託管服務，雲提供商降低了雲計算新手和傳統前端開發人員的進入門檻。 使用現代工具、框架和服務，例如 Amazon Web Services（AWS）Amplify 和 Firebase">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Full Stack Serverless">
+<meta property="og:url" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="人們通常將雲計算與後端(backend)開發和開發與維運(DevOps)相關聯。但是，在過去幾年中，這種情況已經開始改變。隨著功能即服務(functions as a service, FaaS)的興起以及強大抽象式的託管服務，雲提供商降低了雲計算新手和傳統前端開發人員的進入門檻。 使用現代工具、框架和服務，例如 Amazon Web Services（AWS）Amplify 和 Firebase">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201028-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201028-02.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201028-03.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201028-04.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201028-05.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201026-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201029-01.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201029-02.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201029-03.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201029-06.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201029-04.png">
+<meta property="og:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201029-05.png">
+<meta property="og:updated_time" content="2020-12-24T10:13:30.784Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Full Stack Serverless">
+<meta name="twitter:description" content="人們通常將雲計算與後端(backend)開發和開發與維運(DevOps)相關聯。但是，在過去幾年中，這種情況已經開始改變。隨著功能即服務(functions as a service, FaaS)的興起以及強大抽象式的託管服務，雲提供商降低了雲計算新手和傳統前端開發人員的進入門檻。 使用現代工具、框架和服務，例如 Amazon Web Services（AWS）Amplify 和 Firebase">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/20201028-01.png">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>Full Stack Serverless | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/10/27/Full-Stack-Serverless/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Full Stack Serverless
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-10-27 14:03:59" itemprop="dateCreated datePublished" datetime="2020-10-27T14:03:59+08:00">2020-10-27</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-12-24 18:13:30" itemprop="dateModified" datetime="2020-12-24T18:13:30+08:00">2020-12-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AWS/" itemprop="url" rel="index"><span itemprop="name">AWS</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>人們通常將雲計算與後端(backend)開發和開發與維運(DevOps)相關聯。但是，在過去幾年中，這種情況已經開始改變。隨著<strong>功能即服務</strong>(functions as a service, FaaS)的興起以及強大抽象式的託管服務，雲提供商降低了雲計算新手和傳統前端開發人員的進入門檻。</p>
+<p>使用現代工具、框架和服務，例如 Amazon Web Services（AWS）Amplify 和 Firebase 等，獨立的開發人員可以利用他們現有的技能，以及對單個框架和生態系統(例如 JavaScript)的知識，來構建過去需要技術熟練的後端團隊和 DevOps 工程師團隊來構建和維護的全棧應用程序，而無須擔心伺服器的問題。</p>
+<h4 id="現代的無伺服器概念"><a href="#現代的無伺服器概念" class="headerlink" title="現代的無伺服器概念"></a>現代的無伺服器概念</h4><p><em>Serverless</em> 通常與 FaaS 相關聯。儘管您會對其含義有所不同的定義，但該術語最近已包含更多的意義而不只是共享的定義。</p>
+<p>很多時候，人們談論無伺服器時，他們實際上是在描述如何最有效地編寫業務邏輯以呈現業務的價值。重點是編寫業務邏輯，而不是為編寫業務邏輯而必須建構和維護的基礎設施。採用 FaaS 的思維，您可以快速有效的做到這一點。 你不需要其他的託管服務和一些抽象化的思維，也可以構建自定義的解決方案。</p>
+<p>越來越多的公司和開發人員正在採用這種方法，隨著這種哲學的日益普及，初創企業和雲提供商可以使用提供的服務和工具來提供簡化後端複雜性的產品和服務。</p>
+<p>對於無伺服器在學術研究中認為這是一種 “簡化的雲編程”:</p>
+<blockquote>
+<blockquote>
+<p>雖然雲將功能打包為 FaaS(功能即服務)，代表了無伺服器計算的核心，但雲平台還提供了專門的無伺服器框架，可像 BaaS(後端即服務)一樣滿足特定的應用需求。 簡單地說，無伺服器計算 = FaaS + BaaS。</p>
+</blockquote>
+</blockquote>
+<p>後端即服務(BaaS)通常是指託管服務，例如資料庫(Firestore，Amazon DynamoDB)、身份驗證服務(Auth0，Amanzon Cognito)和人工智能服務(Amanzon Relognition，Amazon Comprehend)等託管服務。在學術的研究中重新定義了無伺服器的含義，這突顯了隨著雲提供商開始構建更多，管理更好的服務。這種無伺服器的思維正在蓬勃的發生中。</p>
+<h4 id="無伺服器應用程序的特徵"><a href="#無伺服器應用程序的特徵" class="headerlink" title="無伺服器應用程序的特徵"></a>無伺服器應用程序的特徵</h4><ul>
+<li>降低運營責任<br>使用 FaaS，您唯一需要擔心的是代碼中的函式是否正確的運行。不再需要負責伺服器的所有修補，更新，維護和升級。</li>
+<li>大量使用託管服務</li>
+</ul>
+<h4 id="無伺服器架構的好處"><a href="#無伺服器架構的好處" class="headerlink" title="無伺服器架構的好處"></a>無伺服器架構的好處</h4><ul>
+<li>可擴展性<br>您不必擔心你的應用程序突然湧入了大量的新用戶，雲提供商將為您處理此事。</li>
+<li>成本<br>使用無伺服器技術，您只需為使用的東西付費。使用 FaaS，將根據對功能的請求數，執行功能代碼所花費的時間以及每個功能使用的記憶體來向您收費。</li>
+<li>開發速度<br>開發人員只需構建較少的功能，提高工作效率。開發人員不必費心在大多數應用程序所需的典型功能類型，例如，資料庫，身份驗證，存儲和 API，可以快速專注於編寫要交付的核心功能和業務邏輯。</li>
+<li>實驗與測試<br>如果您沒有花大量的時間構建一些典型所需的重複功能，就可以低風險輕鬆地進行實驗及測試。 </li>
+<li>安全穩定<br>你所使用的核心服務是由雲提供商所提供，所以通常比您自己建立的更加穩定和安全。</li>
+<li>更少的代碼<br>代碼是一種責任。有價值的是代碼提供的功能，而不是代碼本身。當您找到實現這些功能的方法，同時限制了您需要維護的代碼量，甚至完全取消了代碼時，您就可以降低應用程序的整體複雜性。複雜性降低，錯誤減少，新工程師更容易上手，維護和添加新功能的人員的總體負載也更少。開發人員可以專注於功能的實現，而無需了解實際的後端運作，並且幾乎不需要編寫後端代碼。</li>
+</ul>
+<h3 id="不同的無伺服器的實現"><a href="#不同的無伺服器的實現" class="headerlink" title="不同的無伺服器的實現"></a>不同的無伺服器的實現</h3><ul>
+<li><h4 id="Serverless-Framework"><a href="#Serverless-Framework" class="headerlink" title="Serverless Framework"></a>Serverless Framework</h4><p>最早與最受歡迎的的無伺務器框架 Severless Framework，是一個免費開放源代碼框架，於2015年10月以 JAWS 的名稱啟動，使用 Node.js 編寫。最初，這個框架僅支援 AWS，但隨後又增加了對 Google 和 Microsoft Azure 等雲提供商的支援。</p>
+<p>Serverless Framework 利用配置文件，CLI 和功能代碼的組合，為希望從本地環境將無伺服器功能和其他 AWS 服務部署到雲的人們提供良好的體驗。要使用此框架可能會有一些陡峭的學習曲線，特別是對於不熟悉雲計算的開發人員而言，有很多術語需要學習，還有很多知識需要理解雲服務如何工作，以便構建不僅僅是 “Hello World” 的應用程序。</p>
+<p>總體而言，如果您某種程度上了解除了 AWS 之外的雲提供商的能力，那麼 Serverless Framework 是一個不錯的選擇。</p>
+</li>
+<li><h4 id="The-AWS-Serverless-Application-Model"><a href="#The-AWS-Serverless-Application-Model" class="headerlink" title="The AWS Serverless Application Model"></a>The AWS Serverless Application Model</h4><p>AWS Serverless Applicaton Model(AWS SAM) 是一個開源框架，於2016年11月18日發布，由 AWS 和社區構建和維護。 該框架僅支援 AWS。</p>
+<p>SAM 允許您透過在 YAML 文件中定義無伺務器應用程序所需的 API Gateway APIs，AWS Lambda 函式和 Amazon DynamoDB 來構建無伺服器應用程序。它結合使用 YAML 配置和功能代碼以及 CLI 來創建、管理和部署無伺務器應用程序。</p>
+</li>
+<li><h4 id="Amplify-Framework"><a href="#Amplify-Framework" class="headerlink" title="Amplify Framework"></a>Amplify Framework</h4><p>Amplify Framework 是四項內容的組合：CLI、客戶端程式庫、工具鍊和 Web 託管平台。Amplify 的目的是為開發人員提供一種簡便的方法來構建和部署利用雲的全棧 Web 和移動應用程序。它不僅啟用無伺務器功能和身份驗證等功能，而且還啟用 GraphQL API、機器學習(ML)、存儲、分析、推送通知等功能。</p>
+<p>Amplify 消除了 AWS 的新手可能不熟悉的術語，使用類別名稱方法來引用服務，從而提供了一個輕鬆進入雲的切入點。它不是將身份驗證服務稱為 Amazon Cognito，而是稱為 auth，避免新手搞得一頭霧水。</p>
+</li>
+</ul>
+<h3 id="Full-Stack-Serverless-on-AWS"><a href="#Full-Stack-Serverless-on-AWS" class="headerlink" title="Full Stack Serverless on AWS"></a>Full Stack Serverless on AWS</h3><p><em>Full stack serverless</em> 旨在為開發人員提供前、後兩端全棧所需的一切，以實現他們盡快構建應用程序的目標。在這裡，我們將使用 AWS 工具和服務以這種方式構建應用程序。</p>
+<h4 id="Amplify-CLI"><a href="#Amplify-CLI" class="headerlink" title="Amplify CLI"></a>Amplify CLI</h4><p>如果您剛開始使用 AWS，那麼大量的服務可能會讓你卻步。除了要識別許多服務之外，每個服務通常都有自己的陡峭的學習曲線。為了緩解這種情況，AWS 創建了 Amplify CLI。</p>
+<p>Amplify CLI 為希望在 AWS 上構建應用程序的開發人員提供了一個簡單的入口點。 CLI 允許開發人員直接從其前端環境創建、配置、更新和刪除雲服務。</p>
+<p>CLI 使用諸如 <em>storage</em>(Amazon S3)、<em>auth</em>(Amazon Cognito)和 <em>analytics</em>(Amazon Pinpoint)之類的名稱為您提供了一種了解服務實際功能的方法，而不僅僅是提供讓人迷惑的服務名稱。</p>
+<h5 id="Amplify-client"><a href="#Amplify-client" class="headerlink" title="Amplify client"></a>Amplify client</h5><p>構建全棧應用程序需要客戶端工具和後端服務的結合。過去，與 AWS 服務互動的主要方式是使用 AWS 軟件開發套件(SDK)，例如 Java、.NET、Node.js、和 Python。 這些 SDK 運作良好，但沒有一個特別適合客戶端開發。在 Amplify 之前，還沒有使用 AWS 構建客戶端應用程序的簡單方法。如果查看 AWS Node.js SDK 的文件，您會了解到，這是一條陡峭的學習曲線。</p>
+<p>Amplify 客戶端是一個程式庫，專門為需要與 AWS 服務互動的 JavaScript 應用程序提供了易於使用的 API。 Amplify 還提供用於 React Native、iOS 和 Addroid 的客戶端 SDK。</p>
+<p>Amplify 還為流行的前端和移動框架提供 UI 組件，包括 React、React Native、Vue、Angular、Ionic、Android 和 iOS。</p>
+<p>Amplify Framework 不支持整套 AWS 服務。相反的，它支持要開發無伺務器類型的應用程序所需要的服務。使用 Amplify，為與 EC2 的互動提供支援並沒有多大意義，但為 REST 和 GraphQL API 提供支援則會比較實際。</p>
+<h5 id="AWS-AppSync"><a href="#AWS-AppSync" class="headerlink" title="AWS AppSync"></a>AWS AppSync</h5><p>AWS AppSync 是使用 GraphQL 的託管 API 層，使應用程序易於與任何數據源，REST API 或微服務進行互動。</p>
+<p><strong>API 層是應用程序最重要的部分之一</strong>。現代應用程序通常與大量後端服務和 API 進行互動。諸如資料庫、託管服務、第三方 API 和存儲解決方案之類的東西。</p>
+<p>微服務架構是使用模塊化組件或服務組合構建的大型應用程序的常用術語。大多數服務和 API 都有不同的實現細節，這在您使用微服務體系結構時會帶來一些挑戰。這導致不一致的代碼，有時甚至是混亂的代碼，以及對這些 API 發出請求的前端開發人員的認知負荷。</p>
+<p>使用微服務體系結構的一種好方法是提供一個一致的 API 層，該 API 層將接收所有請求並將其轉發到後端服務。這為你的客戶提供了一個一致的互動層，從而使您的前端開發更加輕鬆。</p>
+<p>GraphQL 為創建 API 提供了特別好的抽象層。 GraphQL 引入了一種定義和一致的規範，透過三種操作形式與 API 進行互動：<em>queries</em>(讀取)、<em>mutations</em>(寫入/更新)和 <em>subscriptions</em>(實時數據 real-time data)。這些操作被定義為主要模式的一部分，該主要模式還以 GraphQL 提示的形式提供了客戶端和伺務器之間的協定。GraphQL 操作未綁定到任何特定的數據源，因此，作為開發人員，您可以自由地使用它們與資料庫、HTTP 端點、微服務、甚至是無伺服器功能中的任何內容進行互動。</p>
+<p>通常，在構建 GraphQL API 時，您需要處理構建，部署維護和配置自己的 API 的問題。借助 AWS AppSync，您可以卸載伺服器和 API 管理以及使用 AWS 的安全性機制。</p>
+<p>現代應用程序通常還涉及 real-time 和 offline 等問題。 AppSync 的另一個好處是，它具有對 offline(Amplify client)和 real time(GraphQL subscriptions)的內建支援，以使開發人員能夠構建這些類型的應用程序。</p>
+<h3 id="初步認識-AWS-Amplify-CLI"><a href="#初步認識-AWS-Amplify-CLI" class="headerlink" title="初步認識 AWS Amplify CLI"></a>初步認識 AWS Amplify CLI</h3><h4 id="安裝和設定-Amplify-CLI"><a href="#安裝和設定-Amplify-CLI" class="headerlink" title="安裝和設定 Amplify CLI"></a>安裝和設定 Amplify CLI</h4><p>要使用 Amplify CLI，首先需要安裝 Node.js 10 以上的版本，以及 npm 5 以上的版本。也可以選擇使用 yarn。　</p>
+<p>當然也需要一個 AWS 帳戶，你可以選擇從免費的帳戶開始，會要求綁定信用卡，註冊費 1 美元。當你沒有用超過免費的額度，不會收取任何費用。在私人的一般學習的專案應該都不會超過免費的額度。</p>
+<p>首先安裝 Amplify CLI:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> npm install -g @aws-amplify/cli</span></span><br></pre></td></tr></table></figure>
+
+<p>安裝 CLI 後，我們將會使用 Amplify CLI 與 AWS 服務互動，這需要用戶憑證。我們不會使用註冊的 AWS 帳戶來連結 AWS 服務，這個註冊的 AWS 帳戶只用來付帳單或登入 AWS 管理用。程式、API 等與 AWS 服務的互動我們要使用 IAM (identify and access management) user。所以我們首先需要使用 IAM  用戶來設定 Amplify CLI。這將會使用一組用戶憑據（accesss key ID 和 secret access key）來設定 CLI。 使用這些憑證，您將能夠直接從 CLI 使用這個 IAM 用戶創建 AWS 服務。</p>
+<p>要創建 IAM 新用戶並設定 CLI，要執行 configure 指令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> amplify configure</span></span><br></pre></td></tr></table></figure>
+
+<p>這將引導你完成以下步驟:</p>
+<ol>
+<li>指定 AWS 區域<br>您可以選擇要在那區域個創建 IAM 用戶(以及與此用戶相關聯的服務)。選擇離您最近的區域或你偏好的區域。</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Scanning for plugins...</span><br><span class="line">Plugin scan successful</span><br><span class="line">Follow these steps to set up access to your AWS account:</span><br><span class="line"></span><br><span class="line">Sign in to your AWS administrator account:</span><br><span class="line">https://console.aws.amazon.com/</span><br><span class="line">Press Enter to continue</span><br></pre></td></tr></table></figure>
+
+<p>   這會開啟瀏覽器要求你登入 AWS:</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201028-01.png" title="AWS login">
+
+<p>回到 CLI 操作畫面，按 Enter 繼續，選擇 AWS 區域，這裡我選擇使用 ap-southeast-1 位於新加坡：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Specify the AWS Region</span><br><span class="line">? region: </span><br><span class="line">  eu-central-1</span><br><span class="line">  ap-northeast-1</span><br><span class="line">  ap-northeast-2</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> ap-southeast-1</span></span><br><span class="line">  ap-southeast-2</span><br><span class="line">  ap-south-1</span><br><span class="line">  ca-central-1</span><br><span class="line">(Move up and down to reveal more choices)</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p>指定 IAM 用戶名</p>
+<p>該名稱將是您的 AWS 帳戶中創建的 IAM 用戶。我建議你使用一個稍後在引用時可以識別的名稱，例如 amplify-cli-ap-southeast-1-user 或 mycompany-cli-admin。</p>
+</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Specify the username of the new IAM user:</span><br><span class="line">? user name:  pec-amplify-cli-admin</span><br></pre></td></tr></table></figure>
+
+<p>   輸入名稱後，CLI 將打開 AWS IAM dashboard。我們可以在這個 dashboard 建立 IAM 用戶。</p>
+<p>   IAM 用戶的權限全都透過 Groups 群組設定，所以首先先建立一個群組：</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201028-02.png" title="AWS login">
+
+<p>   這裡我建立一個 admin 群組，權限選擇 AdministratorAccess。剛開始，所以給較大的權限，有經驗後再來建立其他的群組與權限。</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201028-03.png" title="AWS login">
+
+<img src="/2020/10/27/Full-Stack-Serverless/20201028-04.png" title="AWS login">
+
+<p>   現在創建 IAM 用戶。Access type 勾選 Programmatic access。</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201028-05.png" title="AWS IAM User">
+
+<p>   你可以透過單擊 Next 接受 Permissions、Tags、Reviews 等預設值並創建 IAM 用戶。在下一個畫面中，將會提供 IAM 用戶憑據：Access key ID 和 Secret access key。</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201026-01.png" title="AWS IAM User">
+
+<p>返回 CLI 操作畫面，複製貼上 access key ID 和 secret access key。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">Enter the access key of the newly created user:</span><br><span class="line">? accessKeyId:  # YOUR_ACCESS_KEY_ID</span><br><span class="line">? secretAccessKey:  # YOUR_SECRET_ACCESS_KEY</span><br><span class="line">This would update/create the AWS Profile in your local machine</span><br><span class="line">? Profile Name:  # (default)</span><br><span class="line"></span><br><span class="line">Successfully set up the new user.</span><br></pre></td></tr></table></figure>
+
+<p>現在，您已經成功設定了 CLI，可以開始創建新服務了。</p>
+<h3 id="初始化第一個-Amplify-專案"><a href="#初始化第一個-Amplify-專案" class="headerlink" title="初始化第一個 Amplify 專案"></a>初始化第一個 Amplify 專案</h3><p>現在已經安裝和設定了 CLI，可以開始創建第一個專案。在接下來序列的範例中，客戶端我都會使用 React 架構，API 則會使用 GraphQL。</p>
+<p>之前在 Oracle APEX 中學習到的 React 技術正好可以用在這裡。你也可以學習到創建一個 React 所使用的工具以及如何部署。</p>
+<p>所以這裡我們將從初始化一個新的 React 專案開始：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npx create-react-app first-amplify-app</span><br></pre></td></tr></table></figure>
+
+<p>我則習慣使用 yarn: </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn create react-app first-amplify-app</span><br></pre></td></tr></table></figure>
+
+<p>創建 React 專案後，切換到所產生的專案目錄。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd first-amplify-app</span><br></pre></td></tr></table></figure>
+
+<p>你可以瀏覽一下 React 專案目錄的結構。</p>
+<p>現在啟動 React 專案應用程序開發伺服器，看看初始專案是甚麼樣子。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">npm start </span><br></pre></td></tr></table></figure>
+
+<p>或用 yarn:</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn start </span><br></pre></td></tr></table></figure>
+
+<p>React 專案初始畫面:</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201029-01.png" title="React">
+
+<p>關掉 React 應用程序開發伺服器。</p>
+<p>現在，需要在 React 客戶端上安裝 Amplify。我們將安裝 AWS Amplify 程式庫與適用於 React 特定 UI 組件的 AWS Amplify React 程式庫。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">yarn add aws-amplify @aws-amplify/ui-react</span><br></pre></td></tr></table></figure>
+
+<p>接下來，你可以創建一個 Amplify 專案。 執行 init 命令初始化 Amplify 專案：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify init</span><br></pre></td></tr></table></figure>
+
+<p>這將引導您完成以下步驟：</p>
+<ol>
+<li><p><em>Enter a name for the project.</em><br>這將是專案的本地名稱，通常是用來描述專案是什麼或做什麼的。</p>
+</li>
+<li><p><em>Enter a name for the environment.</em><br>這將是您將要使用的初始環境的參考。典型環境可能是諸如 <em>dev<em>、</em>local</em> 或 <em>prod</em> 之類的，但可以是對你有意義的任何名稱。</p>
+</li>
+<li><p><em>Choose your default editor.</em><br>這將設置您的編輯器。 CLI 稍後將使用此編輯器打開專案中的文件。</p>
+</li>
+<li><p><em>Choose the type of app that you’re building.</em><br>如果你使用 JavaScript，這將確定 CLI 是否應配置、構建和運行命令。在此範例中，選擇 <em>javascript</em>。</p>
+</li>
+<li><p><em>What JavaScript framework are you using?</em><br>這將確定一些基本的構建和啟動命令。對於此範例，請選擇 <em>react</em>。</p>
+</li>
+<li><p><em>Source Directory Path.</em><br>這使您可以設置源代碼所在的目錄。對於此範例，請選擇 <em>src</em>。</p>
+</li>
+<li><p><em>Distribution Directory Path.</em><br>對於 Web 專案，這將是包含編譯的 JavaScript 源代碼以及你的 favicon 圖標、HTML、和 CSS 文檔的文件夾。對於此範例，選擇 <em>build</em>。</p>
+</li>
+<li><p><em>Build Command.</em><br>這指定用於編譯和捆綁 JavaScript 代碼的命令。 對於此範例，請使用 <em>npm run-script build</em>。</p>
+</li>
+<li><p><em>Start Command.</em><br>這指定在本地端啟動應用程序開發伺服器的命令。對於此範例，請使用 <em>npm run-script start</em>。</p>
+</li>
+<li><p><em>Do you want to use an AWS profile</em><br>在這裡，選擇 <em>Y</em>，然後選擇你先前用 <em>amplify configure</em> 設定的的 AWS profile。</p>
+</li>
+</ol>
+<p>這是這個範例初始化的過程：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">? Enter a name for the project firstamplifyapp</span><br><span class="line">? Enter a name for the environment local</span><br><span class="line">? Choose your default editor: Visual Studio Code</span><br><span class="line">? Choose the type of app that you're building javascript</span><br><span class="line">Please tell us about your project</span><br><span class="line">? What javascript framework are you using react</span><br><span class="line">? Source Directory Path:  src</span><br><span class="line">? Distribution Directory Path: build</span><br><span class="line">? Build Command:  npm.cmd run-script build  </span><br><span class="line">? Start Command: npm.cmd run-script start</span><br><span class="line">Using default provider  awscloudformation</span><br><span class="line"></span><br><span class="line">For more information on AWS Profiles, see:</span><br><span class="line">https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html</span><br><span class="line"></span><br><span class="line">? Do you want to use an AWS profile? Yes</span><br><span class="line">? Please choose the profile you want to use default</span><br></pre></td></tr></table></figure>
+
+
+<p>現在，Amplify CLI 將初始化您的新 Amplify 專案。初始化完成後，將會在專案中為您創建兩個資源： 位於 src 目錄中的 aws-exports 的文件檔和位於專案根目錄中的名為 amplify 的文件夾。</p>
+<ul>
+<li><p>aws-exports<br>aws-exports 文件是 CLI 根據憑據所建立的 key-value 鍵值對資源類別。</p>
+</li>
+<li><p>amplify 目錄<br>此文件夾包含 Amplify 專案的所有代碼和配置文件。 在此文件夾中，您將看到兩個子文件夾： <em>backend</em> 和 <em>#current-cloud-backend</em></p>
+<ul>
+<li><p>backend 目錄<br>此文件夾包含專案的所有本地代碼，例如 AppSync API 的 GraphQL schema，任何無伺服器功能的源代碼以及 Amplify 專案當前本地狀態的代碼的基礎結構。</p>
+</li>
+<li><p>#current-cloud-backend 目錄<br>該文件夾保存的代碼和配置反映了最後一個 Amplify push 命令在雲中部署了哪些資源。它可幫助 CLI 區分雲中已配置的資源配置和本地 <em>backend</em> 目錄中的當前配置有甚麼不同(反映本地端的更改)。</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>現在，您已經初始化了專案，你可以添加第一個雲服務：身份驗證 (authentication)。</p>
+<h3 id="創建和部署雲服務"><a href="#創建和部署雲服務" class="headerlink" title="創建和部署雲服務"></a>創建和部署雲服務</h3><p>要創建新服務，可以使用 Amplify 的 add 命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify add auth</span><br></pre></td></tr></table></figure>
+
+<p>這將引導您完成以下步驟：</p>
+<ol>
+<li><p><em>Do you want to use the default authentication and security configuration?</em><br>這使您可以選擇使用預設的配置（sign-up 使用 MFA，sign-in 使用 password）創建身份驗證服務(authentication service)、或使用 social providers 創建身份驗證配置、或者創建完全自定義的身份驗證配置。 對於此範例，請選擇 <em>Default configuration</em>。</p>
+<blockquote>
+<blockquote>
+<p>MFA<br>   多重要素驗證(Multi-factor authentication，縮寫為 MFA)，又譯多因子認證、多因素驗證、多因素認證，是一種電腦存取控制的方法，用戶要通過兩種以上的認證機制之後，才能得到授權，使用電腦資源。</p>
+</blockquote>
+</blockquote>
+</li>
+<li><p><em>How do you want users to be able to sign in?</em><br>這將允許您指定所需的 sign-in 屬性。 對於此範例，選擇預設值 <em>Username</em>。</p>
+</li>
+<li><p><em>Do you want to configure advanced settings?</em><br>這將使您逐步設置一些更高階的認證，例如其他的 sign-up 屬性和 Lambda 觸發器。在此範例中，您不需要任何這些，因此請選擇 <em>No, I am done.</em> 接受預設的設置。</p>
+<p>現在，您已經成功配置了身份驗證服務，現在可以進行部署了。 要部署身份驗證服務，可以執行 push 命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify push</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<ol start="4">
+<li><em>Are you sure you want to continue?</em><br>選擇 Y。</li>
+</ol>
+<p>部署完成後，您的身份驗證服務已成功創建。 恭喜，您已經部署了第一個功能。 現在，讓我們對其進行測試。</p>
+<p>在 React 應用程序中有幾種與身份驗證服務互動的方法。你可以使用 Amplify 中的 Auth class，該類具有 30 多種可用方法，諸如 signUp、signIn、signOut 等方法。也可以使用特定的框架組件，例如 withAuthenticator 來構建完整的身份驗證流程，包括預配置的用戶界面。讓我們試用 withAuthenticator 高階(HOC higher-order)組件。</p>
+<p>首先，在 React 應用程序中配置 Amplify。 打開 src/index.js 並將以下代碼添加到最後一個 import 語句下面。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> Amplify <span class="keyword">from</span> <span class="string">'aws-amplify'</span></span><br><span class="line"><span class="keyword">import</span> config <span class="keyword">from</span> <span class="string">'./aws-exports'</span></span><br><span class="line">Amplify.configure(config) </span><br></pre></td></tr></table></figure>
+
+<p>現在，該應用已配置完畢，您可以開始與身份驗證服務進行互動。打開 src/App.js 並使用以下代碼更新文件：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">import React from 'react';</span><br><span class="line">import &#123; withAuthenticator, AmplifySignOut &#125; from '@aws-amplify/ui-react'</span><br><span class="line"></span><br><span class="line">function App() &#123;</span><br><span class="line">  return (</span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">&#123;&#123;</span> <span class="attr">width:</span> "<span class="attr">500px</span>", <span class="attr">textAlign:</span> "<span class="attr">center</span>", <span class="attr">margin:</span> "<span class="attr">auto</span>" &#125;&#125;&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello Tainan, 台南!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">AmplifySignOut</span> /&gt;</span>    </span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">export default withAuthenticator(App);</span><br></pre></td></tr></table></figure>
+
+<p>現在，可以啟動應用程序進行測試：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">yarn start</span><br></pre></td></tr></table></figure>
+
+<p>現在，你的應用程序已啟動了預配置的身份驗證流程: sign-up 使用 MFA，sign-in 使用 password。</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201029-02.png" title="AWS IAM User">
+
+<p>使用 Create account 建立一個新帳戶:</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201029-03.png" title="AWS IAM User">
+
+<p>MFA 身份驗證流程，你需要到你的 email 取得驗證碼。</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201029-06.png" title="AWS IAM User">
+
+<p>輸入驗證碼 (Comfirmation code):</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201029-04.png" title="AWS IAM User">
+
+<p>現在使用新的 User account sign-in:</p>
+<img src="/2020/10/27/Full-Stack-Serverless/20201029-05.png" title="AWS IAM User">
+
+<h3 id="刪除資源"><a href="#刪除資源" class="headerlink" title="刪除資源"></a>刪除資源</h3><p>如果單一的服務或專案已不再需要，可以使用 CLI 刪除它。</p>
+<p>要刪除單一的功能，可以執行 remove 命令。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify remove auth</span><br></pre></td></tr></table></figure>
+
+<p>要刪除整個 Amplify 專案以及帳戶中已部署的所有相應資源，可以執行 delete 命令。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">amplify delete</span><br></pre></td></tr></table></figure>
+
+<p>隨著越來越多的公司開始依靠雲來處理大量的工作負載，雲計算正急速的增長中。隨著使用量的增長，雲計算的技能應該要納入你的職能規畫中。</p>
+<p>Serverless 無伺務器模式是雲計算的子集，它在企業用戶中也迅速流行，因為它提供了雲計算的所有優勢，同時還具有自動擴展功能，而幾乎不需要維護。</p>
+<p>諸如 Amplify Framework 之類的工具使所有背景的開發人員都可以更輕鬆地啟動和運行雲以及無伺服器運算。接下來將要利用雲服務和 Amplify Framework 在雲中構建真實的全棧無伺服器應用程序。這將會使用 AWS 的 auth、API、storage 等服務。使用的架構將會包含 GraphQL 與 React。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/10/20/Enhancing-Components-with-Hooks-3/" rel="prev" title="Enhancing Components with Hooks (Ⅲ)">
+      <i class="fa fa-chevron-left"></i> Enhancing Components with Hooks (Ⅲ)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/30/Getting-Started-with-AWS-Amplify/" rel="next" title="AWS Amplify 入門">
+      AWS Amplify 入門 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#現代的無伺服器概念"><span class="nav-number">1.</span> <span class="nav-text">現代的無伺服器概念</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#無伺服器應用程序的特徵"><span class="nav-number">2.</span> <span class="nav-text">無伺服器應用程序的特徵</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#無伺服器架構的好處"><span class="nav-number">3.</span> <span class="nav-text">無伺服器架構的好處</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不同的無伺服器的實現"><span class="nav-number"></span> <span class="nav-text">不同的無伺服器的實現</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Serverless-Framework"><span class="nav-number">1.</span> <span class="nav-text">Serverless Framework</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#The-AWS-Serverless-Application-Model"><span class="nav-number">2.</span> <span class="nav-text">The AWS Serverless Application Model</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Amplify-Framework"><span class="nav-number">3.</span> <span class="nav-text">Amplify Framework</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Full-Stack-Serverless-on-AWS"><span class="nav-number"></span> <span class="nav-text">Full Stack Serverless on AWS</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Amplify-CLI"><span class="nav-number">1.</span> <span class="nav-text">Amplify CLI</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Amplify-client"><span class="nav-number">1.1.</span> <span class="nav-text">Amplify client</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#AWS-AppSync"><span class="nav-number">1.2.</span> <span class="nav-text">AWS AppSync</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初步認識-AWS-Amplify-CLI"><span class="nav-number"></span> <span class="nav-text">初步認識 AWS Amplify CLI</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#安裝和設定-Amplify-CLI"><span class="nav-number">1.</span> <span class="nav-text">安裝和設定 Amplify CLI</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初始化第一個-Amplify-專案"><span class="nav-number"></span> <span class="nav-text">初始化第一個 Amplify 專案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#創建和部署雲服務"><span class="nav-number"></span> <span class="nav-text">創建和部署雲服務</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#刪除資源"><span class="nav-number"></span> <span class="nav-text">刪除資源</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

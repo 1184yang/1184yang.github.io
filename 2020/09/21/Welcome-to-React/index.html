@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="React 是一個很小的程式庫，沒有提供構建應用程序需要的所有功能。在 React 中，您可以在 JavaScript 代碼中編寫類似於 HTML 的代碼。 這些標籤需要進行預處理才能在瀏覽器中運行。 為此，你可能需要像 webpack 這樣的構建工具。也需要安裝像 Node.js 這樣的運行環境，以便能建構整個應用程序。 學習這樣整個開發應用程序的架構，需要時間與決心，也常常是我們學習開源應用程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React 概念">
+<meta property="og:url" content="https://1184yang.github.io/2020/09/21/Welcome-to-React/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="React 是一個很小的程式庫，沒有提供構建應用程序需要的所有功能。在 React 中，您可以在 JavaScript 代碼中編寫類似於 HTML 的代碼。 這些標籤需要進行預處理才能在瀏覽器中運行。 為此，你可能需要像 webpack 這樣的構建工具。也需要安裝像 Node.js 這樣的運行環境，以便能建構整個應用程序。 學習這樣整個開發應用程序的架構，需要時間與決心，也常常是我們學習開源應用程">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:updated_time" content="2020-10-02T01:34:20.154Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React 概念">
+<meta name="twitter:description" content="React 是一個很小的程式庫，沒有提供構建應用程序需要的所有功能。在 React 中，您可以在 JavaScript 代碼中編寫類似於 HTML 的代碼。 這些標籤需要進行預處理才能在瀏覽器中運行。 為此，你可能需要像 webpack 這樣的構建工具。也需要安裝像 Node.js 這樣的運行環境，以便能建構整個應用程序。 學習這樣整個開發應用程序的架構，需要時間與決心，也常常是我們學習開源應用程">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/09/21/Welcome-to-React/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>React 概念 | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/09/21/Welcome-to-React/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          React 概念
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-09-21 07:53:08" itemprop="dateCreated datePublished" datetime="2020-09-21T07:53:08+08:00">2020-09-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-10-02 09:34:20" itemprop="dateModified" datetime="2020-10-02T09:34:20+08:00">2020-10-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/React/" itemprop="url" rel="index"><span itemprop="name">React</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>React 是一個很小的程式庫，沒有提供構建應用程序需要的所有功能。在 React 中，您可以在 JavaScript 代碼中編寫類似於 HTML 的代碼。 這些標籤需要進行預處理才能在瀏覽器中運行。 為此，你可能需要像 webpack 這樣的構建工具。也需要安裝像 Node.js 這樣的運行環境，以便能建構整個應用程序。</p>
+<p>學習這樣整個開發應用程序的架構，需要時間與決心，也常常是我們學習開源應用程序的障礙。React 在剛推出的時候就容許被逐步採用，你可以按自己所需，可多可少的採用 React。不管你是想初步嘗試 React、在簡單的 HTML 網頁上加入互動性，或是實作一個使用 React 驅動的複雜應用程式。</p>
+<p>React 不強制要求你使用特定的架構，所以你可以在不同環境中重複使用開發的 React 功能，而不需要重寫原有的程式碼。甚至可以移轉到 React Native 建立行動裝置的原生應用程序。</p>
+<p>這裡，我們就從我們熟悉的 Oracle APEX 平台開始。我們可以利用 APEX 伺服器與前端的開發工具加入 React 元件，增進 APEX application 的互動性，也可透過 API 攫取不同來源的網路資源，加強資料的整合性。我們不需要安裝 Node.js 與 webpack。</p>
+<p>未來如果需要，這些在 APEX 中開發的 React 元件，也可以很快速地應用在其他架構。</p>
+<p>但開始學習 React 之前，你仍必須有堅實的 JavaScript 技術。React 在最近幾年快速的發展，在最近的 2019 年 React 16.8 我們看到了 Hooks 的發布，這是一種在組件(components)之間添加和共享狀態(state)邏輯的新方法，它讓你不必寫 class 就能使用 state 以及其他 React 的功能，讓程式碼更加簡潔。這會大量的使用 JavaScript ES6 的最新語法。</p>
+<p>你如果在網路上看到使用 class 的 React 組件，請不要再用。class component 將來可能會被棄用。Function components 與 Hooks 是 React 的未來。</p>
+<p>身為一個專業的軟體工程師，不管你伺服端使用何種架構、何種資料庫，你還是都得精於 JavaScript。JavaScript 是目前軟體工程師最重要的技術。</p>
+<h3 id="APEX-平台"><a href="#APEX-平台" class="headerlink" title="APEX 平台"></a>APEX 平台</h3><p>這裡使用的 APEX 版本是 5.1.4。如果你使用的環境低於 5.1.4，建議您盡快升級。它除了有較好的使用者介面，伺服端也提供 APEX_JSON Package 支援 JSON。JSON 是目前資料交換最重要的格式，你也須花點時間了解它。</p>
+<p>要在 APEX 中能夠運作，我們必須 import 三個 JavaScript 程式庫。你可以將這三個程式庫加入 APEX Page Properties 的 JavaScript &gt; File URLs 中。</p>
+<ul>
+<li><a href="https://unpkg.com/react@16.13.1/umd/react.development.js" target="_blank" rel="noopener">https://unpkg.com/react@16.13.1/umd/react.development.js</a></li>
+<li><a href="https://unpkg.com/react-dom@16.13.1/umd/react-dom.development.js" target="_blank" rel="noopener">https://unpkg.com/react-dom@16.13.1/umd/react-dom.development.js</a></li>
+<li><a href="https://unpkg.com/@babel/standalone/babel.min.js" target="_blank" rel="noopener">https://unpkg.com/@babel/standalone/babel.min.js</a></li>
+</ul>
+<p>我們會在開發 React 時用到 JavaScript ES6 與 React JSX 語法，並不是所有的瀏覽器都支援這些語法，Babel 就是負責這些預處理，將這些語法事先轉譯成瀏覽器看得懂的語法，這稱為 compiling。</p>
+<h3 id="React-如何運作的"><a href="#React-如何運作的" class="headerlink" title="React 如何運作的"></a>React 如何運作的</h3><p>使用 React 時，會用 JSX 創建應用程序。JSX 是基於標籤(tag-based)的 JavaScirpt 語法，看起來很像 HTML。使用 React 必須深入探討 JSX。 為了真正理解 React，我們就從其最原子的單元：React 元素(React elements)開始。但我們先不使用 JSX 語法，而先用 React.createElement 來探討 React 元素。</p>
+<h5 id="React-Elements"><a href="#React-Elements" class="headerlink" title="React Elements"></a>React Elements</h5><p>我們將了解 React 元素，及如何與其他元素組成自定義的 React 組件(React components)，從而了解 React 組件。</p>
+<p>瀏覽器 DOM 由 DOM 元素(DOM elements)組成。 同樣，React DOM 由 React 元素組成。 DOM 元素和 React 元素看起來相同，但實際上卻完全不同。 React 元素是對實際 DOM 元素的外觀的描述。 換句話說，React 元素是有關如何創建瀏覽器 DOM 的指令。</p>
+<p>我們可以使用 React.createElement 創建一個 React 元素來代表 h1。</p>
+<p>在 APEX Page 建立一個 Region，在 Region Properties 的 Source &gt; Text 加入程式碼:</p>
+<figure class="highlight html"><figcaption><span>Region Source Text</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"react-root"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> hello = React.createElement(<span class="string">"h1"</span>, &#123; <span class="attr">id</span>: <span class="string">"hello"</span> &#125;, <span class="string">"Hello Scott!"</span>);</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  ReactDOM.render(hello, <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>));</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 3 行的 script 標籤的 type 是 text/babel，Babel 將在運行客戶端之前在客戶端上事先編譯代碼。</li>
+<li>第 4 行使用 React.createElement 創建一個 React 元素<blockquote>
+<ul>
+<li>第一個參數定義我們要創建的元素的類型。 在這裡，我們要創建一個 h1 元素。 </li>
+<li>第二個參數表示元素的屬性(properties)。 創建的 h1 當前具有 id 為 hello 的屬性 。 </li>
+<li>第三個參數表示元素的子元素：在開始和結束標記之間插入的任何節點，在這裡，僅是一些文本字串 “Hello Scott!”。</li>
+</ul>
+</blockquote>
+</li>
+<li>第 6 行 ReactDOM.render 會將創建的 React 元素渲染(rendering)為實際的 DOM 元素。並掛載到實際的 DOM 目標節點 react-root。</li>
+</ul>
+<p>渲染後實際的 DOM 元素如下:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">id</span>=<span class="string">"hello"</span>&gt;</span>Hello Scott!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>React 元素只是一個 JavaScript 描述，告訴 React 如何構造 DOM 元素。如果將它 log 到 Chrome 開發環境的 Console，則它會像:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  $$<span class="keyword">typeof</span>: <span class="built_in">Symbol</span>(react.element),</span><br><span class="line">  key: <span class="literal">null</span>,</span><br><span class="line">  props: &#123;<span class="attr">id</span>: <span class="string">"hello"</span>, <span class="attr">children</span>: <span class="string">"Hello Scott!"</span>&#125;,</span><br><span class="line">  ref: <span class="literal">null</span>,</span><br><span class="line">  type: <span class="string">"h1"</span>,</span><br><span class="line">  _owner: <span class="literal">null</span>,</span><br><span class="line">  _store: &#123;<span class="attr">validated</span>: <span class="literal">false</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所看到的這些字段(fields) 對 React 都很重要，先讓我們仔細看看 type 和 props 字段。</p>
+<p>React 元素的 type 屬性告訴 React 創建哪種類型的 HTML 或 SVG 元素。 props 屬性表示構造 DOM 元素所需的數據和子元素。 children，用於將其他嵌套元素顯示為文本。</p>
+<h5 id="ReactDOM"><a href="#ReactDOM" class="headerlink" title="ReactDOM"></a>ReactDOM</h5><p>創建 React 元素後，我們希望在瀏覽器中看到它。 ReactDOM 包含了在瀏覽器中呈現 React 元素所需的工具。 在上端程式碼的第 6 行 ReactDOM.render 就是我們所需要的。 在 React 16 以後的版本 render 也可以接受陣列，這會使陣列中的元素都成為同級元素(siblings)。</p>
+<h6 id="Children"><a href="#Children" class="headerlink" title="Children"></a>Children</h6><p>React 使用 props.children 渲染子元素。 我們也可以將其他 React 元素渲染為子元素，從而創建樹狀元素。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">React.createElement(</span><br><span class="line">  <span class="string">"ul"</span>,</span><br><span class="line">  <span class="literal">null</span>,</span><br><span class="line">  React.createElement(<span class="string">"li"</span>, <span class="literal">null</span>, <span class="string">"Hello Scott"</span>),</span><br><span class="line">  React.createElement(<span class="string">"li"</span>, <span class="literal">null</span>, <span class="string">"Hello Emily"</span>),</span><br><span class="line">  React.createElement(<span class="string">"li"</span>, <span class="literal">null</span>, <span class="string">"Hello Amanda"</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>渲染後實際的 DOM 元素如下:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>Hello Scott<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>Hello Emily<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">li</span>&gt;</span>Hello Amanda<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>我們可以改用陣列的 map 映射創建列表項:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> userData = [</span><br><span class="line">  <span class="string">"Scott"</span>,</span><br><span class="line">  <span class="string">"Emily"</span>,</span><br><span class="line">  <span class="string">"Amanda"</span></span><br><span class="line">];</span><br><span class="line">  </span><br><span class="line"><span class="keyword">const</span> hello = React.createElement(</span><br><span class="line">  <span class="string">"ul"</span>,</span><br><span class="line">  <span class="literal">null</span>,</span><br><span class="line">  userData.map(<span class="function">(<span class="params">user, i</span>) =&gt;</span> </span><br><span class="line">    React.createElement(<span class="string">"li"</span>, &#123; <span class="attr">key</span>: i &#125;, <span class="string">`Hello <span class="subst">$&#123;user&#125;</span>`</span>)</span><br><span class="line">  )</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>當我們透過迭代陣列來構建子元素列表時，React 需要每個元素都有一個 key 屬性。 React 使用 key 屬性來更有效率地更新 DOM。</p>
+<h5 id="React-Components"><a href="#React-Components" class="headerlink" title="React Components"></a>React Components</h5><p>無論其大小，內容或使用何種技術創建，使用者介面都是由部件(parts)組成的。 按鈕，列表，標題等等。所有這些部件放在一起構成一個使用者介面。有些介面所需的部件都相同，可以重複使用。</p>
+<p>在 React 中，我們將每個部件描述為一個組件(component)。組件使我們可以重用相同的結構，然後可以使用不同的數據集填充這些結構。</p>
+<p>我們將通過編寫函式來創建組件。該函式將返回使用者介面的可重用部件，也就是 React 組件。</p>
+<p>讓我們創建一個返回無序列表的函式。我們將這函式取名為 UsersList。</p>
+<figure class="highlight javascript"><figcaption><span>UsersList</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">UsersList</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> React.createElement(</span><br><span class="line">    <span class="string">"ul"</span>,</span><br><span class="line">    <span class="literal">null</span>,</span><br><span class="line">    React.createElement(<span class="string">"li"</span>, <span class="literal">null</span>, <span class="string">"Hello Scott"</span>),</span><br><span class="line">    React.createElement(<span class="string">"li"</span>, <span class="literal">null</span>, <span class="string">"Hello Emily"</span>),</span><br><span class="line">    React.createElement(<span class="string">"li"</span>, <span class="literal">null</span>, <span class="string">"Hello Amanda"</span>)</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ReactDOM.render(</span><br><span class="line">  React.createElement(UsersList, <span class="literal">null</span>, <span class="literal">null</span>),</span><br><span class="line">  <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>這個 UsersList 函式返回的就是一個組件，該組件的名稱就稱為 UsersList，該函數輸出如下所示的元素：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">UsersList</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>Hello Scott<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>Hello Emily<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span>&gt;</span>Hello Amanda<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">UsersList</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>這很酷，但是我們目前將數據硬編碼到組件中。如果我們可以構建一個組件，然後將數據作為屬性傳遞給該組件，然後該組件可以動態呈現數據，這將會更棒。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> userData = [</span><br><span class="line">  <span class="string">"Scott"</span>,</span><br><span class="line">  <span class="string">"Emily"</span>,</span><br><span class="line">  <span class="string">"Amanda"</span></span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">UsersList</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> React.createElement(</span><br><span class="line">    <span class="string">"ul"</span>,</span><br><span class="line">    <span class="literal">null</span>,</span><br><span class="line">    props.users.map(<span class="function">(<span class="params">user, i</span>) =&gt;</span> </span><br><span class="line">      React.createElement(<span class="string">"li"</span>, &#123; <span class="attr">key</span>: i &#125;, <span class="string">`Hello <span class="subst">$&#123;user&#125;</span>`</span>)</span><br><span class="line">    )</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ReactDOM.render(</span><br><span class="line">  React.createElement(UsersList, &#123; <span class="attr">users</span>: userData &#125;, <span class="literal">null</span>),</span><br><span class="line">  <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 7 行在組件函式加一個參數，以便在調用時可以動態的傳入資料。這個參數習慣上都命名為 props，表示這是組件的屬性(properties)。</li>
+<li>第 18 行透過 React.createElement <blockquote>
+<ul>
+<li>第一個參數調用 UsersList 函式，產生一個 UsersList 組件。</li>
+<li>第二個參數表示組件的屬性(properties)。 這裡有一個值是 userData 的 users 屬性。所有在這裡定義的屬性被包裝在一個物件中，做為 UsersList 函式的引數。這就是第 7 行 UsersList 函式的參數 props。第 11 行可從 props.users 取得 userData 的資料。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<p>讓我們看一下DOM。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">UsersList</span> <span class="attr">users</span>=<span class="string">"[...]"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">"0"</span>&gt;</span>Hello Scott<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">"1"</span>&gt;</span>Hello Emily<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">"2"</span>&gt;</span>Hello Amanda<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">UsersList</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意第 1 行的 users 屬性。</p>
+<p>我們還可以通過解構賦值(Destructuring assignment) props 的數據來稍微簡潔代碼，users 預設值為 [ ]，可以防止調用時沒有傳入 users 屬性:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">UsersList</span>(<span class="params">&#123; users = [] &#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> React.createElement(</span><br><span class="line">    <span class="string">"ul"</span>,</span><br><span class="line">    <span class="literal">null</span>,</span><br><span class="line">    users.map(<span class="function">(<span class="params">user, i</span>) =&gt;</span> </span><br><span class="line">      React.createElement(<span class="string">"li"</span>, &#123; <span class="attr">key</span>: i &#125;, <span class="string">`Hello <span class="subst">$&#123;user&#125;</span>`</span>)</span><br><span class="line">    )</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>改用箭頭函式運算式（arrow function expression）:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> UsersList = <span class="function">(<span class="params">&#123; users = [] &#125;</span>) =&gt;</span> (</span><br><span class="line">  React.createElement(</span><br><span class="line">    <span class="string">"ul"</span>,</span><br><span class="line">    <span class="literal">null</span>,</span><br><span class="line">    users.map(<span class="function">(<span class="params">user, i</span>) =&gt;</span> </span><br><span class="line">      React.createElement(<span class="string">"li"</span>, &#123; <span class="attr">key</span>: i &#125;, <span class="string">`Hello <span class="subst">$&#123;user&#125;</span>`</span>)</span><br><span class="line">    )</span><br><span class="line">  )</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>使用 React.createElement 函式是了解 React 如何工作的好方法，但是作為 React 開發人員，這不是我們要做的。為了有效地使用 React，我們還需要做一件事：JSX。<span><a href="/2020/09/22/React-with-JSX/" title="React with JSX">React with JSX</a></span></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/20/SQL-GroupBy/" rel="prev" title="SQL GROUP BY">
+      <i class="fa fa-chevron-left"></i> SQL GROUP BY
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/22/React-with-JSX/" rel="next" title="React with JSX">
+      React with JSX <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#APEX-平台"><span class="nav-number">1.</span> <span class="nav-text">APEX 平台</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#React-如何運作的"><span class="nav-number">2.</span> <span class="nav-text">React 如何運作的</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#React-Elements"><span class="nav-number">2.0.1.</span> <span class="nav-text">React Elements</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#ReactDOM"><span class="nav-number">2.0.2.</span> <span class="nav-text">ReactDOM</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#Children"><span class="nav-number">2.0.2.1.</span> <span class="nav-text">Children</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#React-Components"><span class="nav-number">2.0.3.</span> <span class="nav-text">React Components</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

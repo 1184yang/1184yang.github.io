@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="甚麼是 Table Function? 就是 Function 用起來就像 Table。PL/SQL Function 有什麼作用?  FunctionFunction 可以返回一個值。 該值可以是純量值，例如字符串: 123456789CREATE OR REPLACE FUNCTION longer_string (  string_in IN VARCHAR2, to_length_in I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle Table Functions">
+<meta property="og:url" content="https://1184yang.github.io/2020/12/22/Oracle-Table-Functions/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="甚麼是 Table Function? 就是 Function 用起來就像 Table。PL/SQL Function 有什麼作用?  FunctionFunction 可以返回一個值。 該值可以是純量值，例如字符串: 123456789CREATE OR REPLACE FUNCTION longer_string (  string_in IN VARCHAR2, to_length_in I">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="https://1184yang.github.io/2020/12/22/Oracle-Table-Functions/2020-12-22-01.png">
+<meta property="og:updated_time" content="2021-02-19T23:28:37.760Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle Table Functions">
+<meta name="twitter:description" content="甚麼是 Table Function? 就是 Function 用起來就像 Table。PL/SQL Function 有什麼作用?  FunctionFunction 可以返回一個值。 該值可以是純量值，例如字符串: 123456789CREATE OR REPLACE FUNCTION longer_string (  string_in IN VARCHAR2, to_length_in I">
+<meta name="twitter:image" content="https://1184yang.github.io/2020/12/22/Oracle-Table-Functions/2020-12-22-01.png">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/12/22/Oracle-Table-Functions/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>Oracle Table Functions | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/12/22/Oracle-Table-Functions/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Oracle Table Functions
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-12-22 13:02:12" itemprop="dateCreated datePublished" datetime="2020-12-22T13:02:12+08:00">2020-12-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2021-02-20 07:28:37" itemprop="dateModified" datetime="2021-02-20T07:28:37+08:00">2021-02-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Oracle/" itemprop="url" rel="index"><span itemprop="name">Oracle</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>甚麼是 Table Function? 就是 Function 用起來就像 Table。PL/SQL Function 有什麼作用? </p>
+<h3 id="Function"><a href="#Function" class="headerlink" title="Function"></a>Function</h3><p>Function 可以返回一個值。 該值可以是純量值，例如字符串:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">FUNCTION</span> longer_string (</span><br><span class="line">  string_in <span class="keyword">IN</span> <span class="built_in">VARCHAR2</span>, to_length_in <span class="keyword">IN</span> <span class="built_in">INTEGER</span>)</span><br><span class="line">  <span class="keyword">RETURN</span> <span class="built_in">VARCHAR2</span></span><br><span class="line">  <span class="keyword">AUTHID</span> DEFINER</span><br><span class="line"><span class="keyword">IS</span></span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  <span class="keyword">RETURN</span> RPAD (string_in, to_length_in, <span class="string">'x'</span>);</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">SQL&gt; select longer_string('Hello Tainan!', 20) as hello from dual;</span><br><span class="line"></span><br><span class="line">HELLO</span><br><span class="line"><span class="comment">--------------------------------------------------------------------------------</span></span><br><span class="line">Hello Tainan!xxxxxxx</span><br></pre></td></tr></table></figure>
+
+<p>Function 還可以返回更複雜的數據類型，例如，記錄(record)、甚至集合(collection)。為了展示這一點，首先聲明一個 Schema-level 的 Nested table 類型:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">TYPE</span> strings_t <span class="keyword">IS</span> <span class="keyword">TABLE</span> <span class="keyword">OF</span> <span class="built_in">VARCHAR2</span>(<span class="number">100</span>)</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>然後定義一個 function，該 function 返回該類型 (strings_t) 的隨機生成的字符串 (varchar2) 的集合 (collection):</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">FUNCTION</span> random_strings (</span><br><span class="line">  count_in <span class="keyword">IN</span> <span class="built_in">INTEGER</span>)</span><br><span class="line">  <span class="keyword">RETURN</span> strings_t</span><br><span class="line">  <span class="keyword">AUTHID</span> DEFINER</span><br><span class="line"><span class="keyword">IS</span></span><br><span class="line">  l_strings strings_t := strings_t();</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  l_strings.EXTEND(count_in);</span><br><span class="line"></span><br><span class="line">  FOR indx IN 1 .. count_in</span><br><span class="line">  LOOP</span><br><span class="line">    l_strings(indx) := DBMS_RANDOM.string('u', 10);</span><br><span class="line">  <span class="keyword">END</span> <span class="keyword">LOOP</span>;</span><br><span class="line"></span><br><span class="line">  RETURN l_strings;</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>這是一個<strong>返回集合的函數</strong>，我們可以將它當成 Table Function 使用，這意思是，您可以使用 SELECT 語句查詢函數返回值的內容，就像使用一般的 Table 一樣。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">SQL&gt; select * from table(random_strings(5));</span><br><span class="line"></span><br><span class="line">COLUMN_VALUE</span><br><span class="line"><span class="comment">--------------------------------------------------------------------------------</span></span><br><span class="line">HLSFIPLIWX</span><br><span class="line">ITYWJXMWBD</span><br><span class="line">OTPGAWXFGG</span><br><span class="line">HMNQCQIPKL</span><br><span class="line">EPNLHKYJEG</span><br></pre></td></tr></table></figure>
+
+<p>當然你也可以將它當成一般普通的函式這樣用:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">SQL&gt; select random_strings(5) from dual;</span><br><span class="line"></span><br><span class="line">RANDOM_STRINGS(5)</span><br><span class="line"><span class="comment">--------------------------------------------------------------------------------</span></span><br><span class="line">STRINGS_T('XJNABIIQLO', 'WTVKOLJHMT', 'JQMOPVDOQE', 'DUOUHJUVHO', 'FFJFVTBWTT')</span><br></pre></td></tr></table></figure>
+
+<p>但在 Oracle 資料庫中這樣的資料可能不是你要的。</p>
+<h3 id="Table-Functions"><a href="#Table-Functions" class="headerlink" title="Table Functions"></a>Table Functions</h3><p>Table function 可用在以下的情況中:</p>
+<ul>
+<li><p>合併 Tables 的數據資料<br>您無法或很難單純的使用 SQL 的功能來獲得一些答案。則可使用 TABLE 子句和 Table Function 來實現。</p>
+</li>
+<li><p>以程式的方式建構要傳遞到主機環境的數據集<br>您的網頁需要顯示一些數據。 然而，這些數據需要一些複雜的整合。一般的情況，您需要執行一些過程代碼來構造數據集，然後將構造的數據存入一個暫存的 Table (Temporary Table) 中，然後執行 SELECT。但是使用 Table function，您可以立即將數據傳遞到網頁，而<strong>無需任何暫存的處理過程</strong>。</p>
+</li>
+<li><p>模擬可參數化的 View (parameterized view)<br>Oracle database 不支援真正的參數化的 View，如</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">VIEW</span> my_view (param1_in <span class="keyword">IN</span> <span class="built_in">INTEGER</span>) ...</span><br></pre></td></tr></table></figure>
+
+<p>您可以使用 system contexts 實現類似的效果，在 WHERE 子句調用 SYS_CONTEXT 函數以從 session 中獲取參數值。</p>
+<p>但您也可以使用 Table function 接受參數來模擬可參數化的 View。</p>
+</li>
+<li><p>限制開發人員對 Tables 的使用權限<br>如果要嚴格遵循資料庫的資料安全準則，使用者和開發人員都無法直接訪問 Table，即使是 SELECT 權限！ 對於非查詢 DML (插入，更新，刪除），一值都建議打包成 PL/SQL Package 來執行這些操作。對於查詢 (SELECT)，則可以通過使用 Table function 來實現對 Table 查詢的完全控制。 您不必授予 Table 的 SELECT 權限，而是授予 Table function 的 EXECUTE 權限。</p>
+</li>
+<li><p>執行 Data warehouse 的資料轉換<br>數據倉儲環境中的一個常見要求是執行轉換 (Transformation)，通常都是從一個 Table 轉換到另一個 Table，如圖:</p>
+<img src="/2020/12/22/Oracle-Table-Functions/2020-12-22-01.png" title="Table Function">
+
+<p>一種特殊類型的 Table function ，稱為 <strong>Streaming table function</strong>，可以簡潔優雅的支援這些轉換並兼具高性能。</p>
+</li>
+</ul>
+<p>現在我們看看如何使用 random_strings 函數，既可以作為 PL/SQL 中的 “普通” 函數，也可以作為 Table function。</p>
+<p>在下面的 PL/SQL 程式碼中，調用 random_strings 函數，然後使用 DBMS_OUTPUT.PUT_LINE 顯示生成的字符串:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> serveroutput <span class="keyword">on</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">DECLARE</span></span><br><span class="line">  l_strings strings_t := random_strings(<span class="number">5</span>);</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  <span class="keyword">FOR</span> indx <span class="keyword">IN</span> <span class="number">1</span> .. l_strings.COUNT</span><br><span class="line">  <span class="keyword">LOOP</span></span><br><span class="line">    DBMS_OUTPUT.put_line(l_strings(indx));</span><br><span class="line">  <span class="keyword">END</span> <span class="keyword">LOOP</span>;</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">RNOOEODDOH</span><br><span class="line">LJNWHIUVJA</span><br><span class="line">LFLHRCCURN</span><br><span class="line">ROUGNTXSQU</span><br><span class="line">RJKRTXKGCK</span><br><span class="line"></span><br><span class="line">PL/SQL procedure successfully completed.</span><br></pre></td></tr></table></figure>
+
+<p>現在直接在 SELECT 語句中調用該函數：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">COLUMN_VALUE</span> my_string</span><br><span class="line">  <span class="keyword">FROM</span> <span class="keyword">TABLE</span> (random_strings(<span class="number">5</span>))</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">MY_STRING</span><br><span class="line"><span class="comment">--------------------------------------------------------------------------------</span></span><br><span class="line">BKYEWJPQJW</span><br><span class="line">CVSINZCLPX</span><br><span class="line">CLFUSFDWOU</span><br><span class="line">MEEQSNYKXW</span><br><span class="line">PANIDFINDJ</span><br></pre></td></tr></table></figure>
+
+<p><strong>這就是 Table function !</strong></p>
+<p>Oracle 資料庫中的 SQL 引擎在 table function 方面為我們做了大部分繁重工作。在 SELECT 語句的 TABLE 子句中調用函數時，SQL 引擎會將函數返回的數據集轉換為關係結果集 (Relational result set)。然後就可以像從 Table 或 View 中的結果集那樣操縱該結果集。</p>
+<p>當集合類型的每個元素都是<strong>單純的量值</strong>時（如上面的 strings_t 的情況），該結果集的單個 Column 的名稱將自動設置為 COLUMN_VALUE。 當然，您可以使用 column alias 更改它。</p>
+<p>當我們從函數返回一個<strong>集合 (collection)</strong> 時，集合裡面的每個元素 (row) 不會像前面例子，只含單獨的一個欄位(column)，我們需要像 Table 中的每筆資料一樣含有許多的 columns，要達到此目地我們就必須使用物件來達到此目的:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">TYPE</span> two_strings_ot</span><br><span class="line">  <span class="keyword">AUTHID</span> DEFINER </span><br><span class="line">  <span class="keyword">IS</span> <span class="keyword">OBJECT</span></span><br><span class="line">(</span><br><span class="line">  string1 <span class="built_in">VARCHAR2</span>(<span class="number">10</span>),</span><br><span class="line">  string2 <span class="built_in">VARCHAR2</span>(<span class="number">10</span>)</span><br><span class="line">)</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">TYPE</span> two_strings_nt <span class="keyword">IS</span> <span class="keyword">TABLE</span> <span class="keyword">OF</span> two_strings_ot</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>現在我們可以使用這兩個類型:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">FUNCTION</span> three_pairs</span><br><span class="line">  <span class="keyword">RETURN</span> two_strings_nt</span><br><span class="line">  <span class="keyword">AUTHID</span> DEFINER</span><br><span class="line"><span class="keyword">IS</span></span><br><span class="line">  l_strings two_strings_nt;</span><br><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  <span class="keyword">RETURN</span> two_strings_nt(</span><br><span class="line">    two_strings_ot(<span class="string">'a'</span>, <span class="string">'b'</span>),</span><br><span class="line">    two_strings_ot(<span class="string">'c'</span>, <span class="string">'d'</span>),</span><br><span class="line">    two_strings_ot(<span class="string">'e'</span>, <span class="string">'f'</span>)</span><br><span class="line">  );</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">TABLE</span> (three_pairs())</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">STRING1    STRING2</span><br><span class="line"><span class="comment">---------- ----------</span></span><br><span class="line">a          b</span><br><span class="line">c          d</span><br><span class="line">e          f</span><br></pre></td></tr></table></figure>
+
+<p>一旦在 TABLE 子句中嵌入了函數調用，就可以像使用 Table 或 inline view 中的結果集一樣使用結果集。你可以 join 該集合，可以將 columns 使用於 WHERE 子句中，也可以使用集合運算符 (set operator)。 </p>
+<p>以下是使用 three_pairs 函數以及一般 Table 的例子。首先我們需要一個簡單的一般 Table：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> string_pairs (</span><br><span class="line">  string1   <span class="built_in">VARCHAR2</span>(<span class="number">10</span>),</span><br><span class="line">  string2   <span class="built_in">VARCHAR2</span>(<span class="number">10</span>)</span><br><span class="line">)</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BEGIN</span></span><br><span class="line">  <span class="keyword">INSERT</span> <span class="keyword">INTO</span> string_pairs <span class="keyword">VALUES</span> (<span class="string">'a'</span>, <span class="string">'bb'</span>);</span><br><span class="line">  <span class="keyword">INSERT</span> <span class="keyword">INTO</span> string_pairs <span class="keyword">VALUES</span> (<span class="string">'cc'</span>, <span class="string">'dd'</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">COMMIT</span>;</span><br><span class="line"><span class="keyword">END</span>;</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<p>現在使用 UNION ALL 集合運算符(set operator)，組合 Table 和 Table function:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> string_pairs</span><br><span class="line"><span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">TABLE</span> (three_pairs())</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">STRING1    STRING2</span><br><span class="line"><span class="comment">---------- ----------</span></span><br><span class="line">a          bb</span><br><span class="line">cc         dd</span><br><span class="line">a          b</span><br><span class="line">c          d</span><br><span class="line">e          f</span><br></pre></td></tr></table></figure>
+
+<p>接下來，將 Table 和 Table function join 在一起:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> t.string1 string1, t.string2 t_string2, tf.string2 tf_string2</span><br><span class="line">  <span class="keyword">FROM</span> string_pairs t, </span><br><span class="line">       <span class="keyword">TABLE</span> (three_pairs()) tf</span><br><span class="line"> <span class="keyword">WHERE</span> t.string1 = tf.string1</span><br><span class="line"> <span class="keyword">ORDER</span> <span class="keyword">BY</span> string1</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">STRING1  T_STRING2  TF_STRING2</span><br><span class="line"><span class="comment">---------- ---------- ----------</span></span><br><span class="line">a          bb         b</span><br></pre></td></tr></table></figure>
+
+<p>甚至可以隱藏使用 Table function，將它放在 View 中:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">OR</span> <span class="keyword">REPLACE</span> <span class="keyword">VIEW</span> three_pairs_v</span><br><span class="line"><span class="keyword">AS</span></span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="keyword">TABLE</span> (three_pairs())</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> t.string1 string1, t.string2 t_string2, tf.string2 tf_string2</span><br><span class="line">  <span class="keyword">FROM</span> string_pairs t, </span><br><span class="line">       three_pairs_v tf</span><br><span class="line"> <span class="keyword">WHERE</span> t.string1 = tf.string1</span><br><span class="line"> <span class="keyword">ORDER</span> <span class="keyword">BY</span> string1</span><br><span class="line">/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">STRING1  T_STRING2  TF_STRING2</span><br><span class="line"><span class="comment">---------- ---------- ----------</span></span><br><span class="line">a          bb         b</span><br></pre></td></tr></table></figure>
+
+<p>Table function 為資料庫開發人員提供了靈活性和功能性。 你可以使用 Table function 將 SQL 功能與 PL/SQL 的過程控制相結合，以應對各種挑戰。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/11/17/AWS-AppSync/" rel="prev" title="AWS AppSync GraphQL API 身份驗證與授權">
+      <i class="fa fa-chevron-left"></i> AWS AppSync GraphQL API 身份驗證與授權
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/12/23/Oracle-Pipelined-Table-Functions/" rel="next" title="Oracle Pipelined Table Functions">
+      Oracle Pipelined Table Functions <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Function"><span class="nav-number">1.</span> <span class="nav-text">Function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Table-Functions"><span class="nav-number">2.</span> <span class="nav-text">Table Functions</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

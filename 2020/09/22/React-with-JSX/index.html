@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="考慮下面這個變數宣告： 1const element = &amp;lt;h1&amp;gt;Hello Tainan，台南!&amp;lt;/h1&amp;gt;;  這個標籤語法不是一個字串也不是 HTML。 這個語法叫做 JSX。JSX 結合了 JavaScript 的 JS 和 XML 的 X，是一個 JavaScript 的語法擴充。允許我們直接在  Javascript 源代碼中使用基於標籤的語法來定義 React">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React with JSX">
+<meta property="og:url" content="https://1184yang.github.io/2020/09/22/React-with-JSX/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="考慮下面這個變數宣告： 1const element = &amp;lt;h1&amp;gt;Hello Tainan，台南!&amp;lt;/h1&amp;gt;;  這個標籤語法不是一個字串也不是 HTML。 這個語法叫做 JSX。JSX 結合了 JavaScript 的 JS 和 XML 的 X，是一個 JavaScript 的語法擴充。允許我們直接在  Javascript 源代碼中使用基於標籤的語法來定義 React">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:updated_time" content="2020-10-10T05:48:16.374Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React with JSX">
+<meta name="twitter:description" content="考慮下面這個變數宣告： 1const element = &amp;lt;h1&amp;gt;Hello Tainan，台南!&amp;lt;/h1&amp;gt;;  這個標籤語法不是一個字串也不是 HTML。 這個語法叫做 JSX。JSX 結合了 JavaScript 的 JS 和 XML 的 X，是一個 JavaScript 的語法擴充。允許我們直接在  Javascript 源代碼中使用基於標籤的語法來定義 React">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/09/22/React-with-JSX/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>React with JSX | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/09/22/React-with-JSX/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          React with JSX
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-09-22 09:38:19" itemprop="dateCreated datePublished" datetime="2020-09-22T09:38:19+08:00">2020-09-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-10-10 13:48:16" itemprop="dateModified" datetime="2020-10-10T13:48:16+08:00">2020-10-10</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/React/" itemprop="url" rel="index"><span itemprop="name">React</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>考慮下面這個變數宣告：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const element = <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello Tainan，台南!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>這個標籤語法不是一個字串也不是 HTML。</p>
+<p>這個語法叫做 JSX。JSX 結合了 JavaScript 的 JS 和 XML 的 X，是一個 JavaScript 的語法擴充。允許我們直接在  Javascript 源代碼中使用基於<strong>標籤</strong>的語法來定義 React 元素。有時 JSX 會與 HTML 混淆，因為它們看起來很相似。JSX 也可能會讓你想到一些樣板語言(template language)，但不一樣的地方是 JSX 允許你使用 JavaScript 所有的功能。</p>
+<p>JSX 是創建 React 元素的另一種方式，執行 JSX 會產生 React 元素，因此您不必費力地在復雜的 React.createElement 調用中尋找缺少的逗號。</p>
+<p>建議你在寫 React 的時候透過 JSX 語法來描述使用者介面的外觀。</p>
+<p>將 React.createElement 改用 JSX:</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line">const hello = React.createElement("h1", &#123; id: "hello" &#125;, "Hello Scott!");</span><br><span class="line">               ⇓</span><br><span class="line">const hello = <span class="tag">&lt;<span class="name">h1</span> <span class="attr">id</span>=<span class="string">"hello"</span>&gt;</span>Hello Scott!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"react-root"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> hello = <span class="xml"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">id</span>=<span class="string">"hello"</span>&gt;</span>Hello Scott!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>;</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">  ReactDOM.render(hello, <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>));</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>JavaScript 不認識 JSX 語法，必須先經過 Babel 的預處理(compiling)。</p>
+<p>但我們通常不會使用變數的方式，而會使用函式組件的方式:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Hello = <span class="function"><span class="params">()</span> =&gt;</span> <span class="xml"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">id</span>=<span class="string">"hello"</span>&gt;</span>Hello Scott!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>;</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">  ReactDOM.render(<span class="xml"><span class="tag">&lt;<span class="name">Hello</span> /&gt;</span></span>, <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>));</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>這個模式是 React JSX 的基本使用方式: 函式組件 (function component)。組成的組件樹(component tree)構造整個 React 應用程序。</p>
+<h4 id="JSX-Tips"><a href="#JSX-Tips" class="headerlink" title="JSX Tips"></a>JSX Tips</h4><p>JSX 可能看起來很熟悉，並且大多數規則導致的語法類似於 HTML。但是，使用 JSX 時應注意一些事項。</p>
+<h5 id="Nested-components"><a href="#Nested-components" class="headerlink" title="Nested components"></a>Nested components</h5><p>JSX 允許我們將組件添加為其他組件的子代。 例如，在 UsersList 內部，我們可以多次渲染另一個名為 User 的組件。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">UsersList</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">User</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">User</span> /&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">User</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">UsersList</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="className"><a href="#className" class="headerlink" title="className"></a>className</h5><p>由於 class 是 JavaScript 中的保留字，因此使用 className 來定義 class 屬性。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">className</span>=<span class="string">"fancy"</span>&gt;</span>Hello Scott!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="JavaScript-expressions"><a href="#JavaScript-expressions" class="headerlink" title="JavaScript expressions"></a>JavaScript expressions</h5><p>JavaScript 表達式用大括號 { } 括起來，指示變數將在何處被求值並返回其結果值。例如，如果要在元素中顯示 user 屬性的值，則可以使用 JavaScript 表達式插入該值。該變數 user 將被求值並返回其值。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;user&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>除字符串以外的其他類型的值，也應顯示為 JavaScript 表達式:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"checkbox"</span> <span class="attr">defaultChecked</span>=<span class="string">&#123;false&#125;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h5><p>大括號之間添加的 JavaScript 將被求值。 這意味著，可以執行字串串聯或加法之類的操作。這也意味著, JavaScript 將會調用在表達式中找到的函數：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;"Hello " + user&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;user.toLowerCase()&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;`Hello $&#123;user.toLowerCase()&#125;`&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="Mapping-Arrays-with-JSX"><a href="#Mapping-Arrays-with-JSX" class="headerlink" title="Mapping Arrays with JSX"></a>Mapping Arrays with JSX</h5><p>JSX 是 JavaScript，因此您可以將 JSX 直接合併到 JavaScript 函數中。例如，您可以將陣列映射到 JSX 元素：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  &#123; userData.map((user, i) =&gt; (</span><br><span class="line">    <span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span>&gt;</span>&#123;user&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">  ))&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以比對一下使用 React.createElement 與 使用 JSX 的差別:</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line">const hello = React.createElement(</span><br><span class="line">  "ul",</span><br><span class="line">  null,</span><br><span class="line">  userData.map((user, i) =&gt; </span><br><span class="line">    React.createElement("li", &#123; key: i &#125;, `Hello $&#123;user&#125;`)</span><br><span class="line">  )</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">      ⇓</span><br><span class="line"></span><br><span class="line">const hello = </span><br><span class="line">  <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">    &#123; userData.map((user, i) =&gt; (</span><br><span class="line">      <span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span>&gt;</span>&#123;user&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">    ))&#125;</span><br><span class="line">  <span class="tag">&lt;/<span class="name">ul</span>&gt;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>JSX 看起來很乾淨而且有較佳的可讀性，但是無法直接在瀏覽器解譯執行。所有 JSX 必須轉換為 React.createElement 調用。幸運的是，有一個出色的工具可以執行此任務：Babel。</p>
+<p>整段由使用 React.createElement 改用 JSX 改寫。</p>
+<ul>
+<li>使用 React.createElement</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> userData = [</span></span><br><span class="line"><span class="javascript">    <span class="string">"Scott"</span>,</span></span><br><span class="line"><span class="javascript">    <span class="string">"Emily"</span>,</span></span><br><span class="line"><span class="javascript">    <span class="string">"Amanda"</span></span></span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> UsersList = <span class="function">(<span class="params">&#123; users = [] &#125;</span>) =&gt;</span> (</span></span><br><span class="line">    React.createElement(</span><br><span class="line"><span class="javascript">      <span class="string">"ul"</span>,</span></span><br><span class="line"><span class="javascript">      <span class="literal">null</span>,</span></span><br><span class="line"><span class="javascript">      users.map(<span class="function">(<span class="params">user, i</span>) =&gt;</span> </span></span><br><span class="line"><span class="javascript">        React.createElement(<span class="string">"li"</span>, &#123; <span class="attr">key</span>: i &#125;, <span class="string">`Hello <span class="subst">$&#123;user&#125;</span>`</span>)</span></span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line">  ReactDOM.render(</span><br><span class="line"><span class="javascript">    React.createElement(UsersList, &#123; <span class="attr">users</span>: userData &#125;, <span class="literal">null</span>),</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>)</span></span><br><span class="line">  );</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 JSX</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> userData = [</span></span><br><span class="line"><span class="javascript">    <span class="string">"Scott"</span>,</span></span><br><span class="line"><span class="javascript">    <span class="string">"Emily"</span>,</span></span><br><span class="line"><span class="javascript">    <span class="string">"Amanda"</span></span></span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> UsersList = <span class="function">(<span class="params">&#123; users = [] &#125;</span>) =&gt;</span> (</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span></span><br><span class="line"><span class="javascript">      &#123; users.map(<span class="function">(<span class="params">user, i</span>) =&gt;</span> (</span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span>&gt;</span>&#123;user&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">      ))&#125;</span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">  </span><br><span class="line">  ReactDOM.render(</span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">UsersList</span> <span class="attr">users</span>=<span class="string">&#123;userData&#125;</span> /&gt;</span>,</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">"react-root"</span>)</span></span><br><span class="line">  );</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>第 8 行是一個函式組件，這裡改用 JSX。</li>
+<li>第 17 行我們使用 JSX 語法調用 UsersList 函式組件，透過 users 屬性傳遞函式引數。這裡的所有屬性將被包在一個物件 { users: “[…]”, others: “…” } 傳遞給函式組件。</li>
+</ul>
+<p>有了基礎概念，現在來做一個比較實際的例子。</p>
+<h4 id="美味食譜"><a href="#美味食譜" class="headerlink" title="美味食譜"></a>美味食譜</h4><p>我們需要一些美味食譜的資料，我們將它放在 APEX Page Properties 的 JavaScript &gt; Function and Global Variable Declaration 中。</p>
+<figure class="highlight javascript"><figcaption><span>recipesData</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> recipesData = [</span><br><span class="line">  &#123;</span><br><span class="line">    name: <span class="string">"烤鮭魚"</span>,</span><br><span class="line">    ingredients: [</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"鮭魚"</span>, <span class="attr">amount</span>: <span class="number">1</span>, <span class="attr">measurement</span>: <span class="string">"磅"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"松子"</span>, <span class="attr">amount</span>: <span class="number">1</span>, <span class="attr">measurement</span>: <span class="string">"杯"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"生菜"</span>, <span class="attr">amount</span>: <span class="number">2</span>, <span class="attr">measurement</span>: <span class="string">"杯"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"黃色的南瓜"</span>, <span class="attr">amount</span>: <span class="number">1</span>, <span class="attr">measurement</span>: <span class="string">"中"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"橄欖油"</span>, <span class="attr">amount</span>: <span class="number">0.5</span>, <span class="attr">measurement</span>: <span class="string">"杯"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"大蒜"</span>, <span class="attr">amount</span>: <span class="number">3</span>, <span class="attr">measurement</span>: <span class="string">"瓣"</span> &#125;,</span><br><span class="line">    ],</span><br><span class="line">    steps: [</span><br><span class="line">      <span class="string">"將烤箱預熱至350度。"</span>,</span><br><span class="line">      <span class="string">"將橄欖油撒在玻璃烤盤上。"</span>,</span><br><span class="line">      <span class="string">"加入南瓜，放入烤箱30分鐘。"</span>,</span><br><span class="line">      <span class="string">"將鮭魚，大蒜和松子添加到菜中."</span>,</span><br><span class="line">      <span class="string">"烤15分鐘。"</span>,</span><br><span class="line">      <span class="string">"從烤箱中取出，加入生菜即可食用。"</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    name: <span class="string">"魚炸玉米餅"</span>,</span><br><span class="line">    ingredients: [</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"白鲑"</span>, <span class="attr">amount</span>: <span class="number">1</span>, <span class="attr">measurement</span>: <span class="string">"磅"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"乳酪"</span>, <span class="attr">amount</span>: <span class="number">1</span>, <span class="attr">measurement</span>: <span class="string">"杯"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"捲心萵苣"</span>, <span class="attr">amount</span>: <span class="number">2</span>, <span class="attr">measurement</span>: <span class="string">"杯"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"番茄"</span>, <span class="attr">amount</span>: <span class="number">2</span>, <span class="attr">measurement</span>: <span class="string">"大"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"玉米饼"</span>, <span class="attr">amount</span>: <span class="number">3</span>, <span class="attr">measurement</span>: <span class="string">"中"</span> &#125;</span><br><span class="line">    ],</span><br><span class="line">    steps: [</span><br><span class="line">      <span class="string">"將魚放在烤架上煮至熱。"</span>,</span><br><span class="line">      <span class="string">"將魚放在3個玉米餅上。"</span>,</span><br><span class="line">      <span class="string">"上放生菜，番茄和乳酪。"</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    name: <span class="string">"蕃茄炒蛋"</span>,</span><br><span class="line">    ingredients: [</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"紅蕃茄"</span>, <span class="attr">amount</span>: <span class="number">3</span>, <span class="attr">measurement</span>: <span class="string">"個"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"雞蛋"</span>, <span class="attr">amount</span>: <span class="number">3</span>, <span class="attr">measurement</span>: <span class="string">"個"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"蕃茄醬"</span>, <span class="attr">amount</span>: <span class="number">1</span>, <span class="attr">measurement</span>: <span class="string">"大匙"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"蔥花"</span>, <span class="attr">amount</span>: <span class="number">2</span>, <span class="attr">measurement</span>: <span class="string">"大匙"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"蒜末"</span>, <span class="attr">amount</span>: <span class="number">1</span>, <span class="attr">measurement</span>: <span class="string">"小匙"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"橄欖油"</span>, <span class="attr">amount</span>: <span class="number">2.5</span>, <span class="attr">measurement</span>: <span class="string">"大匙"</span> &#125;,</span><br><span class="line">      &#123; <span class="attr">name</span>: <span class="string">"鹽"</span>, <span class="attr">amount</span>: <span class="number">1</span>, <span class="attr">measurement</span>: <span class="string">"小匙"</span> &#125;</span><br><span class="line">    ],</span><br><span class="line">    steps: [</span><br><span class="line">      <span class="string">"蕃茄洗淨後切塊狀..(去皮否隨個人喜好即可)~蛋打散備用。"</span>,</span><br><span class="line">      <span class="string">"起油鍋(兩大匙油)~蛋先入鍋炒至5分熟後盛出備用。"</span>,</span><br><span class="line">      <span class="string">"原鍋再加入油1/2大匙爆香蔥白、蒜末後倒入蕃茄醬拌炒。"</span>,</span><br><span class="line">      <span class="string">"接著加入水適量(剛好淹蓋住食材即可)煮開後，加入調味料煮片刻。"</span>,</span><br><span class="line">      <span class="string">"湯汁略為濃縮後倒入5分熟的炒蛋混合拌勻再煮一下即可。"</span>,</span><br><span class="line">      <span class="string">"起鍋前淋下香油，灑入蔥花拌一下即可盛盤。"</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>Region Properties 的 Source &gt; Text 的程式碼:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"react-root"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/babel"</span>&gt;</span></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> &#123; render &#125; = ReactDOM;</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Ingredient = <span class="function">(<span class="params">&#123;amount, measurement, name&#125;</span>) =&gt;</span> </span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">li</span>&gt;</span></span></span><br><span class="line">      &#123;amount&#125; &#123;measurement&#125; &#123;name&#125;</span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">li</span>&gt;</span>;</span></span><br><span class="line">   </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> IngredientsList = <span class="function">(<span class="params">&#123;list&#125;</span>) =&gt;</span>    </span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">ul</span> <span class="attr">className</span>=<span class="string">"ingredients"</span>&gt;</span></span></span><br><span class="line"><span class="javascript">      &#123;list.map(<span class="function">(<span class="params">ingredient, i</span>) =&gt;</span> (</span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">Ingredient</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span> &#123;<span class="attr">...ingredient</span>&#125; /&gt;</span></span></span><br><span class="line">      ))&#125;</span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span>;</span></span><br><span class="line">  </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Instructions = <span class="function">(<span class="params">&#123;title, steps&#125;</span>) =&gt;</span>    </span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">section</span> <span class="attr">className</span>=<span class="string">"instructions"</span> <span class="attr">style</span>=<span class="string">&#123;&#123;paddingLeft:</span> "<span class="attr">1em</span>"&#125;&#125;&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">h3</span>&gt;</span>&#123;title&#125;<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span></span><br><span class="line"><span class="javascript">      &#123;steps.map(<span class="function">(<span class="params">s, i</span>) =&gt;</span> (</span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">p</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span>&gt;</span>&#123;s&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line">      ))&#125;    </span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">section</span>&gt;</span>;</span></span><br><span class="line">    </span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Recipe = <span class="function">(<span class="params">&#123;name, ingredients, steps&#125;</span>) =&gt;</span></span></span><br><span class="line"><span class="javascript">    &lt;section id=&#123;name.toLowerCase().replace(<span class="regexp">/ /g</span>, <span class="string">"-"</span>)&#125; style=&#123;&#123;<span class="attr">marginBottom</span>: <span class="string">"1em"</span>&#125;&#125;&gt;</span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">h2</span>&gt;</span>&#123;name&#125;<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">IngredientsList</span> <span class="attr">list</span>=<span class="string">&#123;ingredients&#125;</span> /&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">Instructions</span> <span class="attr">title</span>=<span class="string">"烹飪說明"</span> <span class="attr">steps</span>=<span class="string">&#123;steps&#125;</span> /&gt;</span>   </span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">section</span>&gt;</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="javascript">  <span class="keyword">const</span> Menu = <span class="function">(<span class="params">&#123;title, recipes&#125;</span>) =&gt;</span>    </span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">article</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">header</span>&gt;</span></span></span><br><span class="line"><span class="xml">        <span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;title&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;/<span class="name">header</span>&gt;</span></span></span><br><span class="line"><span class="xml">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">"recipes"</span> &gt;</span></span></span><br><span class="line"><span class="javascript">        &#123;recipes.map(<span class="function">(<span class="params">recipe, i</span>) =&gt;</span> (</span></span><br><span class="line"><span class="xml">          <span class="tag">&lt;<span class="name">Recipe</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span> &#123;<span class="attr">...recipe</span>&#125; /&gt;</span></span></span><br><span class="line">        ))&#125;</span><br><span class="line"><span class="xml">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">article</span>&gt;</span>;</span></span><br><span class="line">   </span><br><span class="line">  render(</span><br><span class="line"><span class="xml">    <span class="tag">&lt;<span class="name">Menu</span> <span class="attr">recipes</span>=<span class="string">&#123;recipesData&#125;</span> <span class="attr">title</span>=<span class="string">"美味食譜"</span> /&gt;</span>,</span></span><br><span class="line"><span class="javascript">    <span class="built_in">document</span>.getElementById(<span class="string">'react-root'</span>)</span></span><br><span class="line"> );</span><br><span class="line"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>這裡有 5 個 React 組件，組成一個組件樹。Menu 組件是根組件(root component)，所有的資料從根組件的 recipes 屬性注入(第 46 行) ，往整個組件樹流動。此外還有一個 title 屬性。這兩個屬性組成了 Menu 函式所需的引數。Menu 參數用解構賦值的語法取得傳入的值。</p>
+<p>第 39 ~ 41 行用 JavaScript 陣列的 map 方法加入多個 Recipe 組件，這裡使用了展開運算子 { …recipe } 賦予 recipe 的所有屬性 name、ingredients 與 steps。</p>
+<p>這些組件是基於將應用程序的數據作為屬性傳遞給 Menu 組件而構造的。 如果我們更改 recipes 陣列並重新渲染 Menu 組件，整個樹狀組件也將引起連鎖反應，而 React 將盡可能有效地更改此 DOM。</p>
+<p>數據使我們的 React 組件活起來。沒有 recipes 資料，我們構建的 recipes 的用戶界面是沒有用的。食譜和配料以及清晰的烹飪步驟說明使這樣的應用程序有價值。</p>
+<p>我們構建了一個組件樹：數據能夠作為屬性流過組件樹的層次結構。 屬性(properties)是整體構圖的一半。另一半則是狀態(state)。 React 應用程序的狀態由具有更改能力的數據驅動。數據變動，驅動整個 React 應用程序的狀態的變動。</p>
+<p>目前資料是死的，我們要讓資料活起來，帶動 React 應用程序的互動性。<span><a href="/2020/09/24/React-State-Management/" title="React State Management">React State Management</a></span></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/21/Welcome-to-React/" rel="prev" title="React 概念">
+      <i class="fa fa-chevron-left"></i> React 概念
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/24/React-State-Management/" rel="next" title="React State Management">
+      React State Management <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#JSX-Tips"><span class="nav-number">1.</span> <span class="nav-text">JSX Tips</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Nested-components"><span class="nav-number">1.1.</span> <span class="nav-text">Nested components</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#className"><span class="nav-number">1.2.</span> <span class="nav-text">className</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#JavaScript-expressions"><span class="nav-number">1.3.</span> <span class="nav-text">JavaScript expressions</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Evaluation"><span class="nav-number">1.4.</span> <span class="nav-text">Evaluation</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Mapping-Arrays-with-JSX"><span class="nav-number">1.5.</span> <span class="nav-text">Mapping Arrays with JSX</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#美味食譜"><span class="nav-number">2.</span> <span class="nav-text">美味食譜</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

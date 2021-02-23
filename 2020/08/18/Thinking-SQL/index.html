@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="一樣的結果，可以有不同的 SQL 解法，所以除了科學，SQL 也是一種藝術。現在就來思考幾段 SQL 的藝術。 就用我常用來展示的資料表 DEPT 與 EMP 來展示。當你實際碰到問題時可以回到這裡參閱，看看能不能激發你的思維。 這也是我日常常會參閱的幾段 SQL。 問題很簡單，我們要查詢沒有獎金(comm)的部門。往下看前先試試解解看。 Table DEPT    DEPTNO DNAME">
+<meta property="og:type" content="article">
+<meta property="og:title" content="思考 SQL">
+<meta property="og:url" content="https://1184yang.github.io/2020/08/18/Thinking-SQL/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="一樣的結果，可以有不同的 SQL 解法，所以除了科學，SQL 也是一種藝術。現在就來思考幾段 SQL 的藝術。 就用我常用來展示的資料表 DEPT 與 EMP 來展示。當你實際碰到問題時可以回到這裡參閱，看看能不能激發你的思維。 這也是我日常常會參閱的幾段 SQL。 問題很簡單，我們要查詢沒有獎金(comm)的部門。往下看前先試試解解看。 Table DEPT    DEPTNO DNAME">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:updated_time" content="2020-10-02T01:34:20.152Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="思考 SQL">
+<meta name="twitter:description" content="一樣的結果，可以有不同的 SQL 解法，所以除了科學，SQL 也是一種藝術。現在就來思考幾段 SQL 的藝術。 就用我常用來展示的資料表 DEPT 與 EMP 來展示。當你實際碰到問題時可以回到這裡參閱，看看能不能激發你的思維。 這也是我日常常會參閱的幾段 SQL。 問題很簡單，我們要查詢沒有獎金(comm)的部門。往下看前先試試解解看。 Table DEPT    DEPTNO DNAME">
+
+<link rel="canonical" href="https://1184yang.github.io/2020/08/18/Thinking-SQL/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>思考 SQL | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2020/08/18/Thinking-SQL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          思考 SQL
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2020-08-18 13:27:12" itemprop="dateCreated datePublished" datetime="2020-08-18T13:27:12+08:00">2020-08-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-10-02 09:34:20" itemprop="dateModified" datetime="2020-10-02T09:34:20+08:00">2020-10-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Oracle/" itemprop="url" rel="index"><span itemprop="name">Oracle</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/SQL/" itemprop="url" rel="index"><span itemprop="name">SQL</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>一樣的結果，可以有不同的 SQL 解法，所以除了科學，SQL 也是一種藝術。現在就來思考幾段 SQL 的藝術。</p>
+<p>就用我常用來展示的資料表 DEPT 與 EMP 來展示。當你實際碰到問題時可以回到這裡參閱，看看能不能激發你的思維。 這也是我日常常會參閱的幾段 SQL。</p>
+<p>問題很簡單，我們要查詢沒有獎金(comm)的部門。往下看前先試試解解看。</p>
+<figure class="highlight plain"><figcaption><span>Table DEPT</span></figcaption><table><tr><td class="code"><pre><span class="line">    DEPTNO DNAME          LOC</span><br><span class="line">---------- -------------- -------------</span><br><span class="line">        10 會計部          紐約</span><br><span class="line">        20 RESEARCH       DALLAS</span><br><span class="line">        30 SALES          台南</span><br><span class="line">        40 OPERATIONS     BOSTON</span><br><span class="line">        70 資訊部          台南</span><br><span class="line">        60 開發部          台南</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><figcaption><span>Table EMP</span></figcaption><table><tr><td class="code"><pre><span class="line">EMPNO ENAME      JOB              MGR HIREDATE            SAL       COMM DEPTNO</span><br><span class="line">----- ---------- --------- ---------- ------------ ---------- ---------- ------</span><br><span class="line"> 7839 KING       PRESIDENT            17-NOV-81          5000                10</span><br><span class="line"> 8907 牸祢        ANALYST         7566 09-DEC-82          9002                10</span><br><span class="line"> 7782 楊建華      MANAGER         7902 09-JUN-81          2400                10</span><br><span class="line"> 7934 楊喆        CLERK           7902 23-JAN-82          1500                10</span><br><span class="line"> 7369 SMITH      CLERK           7902 17-DEC-80          8001                20</span><br><span class="line"> 7902 FORD       ANALYST         7566 03-DEC-81          3000                20</span><br><span class="line"> 7876 ADAMS      CLERK           7788 12-JAN-83          1100                20</span><br><span class="line"> 7566 吳煌珉      MANAGER         7839 02-APR-81          2975                20</span><br><span class="line"> 7788 SCOTT      ANALYST         7566 09-DEC-82         45300                20</span><br><span class="line"> 7900 JAMES      CLERK           7698 03-DEC-81         94998                30</span><br><span class="line"> 7844 하찮고      SALESMAN        7698 08-SEP-81          1500                30</span><br><span class="line"> 7654 葉習堃      SALESMAN        7698 28-SEP-81          1250       1400     30</span><br><span class="line"> 7499 ALLEN      SALESMAN        7698 20-FEB-81          1600        303     30</span><br><span class="line"> 7698 BLAKE      MANAGER1        7839 01-MAY-81          2850        101     30</span><br><span class="line"> 9011 文英蔡      總鋪師           7788 28-AUG-18         77778        180     40</span><br><span class="line"> 7608 馬小九      ANALYST         7788 28-JUN-10          1000        100     40</span><br><span class="line"> 9006 林頂尚      ANALYST         7788 07-MAY-01         66666                70</span><br><span class="line"> 7607 バック      分析師           7788 24-MAR-08         45000        100     70</span><br><span class="line"> 7609 蔡大一      分析師           7788 28-JUN-10         60000                70</span><br></pre></td></tr></table></figure>
+
+<p>資料不多，直接目視就知道只有部門 30、40 與 70 有獎金，因此答案就是: 10(會計部)、20(RESEARCH) 與 60(開發部)。60 開發部雖然沒有員工，但是也應該包括在內。</p>
+<p>這就來看看有哪些解法。在這裡的解法所得到的答案都是一樣，但並不表示將這些 SQL 套用到你的系統，所得到的答案都會一樣，因為這牽涉到你系統 Schema 的規劃，例如，欄位的 Contraints 等等。尤其要注意 Nulls 的問題。</p>
+<p>Null 是所有資料庫中特有的一個值，不管資料庫是關聯式、或者是新興的非關聯式，都有 Null 值。因此所有的語言也都支援 Null 值的處理，包含 JSON。</p>
+<ul>
+<li><h4 id="相關性子查詢-Correlated-Subquery"><a href="#相關性子查詢-Correlated-Subquery" class="headerlink" title="相關性子查詢 Correlated Subquery"></a>相關性子查詢 Correlated Subquery</h4></li>
+</ul>
+<figure class="highlight sql"><figcaption><span>Correlated Subquery</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> dept d</span><br><span class="line"> <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> (<span class="keyword">select</span> <span class="literal">null</span></span><br><span class="line">                     <span class="keyword">from</span> emp e</span><br><span class="line">                    <span class="keyword">where</span> e.deptno = d.deptno</span><br><span class="line">                      <span class="keyword">and</span> comm <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span></span><br><span class="line">                  )</span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<p>第 5 行 where 條件句中主查詢(MasterQuery)與子查詢(SubQuery)有了相關性，所以稱為 Correlated Subquery。碰到 NOT 這種反向邏輯總是會腦袋變殘，要好好思考。這種 Correlated Subquery 是最基礎與通常的寫法。結果如下。</p>
+<figure class="highlight plain"><figcaption><span>Result</span></figcaption><table><tr><td class="code"><pre><span class="line">DNAME</span><br><span class="line">--------------</span><br><span class="line">開發部</span><br><span class="line">RESEARCH</span><br><span class="line">會計部</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h4 id="不相關性子查詢-Uncorrelated-Subquery"><a href="#不相關性子查詢-Uncorrelated-Subquery" class="headerlink" title="不相關性子查詢 Uncorrelated Subquery"></a>不相關性子查詢 Uncorrelated Subquery</h4></li>
+</ul>
+<figure class="highlight sql"><figcaption><span>Uncorrelated Subquery</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> dept</span><br><span class="line"> <span class="keyword">where</span> deptno <span class="keyword">not</span> <span class="keyword">in</span> (<span class="keyword">select</span> deptno</span><br><span class="line">                        <span class="keyword">from</span> emp</span><br><span class="line">                       <span class="keyword">where</span> comm <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span></span><br><span class="line">                     )</span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<p>主查詢與子查詢沒有直接的相關性，這稱為 Uncorrelated Subquery。</p>
+<p>答案一樣這裡就不列出，不要直接複製貼上只看解答，瞄它一眼，然後自己寫寫看。</p>
+<p><strong>使用 NOT IN 時，小心 Null 值</strong>，我們先不要中斷這裡的思考，留待後面再來談這個 Nulls 的問題。</p>
+<ul>
+<li><h4 id="Outer-Join"><a href="#Outer-Join" class="headerlink" title="Outer Join"></a>Outer Join</h4></li>
+</ul>
+<figure class="highlight sql"><figcaption><span>Outer Join</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> dept d</span><br><span class="line">       <span class="keyword">left</span> <span class="keyword">outer</span> <span class="keyword">join</span> emp e</span><br><span class="line">         <span class="keyword">on</span> e.deptno = d.deptno</span><br><span class="line">        <span class="keyword">and</span> e.comm <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span></span><br><span class="line"><span class="keyword">where</span> e.deptno <span class="keyword">is</span> <span class="literal">null</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h4 id="集合函数-Aggregate-functions"><a href="#集合函数-Aggregate-functions" class="headerlink" title="集合函数 Aggregate functions"></a>集合函数 Aggregate functions</h4>Aggregate function，平常用的最多的就是 count( ), 你如果以為 Aggregate function 不外乎只有，SUM、AVG、MAX、MIN<br>的功能，那可能就太小看它了。注意，這些集合函數總是與 Group by 同時出現。</li>
+</ul>
+<blockquote>
+<blockquote>
+<ul>
+<li>SUM</li>
+</ul>
+</blockquote>
+</blockquote>
+<figure class="highlight sql"><figcaption><span>Aggregate function SUM</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> (<span class="keyword">select</span> dname,</span><br><span class="line">               <span class="keyword">case</span> <span class="keyword">when</span> comm <span class="keyword">is</span> <span class="literal">null</span> <span class="keyword">then</span> <span class="number">0</span></span><br><span class="line">                                      <span class="keyword">else</span> <span class="number">1</span></span><br><span class="line">               <span class="keyword">end</span> <span class="keyword">as</span> flag</span><br><span class="line">          <span class="keyword">from</span> emp e,</span><br><span class="line">               dept d</span><br><span class="line">         <span class="keyword">where</span> e.deptno (+) = d.deptno</span><br><span class="line">       ) s</span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> dname</span><br><span class="line"><span class="keyword">having</span> <span class="keyword">sum</span>(flag) = <span class="number">0</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<p>這與上段類似，但直接省掉 Inline View。</p>
+<figure class="highlight sql"><figcaption><span>Aggregate function SUM without Inline View</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> emp e,</span><br><span class="line">       dept d</span><br><span class="line"> <span class="keyword">where</span> e.deptno (+) = d.deptno</span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> dname</span><br><span class="line"><span class="keyword">having</span> <span class="keyword">sum</span>(<span class="keyword">case</span> <span class="keyword">when</span> e.comm <span class="keyword">is</span> <span class="literal">null</span> <span class="keyword">then</span> <span class="number">0</span></span><br><span class="line">                                    <span class="keyword">else</span> <span class="number">1</span></span><br><span class="line">           <span class="keyword">end</span>) = <span class="number">0</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<blockquote>
+<ul>
+<li>MAX</li>
+</ul>
+</blockquote>
+</blockquote>
+<figure class="highlight sql"><figcaption><span>Aggregate function MAX</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> emp e,</span><br><span class="line">       dept d</span><br><span class="line"> <span class="keyword">where</span> e.deptno (+) = d.deptno</span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> dname</span><br><span class="line"><span class="keyword">having</span> <span class="keyword">max</span>(<span class="keyword">coalesce</span>(e.comm,<span class="number">0</span>)) = <span class="number">0</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h4 id="集合-Set-Operation"><a href="#集合-Set-Operation" class="headerlink" title="集合 Set Operation"></a>集合 Set Operation</h4></li>
+</ul>
+<figure class="highlight sql"><figcaption><span>Set Operation</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> dept</span><br><span class="line"><span class="keyword">MINUS</span></span><br><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> dept d,</span><br><span class="line">       emp e</span><br><span class="line"> <span class="keyword">where</span> d.deptno = e.deptno</span><br><span class="line">   <span class="keyword">and</span> e.comm <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">null</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h4 id="Subquery-Factoring"><a href="#Subquery-Factoring" class="headerlink" title="Subquery Factoring"></a>Subquery Factoring</h4></li>
+</ul>
+<figure class="highlight sql"><figcaption><span>Subquery Factoring</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> x <span class="keyword">as</span> (</span><br><span class="line">  <span class="keyword">select</span> dname,</span><br><span class="line">         <span class="keyword">case</span> <span class="keyword">when</span> comm <span class="keyword">is</span> <span class="literal">null</span> <span class="keyword">then</span> <span class="number">0</span></span><br><span class="line">                                <span class="keyword">else</span> <span class="number">1</span></span><br><span class="line">         <span class="keyword">end</span> <span class="keyword">as</span> flag</span><br><span class="line">    <span class="keyword">from</span> emp e,</span><br><span class="line">         dept d</span><br><span class="line">   <span class="keyword">where</span> e.deptno (+) = d.deptno</span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span> dname</span><br><span class="line">  <span class="keyword">from</span> x</span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> dname</span><br><span class="line"><span class="keyword">having</span> <span class="keyword">sum</span>(flag) = <span class="number">0</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><h4 id="Analytic-function"><a href="#Analytic-function" class="headerlink" title="Analytic function"></a>Analytic function</h4></li>
+</ul>
+<figure class="highlight sql"><figcaption><span>Analytic function</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> x <span class="keyword">as</span> (</span><br><span class="line">  <span class="keyword">select</span> deptno,</span><br><span class="line">         <span class="keyword">sum</span>(<span class="keyword">coalesce</span>(comm, <span class="number">0</span>)) <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> deptno) dept_comm</span><br><span class="line">    <span class="keyword">from</span> emp</span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span> <span class="keyword">distinct</span> dname</span><br><span class="line">  <span class="keyword">from</span> x,</span><br><span class="line">       dept d</span><br><span class="line"> <span class="keyword">where</span> x.deptno (+) = d.deptno</span><br><span class="line">   <span class="keyword">and</span> <span class="keyword">coalesce</span>(dept_comm, <span class="number">0</span>) = <span class="number">0</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<p>每天都在 SQL 中打滾，應該都看得懂，希望你不是用複製貼上在驗證這些 SQL。現在就給個家庭作業，關掉這個網頁，寫出三個解答。</p>
+<h3 id="Nulls-and-NOT-IN"><a href="#Nulls-and-NOT-IN" class="headerlink" title="Nulls and NOT IN"></a>Nulls and NOT IN</h3><p>Nulls 很討厭，它不知是甚麼東西的東西，你也無法把它當成是東西。但它無處不在。我們簡單的來看看。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select * from car_table;</span><br><span class="line"></span><br><span class="line">CAR                  COLOR</span><br><span class="line">-------------------- --------------------</span><br><span class="line">Car1                 RED</span><br><span class="line">Car2                 BLUE</span><br><span class="line">Car3</span><br><span class="line">Car4</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select * from car_table where color != &apos;RED&apos;;</span><br><span class="line"></span><br><span class="line">CAR                  COLOR</span><br><span class="line">-------------------- --------------------</span><br><span class="line">Car2                 BLUE</span><br></pre></td></tr></table></figure>
+
+<p>這個答案是正確的嗎? 大部分的人可能不會這麼想!</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select * from car_table where color != &apos;RED&apos; or color IS NULL;</span><br><span class="line"></span><br><span class="line">CAR                  COLOR</span><br><span class="line">-------------------- --------------------</span><br><span class="line">Car2                 BLUE</span><br><span class="line">Car3</span><br><span class="line">Car4</span><br></pre></td></tr></table></figure>
+
+<p>為了正確的答案，你總必須把 NULL 加到你的每個 Query! 如果需要，可考慮加入 NOT NULL Constraint；NOT NULL Constraint 會影響 Optimizer 的 QUERY REWRITE。對 SQL 的效能也會有影響。尤其要注意，Unique Index 與 Unique Constraint 會有不同的 SQL 效能最佳化。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; desc dual;</span><br><span class="line"> Name                       Null?    Type</span><br><span class="line"> -------------------------- -------- -----------------</span><br><span class="line"> DUMMY                               VARCHAR2(1)</span><br><span class="line"></span><br><span class="line">SQL&gt; select * from dual;</span><br><span class="line"></span><br><span class="line">D</span><br><span class="line">-</span><br><span class="line">X</span><br><span class="line"></span><br><span class="line">SQL&gt; select * from dual where dummy not in (&apos;Y&apos;);</span><br><span class="line"></span><br><span class="line">D</span><br><span class="line">-</span><br><span class="line">X</span><br></pre></td></tr></table></figure>
+
+<p>用最簡單的 DUAL Table 來看 NOT IN 的問題。這裡的 NOT IN 沒有問題。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select * from dual where dummy not in (&apos;Y&apos;, NULL);</span><br><span class="line"></span><br><span class="line">no rows selected</span><br></pre></td></tr></table></figure>
+
+<p>疑 ? <strong>no rows selected</strong>。使用 NOT IN 時，小心 Null 值。也許這是你要的結果；如果不是，要防止 NULL 值的出現。</p>
+<blockquote>
+<p>colX <strong>not in</strong> (‘A’, ‘B’, ‘C’) 等於 (colX !=’A’ and colX !=’B’ and colX != ‘C’) 所以如果有 Null 值， colX != NULL  永遠不會是 true。 記得， colX != null 與 colX is not null 是不相同的。</p>
+</blockquote>
+<blockquote>
+<p>colX <strong>in</strong> (‘A’, ‘B’, ‘C’) 等於 (colX =’A’ or colX =’B’ or colX = ‘C’) 所以沒有 Null 的問題。要注意，<strong>IN 與 NOT IN 並不是完全對立的指令</strong>。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select empno, ename from emp where empno not in (select mgr from emp);</span><br><span class="line"></span><br><span class="line">no rows selected</span><br></pre></td></tr></table></figure>
+
+<p>這裡想找出<strong>非主管人員</strong>，得到的答案是: <strong>怎麼會都是主管 ?</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select empno, ename from emp where mgr is null;</span><br><span class="line"></span><br><span class="line">     EMPNO ENAME</span><br><span class="line">---------- ----------</span><br><span class="line">      7839 KING</span><br></pre></td></tr></table></figure>
+
+<p>總裁沒有上司。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select empno, ename</span><br><span class="line">  2  from emp</span><br><span class="line">  3  where empno not in (select mgr from emp where mgr is not null);</span><br><span class="line"></span><br><span class="line">     EMPNO ENAME</span><br><span class="line">---------- ----------</span><br><span class="line">      7369 SMITH</span><br><span class="line">      7499 ALLEN</span><br><span class="line">      7607 バック</span><br><span class="line">      7608 馬小九</span><br><span class="line">      ...</span><br></pre></td></tr></table></figure>
+
+<p>使用 NOT IN 要小心 Nulls。這裡在 Subquery 中要防止 mgr 出現 NULL 值。</p>
+<p>在規劃 Schema 時，不該有 NULL 的 Column 就應該要設 NOT NULL Constraint。</p>
+<p>相對的，使用 NOT EXISTS 會比較安全。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">SQL&gt; select empno, ename</span><br><span class="line">  2  from emp e</span><br><span class="line">  3  where not exists (select null from emp e2 where e.empno = e2.mgr);</span><br><span class="line"></span><br><span class="line">     EMPNO ENAME</span><br><span class="line">---------- ----------</span><br><span class="line">      7369 SMITH</span><br><span class="line">      7499 ALLEN</span><br><span class="line">      7607 バック</span><br><span class="line">      7608 馬小九</span><br><span class="line">      ...</span><br></pre></td></tr></table></figure>
+
+<p>祝，健康快樂。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/18/Oracle-Pivot-Clause/" rel="prev" title="Oracle PIVOT 語法範例">
+      <i class="fa fa-chevron-left"></i> Oracle PIVOT 語法範例
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/20/SQL-GroupBy/" rel="next" title="SQL GROUP BY">
+      SQL GROUP BY <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#相關性子查詢-Correlated-Subquery"><span class="nav-number">1.</span> <span class="nav-text">相關性子查詢 Correlated Subquery</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不相關性子查詢-Uncorrelated-Subquery"><span class="nav-number">2.</span> <span class="nav-text">不相關性子查詢 Uncorrelated Subquery</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Outer-Join"><span class="nav-number">3.</span> <span class="nav-text">Outer Join</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集合函数-Aggregate-functions"><span class="nav-number">4.</span> <span class="nav-text">集合函数 Aggregate functions</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集合-Set-Operation"><span class="nav-number">5.</span> <span class="nav-text">集合 Set Operation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Subquery-Factoring"><span class="nav-number">6.</span> <span class="nav-text">Subquery Factoring</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Analytic-function"><span class="nav-number">7.</span> <span class="nav-text">Analytic function</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Nulls-and-NOT-IN"><span class="nav-number"></span> <span class="nav-text">Nulls and NOT IN</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
