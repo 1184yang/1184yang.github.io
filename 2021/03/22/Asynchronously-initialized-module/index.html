@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Cinzel Decorative:300,300italic,400,400italic,700,700italic|Noto Serif TC:300,300italic,400,400italic,700,700italic|Source Code Pro:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"1184yang.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在 Node.js 模塊系統的基本屬性 require( )是同步工作的，且 module.exports 不能設置為非同步。在 Node.js 核心模塊和許多 npm 軟件包中有些存在有同步 API 的主要原因之一，是在提供一種方便的替代方法，而這個替代方法主要用於初始化任務，而不是要取代原有的非同步 API 。 不幸的是，這並不總是可能的。 同步 API 可能並不總是可取得，尤其是對於在使用網">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Asynchronously initialized module (非同步初始化模塊)">
+<meta property="og:url" content="https://1184yang.github.io/2021/03/22/Asynchronously-initialized-module/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="在 Node.js 模塊系統的基本屬性 require( )是同步工作的，且 module.exports 不能設置為非同步。在 Node.js 核心模塊和許多 npm 軟件包中有些存在有同步 API 的主要原因之一，是在提供一種方便的替代方法，而這個替代方法主要用於初始化任務，而不是要取代原有的非同步 API 。 不幸的是，這並不總是可能的。 同步 API 可能並不總是可取得，尤其是對於在使用網">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:updated_time" content="2021-05-19T02:18:15.946Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Asynchronously initialized module (非同步初始化模塊)">
+<meta name="twitter:description" content="在 Node.js 模塊系統的基本屬性 require( )是同步工作的，且 module.exports 不能設置為非同步。在 Node.js 核心模塊和許多 npm 軟件包中有些存在有同步 API 的主要原因之一，是在提供一種方便的替代方法，而這個替代方法主要用於初始化任務，而不是要取代原有的非同步 API 。 不幸的是，這並不總是可能的。 同步 API 可能並不總是可取得，尤其是對於在使用網">
+
+<link rel="canonical" href="https://1184yang.github.io/2021/03/22/Asynchronously-initialized-module/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-TW'
+  };
+</script>
+
+  <title>Asynchronously initialized module (非同步初始化模塊) | </title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切換導航欄">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title"></h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首頁</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>歸檔</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分類</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜尋
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜尋..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/1184yang?tab=repositories" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2021/03/22/Asynchronously-initialized-module/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Asynchronously initialized module (非同步初始化模塊)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2021-03-22 09:34:23" itemprop="dateCreated datePublished" datetime="2021-03-22T09:34:23+08:00">2021-03-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2021-05-19 10:18:15" itemprop="dateModified" datetime="2021-05-19T10:18:15+08:00">2021-05-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在 Node.js 模塊系統的基本屬性 require( )是同步工作的，且 module.exports 不能設置為非同步。在 Node.js 核心模塊和許多 npm 軟件包中有些存在有同步 API 的主要原因之一，是在提供一種方便的替代方法，而這個替代方法主要用於<strong>初始化</strong>任務，而不是要取代原有的非同步 API 。</p>
+<p>不幸的是，這並不總是可能的。 同步 API 可能並不總是可取得，尤其是對於在使用網絡組件的初始化階段，例如，執行握手協議(handshake protoclos)或檢索配置參數(configuration parameters)。 許多中間件系統的資料庫驅動程序和客戶端(例如消息隊列 message queues)也都有初始化階段的情況。</p>
+<h3 id="經典解決方案"><a href="#經典解決方案" class="headerlink" title="經典解決方案"></a>經典解決方案</h3><p>讓我們舉個例子：一個名為 db 的模塊，該模塊連接到遠程資料庫。 只有在完成與資料庫伺服器的連接和握手之後，db 模塊才能接受請求。 在這種情況下，我們通常有兩個選擇：</p>
+<ul>
+<li>在開始使用模塊之前，確保已對其進行了初始化，否則需等待其初始化。 每當我們要在非同步模塊上調用操作時，都必須完成此過程：</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> db = <span class="built_in">require</span>(<span class="string">'aDb'</span>);   <span class="comment">//非同步模塊</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> <span class="title">findAll</span>(<span class="params">type, callback</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (db.connected) &#123;  <span class="comment">//is it initialized?</span></span><br><span class="line">    runFind();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    db.once(<span class="string">'connected'</span>, runFind);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">runFind</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    db.findAll(type, callback);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 Dependency Injection（DI）而不是直接使用非同步模塊。這樣做，我們可以延遲某些模塊的初始化，直到它們的非同步依賴關係被完全初始化為止。 這種技術將管理模塊初始化的複雜性轉移到了另一個組件（通常是父組件）上。 在以下示例中，此組件是 app.js：</li>
+</ul>
+<figure class="highlight javascript"><figcaption><span>app.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> db = <span class="built_in">require</span>(<span class="string">'aDB'</span>);  <span class="comment">//非同步模塊</span></span><br><span class="line"><span class="keyword">const</span> findAllFactory = <span class="built_in">require</span>(<span class="string">'./findAll'</span>);</span><br><span class="line"></span><br><span class="line">db.on(<span class="string">'connected'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> findAll = findAllFactory(db);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><figcaption><span>findAll.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">db</span>) </span>&#123;</span><br><span class="line">  <span class="comment">//db is guaranteed to be initialized</span></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">findAll</span>(<span class="params">type, callback</span>) </span>&#123;</span><br><span class="line">    db.findAll(type, callback)</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第一種選擇將涉及大量的代碼數量，可能不會是好的選擇。另外，使用 DI 的第二個選項有時也不可取，在大型專案中，它可能很快變得過於復雜，尤其是如果手動完成並使用非同步初始化的模塊。</p>
+<p>但是，我們將看到，還有第三種選擇，它使我們能夠輕鬆地將模塊與其依賴項的初始化狀態隔離開來。</p>
+<h3 id="預初始化隊列-Preinitialization-queues"><a href="#預初始化隊列-Preinitialization-queues" class="headerlink" title="預初始化隊列(Preinitialization queues)"></a>預初始化隊列(Preinitialization queues)</h3><p>使模塊與依賴項的初始化狀態脫鉤的簡單模式包括使用隊列(queues)和命令模式(Command pattern)。 這個想法是保存尚未初始化的模塊所接收的所有操作(operations)，然後在完成所有初始化步驟後立即執行它們。</p>
+<h5 id="實現非同步初始化的模塊"><a href="#實現非同步初始化的模塊" class="headerlink" title="實現非同步初始化的模塊"></a>實現非同步初始化的模塊</h5><p>為了展示這種簡單而有效的技術，讓我們構建一個小型測試應用程序； 沒什麼花哨的，只是可以驗證我們假設的東西，讓我們從創建一個非同步初始化的模塊 asyncModule.js 開始；稍後，我們將會將它實際用在 Oracle 資料庫上。</p>
+<figure class="highlight javascript"><figcaption><span>asyncModule.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> asyncModule = <span class="built_in">module</span>.exports;</span><br><span class="line"></span><br><span class="line">asyncModule.initialized = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">asyncModule.initialize = <span class="function">(<span class="params">callback</span>) =&gt;</span> &#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    asyncModule.initialized = <span class="literal">true</span>;</span><br><span class="line">    callback();</span><br><span class="line">  &#125;, <span class="number">10000</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">asyncModule.tellMeSomething = <span class="function">(<span class="params">callback</span>) =&gt;</span> &#123;</span><br><span class="line">  process.nextTick(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span>(!asyncModule.initialized) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"I don't have anythins to say right now"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    callback(<span class="literal">null</span>, <span class="string">`Current time is: <span class="subst">$&#123;<span class="keyword">new</span> <span class="built_in">Date</span>()&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在前面的代碼中，asynModule 嘗試展示非同步初始化的模塊的工作方式。它公開了 initialize( )方法，該方法在延遲 10 秒後將初始化變數設置為 true 並通知其 callback（對於實際情況來說 10 秒是很長的時間） 應用程序，但是對我們來說，可以突顯出任何的 race conditions）。另一個方法 tellMeSomething( ) 返回當前時間，但是如果模塊尚未初始化，則會產生錯誤。</p>
+<p>下一步是根據我們剛剛創建的服務創建另一個模塊。 讓我們考慮一下在一個名為 routes.js 的文件中實現的簡單 HTTP 請求處理程序：</p>
+<figure class="highlight javascript"><figcaption><span>routes.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> asyncModule = <span class="built_in">require</span>(<span class="string">'./asyncModule'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports.say = <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  asyncModule.tellMeSomething(<span class="function">(<span class="params">err, something</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      res.writeHead(<span class="number">500</span>);</span><br><span class="line">      <span class="keyword">return</span> res.end(<span class="string">`Error: <span class="subst">$&#123;err.message&#125;</span>`</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.writeHead(<span class="number">200</span>);</span><br><span class="line">    res.end(<span class="string">`I say: <span class="subst">$&#123;something&#125;</span>`</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>處理程序調用 asyncModule的tellMeSomething( )方法，然後將結果寫入 HTTP 回應中。 如我們所看到的，我們沒有對 asyncModule 的初始化狀態執行任何檢查，可以想像，這可能將導致問題。</p>
+<p>現在，讓我們創建一個非常基本的 HTTP 服務器，僅使用核心 http 模塊。</p>
+<figure class="highlight javascript"><figcaption><span>app.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"><span class="keyword">const</span> routes = <span class="built_in">require</span>(<span class="string">'./routes'</span>);</span><br><span class="line"><span class="keyword">const</span> asyncModule = <span class="built_in">require</span>(<span class="string">'./asyncModule'</span>);</span><br><span class="line"></span><br><span class="line">asyncModule.initialize(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Async module initialized.'</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span>(req.method === <span class="string">'GET'</span> &amp;&amp; req.url === <span class="string">'/say'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> routes.say(req, res);</span><br><span class="line">  &#125;</span><br><span class="line">  res.writeHead(<span class="number">404</span>);</span><br><span class="line">  res.end(<span class="string">'Not found'</span>);</span><br><span class="line">&#125;).listen(<span class="number">8000</span>, () =&gt; <span class="built_in">console</span>.log(<span class="string">'Started'</span>));</span><br></pre></td></tr></table></figure>
+
+<p>前面的小模塊是我們應用程序的入口，它所做的只是觸發 asyncModule 的初始化，並創建一個 HTTP 服務器，該服務器利用我們先前創建的 routes.say( ) 的請求處理程序。</p>
+<p>現在，我們可以像往常一樣通過執行 app.js 模塊來嘗試啟動服務器。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> node app.js</span></span><br></pre></td></tr></table></figure>
+
+<p>服務器啟動後，我們可以嘗試使用瀏覽器訪問 URL <a href="http://localhost:8000/say" target="_blank" rel="noopener">http://localhost:8000/say</a> ，並查看 asyncModule 的返回結果。</p>
+<blockquote>
+<blockquote>
+<p><strong>Error: I don’t have anythins to say right now</strong></p>
+</blockquote>
+</blockquote>
+<p>這意味著 asyncModule 尚未初始化，但我們仍然嘗試使用它。根據非同步初始化的 Module 的實現細節，我們可能會收到一個錯誤，丟失重要信息甚至崩潰整個應用程序。</p>
+<p>通常，必須完全避免剛剛描述的情況。在大多數情況下，初始化可能非常快速，不必擔心幾個失敗的請求，甚至在實踐中它可能永遠不會發生。但是，對於旨在自動擴展的高負載應用程序和雲服務器，這兩種不太可能發生錯誤的假設都必須完全避免。</p>
+<h4 id="用預初始化隊列包裝模塊"><a href="#用預初始化隊列包裝模塊" class="headerlink" title="用預初始化隊列包裝模塊"></a>用預初始化隊列包裝模塊</h4><p>為了增加伺務器的穩健性，我們現在將重構它。我們將對尚未初始化而在 asyncModule 上調用的所有操作進行隊列化(queue)，直到準備好處理它們時再將隊列刷新。 這看起來像是 State 模式的絕佳應用！ 我們將需要兩種狀態，</p>
+<ul>
+<li>一種狀態是在模塊尚未初始化時將所有操作送入隊列。</li>
+<li>另一種狀態是在初始化完成後將隊列中的每個操作直接執行原始 asyncModule 模塊中的操作。</li>
+</ul>
+<p>通常，我們沒有機會修改非同步模塊的代碼。 因此，要添加我們的隊列層，我們將需要圍繞原始 asyncModule 模塊創建一個代理 Proxy。</p>
+<p>讓我們創建一個名為 asyncModuleWrapper.js 的新檔案，然後開始逐段構建它。 我們需要做的第一件事是創建<em>將操作委託給活動狀態的物件</em>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> asyncModule = <span class="built_in">require</span>(<span class="string">'./asyncModule'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> asyncModuleWrapper = <span class="built_in">module</span>.exports;</span><br><span class="line"></span><br><span class="line">asyncModuleWrapper.initialized = <span class="literal">false</span>;</span><br><span class="line">asyncModuleWrapper.initialize = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  activeState.initialize.apply(activeState, <span class="built_in">arguments</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">asyncModuleWrapper.tellMeSomething = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  activeState.tellMeSomething.apply(activeState, <span class="built_in">arguments</span>);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>在前面的代碼中，asyncModuleWrapper 簡單地將其每個方法委託給當前活動狀態(currently active state)。 從 notInitializedState 開始，讓我們看看這兩種狀態的樣子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> pending = [];</span><br><span class="line"><span class="keyword">let</span> notInitializedState = &#123;</span><br><span class="line">  initialize: <span class="function"><span class="keyword">function</span> (<span class="params">callback</span>) </span>&#123;</span><br><span class="line">    asyncModule.initialize(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      asyncModuleWrapper.initalized = <span class="literal">true</span>;</span><br><span class="line">      activeState = initializedState;</span><br><span class="line">      </span><br><span class="line">      pending.forEach(<span class="function"><span class="params">req</span> =&gt;</span> &#123;</span><br><span class="line">        asyncModule[req.method].apply(<span class="literal">null</span>, req.args);</span><br><span class="line">      &#125;);</span><br><span class="line">      pending = [];</span><br><span class="line">      callback();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  tellMeSomething: <span class="function"><span class="keyword">function</span> (<span class="params">callback</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> pending.push(&#123;</span><br><span class="line">      method: <span class="string">'tellMeSomething'</span>,</span><br><span class="line">      args: <span class="built_in">arguments</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>當調用 initialize( )方法時，我們觸發原始 asyncModule 模塊的初始化(第 16 行)，並提供回調代理。 這使我們的包裝器知道何時初始化了原始模塊，並因此觸發了以下操作：</p>
+<ol>
+<li>第 18 行使用流程中的下一個狀態物件 initializedState 更新 activeState 變數。</li>
+<li>第 20 行執行之前存儲在 pending 隊列中的所有操作指令。</li>
+<li>第 24 行調用原始回調(callback)。</li>
+</ol>
+<p>開始時由於模塊尚未初始化，因此此狀態(notInitializedState)的 tellMeSomething( )方法簡單地創建一個新的 Command 物件將其添加到 pending 隊列的操作中。</p>
+<p>此時，當原始 asyncModule 模塊尚未初始化時，模式應該已經很清楚了，我們的包裝器簡單地將所有接收到的請求送入 pending 隊列排隊。 然後，當通知我們初始化已完成時，我們將執行所有排隊的操作，然後將內部狀態切換為 initializedState。讓我們看看包裝的最後一部分是什麼樣子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> initializedState = asyncModule;</span><br></pre></td></tr></table></figure>
+
+<p>毫不奇怪，initializedState 物件只是對原始 asyncModule 的引用！ 實際上，初始化完成後，我們可以安全地將任何請求直接路由到原始模塊。 不需要什麼 Proxy 代理了。</p>
+<p>最後，我們必須設置啟動這個模組的初始活動狀態，該狀態當然是 notInitializedState：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> activeState = notInitializedState;</span><br></pre></td></tr></table></figure>
+
+<p>現在，我們可以嘗試再次啟動測試服務器，但首先，請不要忘記用新的 asyncModuleWrapper 物件替換對原始 asyncModule 模塊的引用； 這必須修改 app.js 和 routes.js 模塊。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">const</span> asyncModule = <span class="built_in">require</span>(<span class="string">'./asyncModuleWrapper'</span>);</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>完成此操作後，如果嘗試再次向服務器發送請求，我們將看到在 asyncModule 模塊尚未初始化的時間內，請求不會失敗； 相反，它們將等待直到初始化完成，然後才實際執行。 我們可以肯定地這是一個更加穩健的伺服器。</p>
+<p>現在，我們的服務器可以在啟動後立即開始接受請求，並保證這些請求不會因其模塊的初始化狀態而失敗。 我們能夠獲得此結果，而無需使用 DI 或進行冗長且易於出錯的檢查來驗證非同步混淆的狀態。</p>
+<h3 id="應用實例"><a href="#應用實例" class="headerlink" title="應用實例"></a>應用實例</h3><p>這種模式，如果模塊是非同步初始化的，將所有操作送入隊列，直到模塊完全初始化為止。許多資料庫驅動程序和 ORM 程式庫都使用該模式。不必等待資料庫的連接就可以發送查詢，因為每個操作都會先存到隊列中，然後在與資料庫的連接完全建立後再執行。</p>
+<h4 id="Oracle-應用實例"><a href="#Oracle-應用實例" class="headerlink" title="Oracle 應用實例"></a>Oracle 應用實例</h4><p>這裡使用 Oracle XE，可以設定多個 Oracle Connection Pools。建議盡量使用 Connection Pools，效能較好，同時可以控制連線的數量。直接使用 Connection 方式，當同時湧入大量的需求，資料庫有可能就會崩潰。</p>
+<figure class="highlight javascript"><figcaption><span>dbconfig.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  xepdb1: &#123;</span><br><span class="line">    user: <span class="string">"demo"</span>,</span><br><span class="line">    password: <span class="string">"demo6460"</span>,</span><br><span class="line">    connectString: <span class="string">"localhost:1521/xepdb1"</span>,</span><br><span class="line">    poolAlias: <span class="string">'xepdb1demo'</span>,</span><br><span class="line">    poolMin: <span class="number">2</span>,</span><br><span class="line">    poolMax: <span class="number">5</span>,</span><br><span class="line">    poolIncrement: <span class="number">1</span>,</span><br><span class="line">    queueMax: <span class="number">-1</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>這裡將 Oracle 資料庫驅動程式 node-oracledb 包裝在我們的模塊中。這與之前的 asyncModuleWrapper 模塊有相同的概念。這個模塊也分為兩種狀態，一種狀態是在模塊尚未初始化時將所有操作送入隊列，另一種狀態是在初始化完成後將每個操作直接執行原始 oracledb 模塊中的操作。</p>
+<figure class="highlight javascript"><figcaption><span>database.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; EventEmitter &#125; = <span class="built_in">require</span>(<span class="string">'events'</span>);</span><br><span class="line"><span class="keyword">const</span> oracledb = <span class="built_in">require</span>(<span class="string">'oracledb'</span>);</span><br><span class="line"><span class="keyword">const</span> dbconfig = <span class="built_in">require</span>(<span class="string">'./dbconfig'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> METHODS_REQUIRING_CONNECTION = [<span class="string">'doExecute'</span>, <span class="string">'doExecuteMany'</span>];</span><br><span class="line"><span class="keyword">const</span> deactivate = <span class="built_in">Symbol</span>(<span class="string">'deactivate'</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">InitializedState</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(db) &#123;</span><br><span class="line">    <span class="keyword">this</span>.dbsPool = db.dbsPool;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> doExecute(poolAlias, statement, binds = [], opts = &#123;&#125;) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="keyword">async</span> (resolve, reject) =&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> conn;</span><br><span class="line">        opts.outFormat = oracledb.OBJECT;</span><br><span class="line">        opts.autoCommit = <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          conn = <span class="keyword">await</span> oracledb.getConnection(<span class="keyword">this</span>.dbsPool[poolAlias]);</span><br><span class="line">          <span class="keyword">const</span> result = <span class="keyword">await</span> conn.execute(statement, binds, opts);</span><br><span class="line">          resolve(result);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (err) &#123; reject(&#123; <span class="attr">error</span>: err &#125;); &#125;</span><br><span class="line">        <span class="keyword">finally</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (conn) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">              <span class="keyword">await</span> conn.close();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (err) &#123; </span><br><span class="line">              <span class="built_in">console</span>.log(err);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> doExecuteMany(poolAlias, statement, binds = [], opts = &#123;&#125;) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="keyword">async</span> (resolve, reject) =&gt; &#123;</span><br><span class="line">      <span class="keyword">let</span> conn;</span><br><span class="line">      opts.outFormat = oracledb.OBJECT;</span><br><span class="line">      opts.autoCommit = <span class="literal">true</span>;</span><br><span class="line">      opts.batchErrors = <span class="literal">true</span>;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        conn = <span class="keyword">await</span> oracledb.getConnection(<span class="keyword">this</span>.dbsPool[poolAlias]);</span><br><span class="line">        <span class="keyword">const</span> result = <span class="keyword">await</span> conn.executeMany(statement, binds, opts);</span><br><span class="line">        resolve(result);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">catch</span> (err) &#123; reject(err); &#125;</span><br><span class="line">      <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (conn) &#123;</span><br><span class="line">          <span class="keyword">try</span> &#123; </span><br><span class="line">            <span class="keyword">await</span> conn.close();</span><br><span class="line">          &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(err);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">QueuingState</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(db) &#123;</span><br><span class="line">    <span class="keyword">this</span>.db = db;</span><br><span class="line">    <span class="keyword">this</span>.commandsQueue = [];</span><br><span class="line"></span><br><span class="line">    METHODS_REQUIRING_CONNECTION.forEach(<span class="function"><span class="params">methodName</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>[methodName] = <span class="function"><span class="keyword">function</span> (<span class="params">...args</span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">'Command queued:'</span>, methodName, args);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">const</span> command = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">            db[methodName](...args)</span><br><span class="line">              .then(resolve, reject);</span><br><span class="line">          &#125;;</span><br><span class="line">          <span class="keyword">this</span>.commandsQueue.push(command);</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  [deactivate]() &#123;</span><br><span class="line">    <span class="keyword">this</span>.commandsQueue.forEach(<span class="function"><span class="params">command</span> =&gt;</span> command());</span><br><span class="line">    <span class="keyword">this</span>.commandsQueue = [];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DB</span> <span class="keyword">extends</span> <span class="title">EventEmitter</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">super</span>();</span><br><span class="line">    <span class="keyword">this</span>.dbsPool = &#123;&#125;;</span><br><span class="line">    <span class="keyword">this</span>.state = <span class="keyword">new</span> QueuingState(<span class="keyword">this</span>);</span><br><span class="line">  &#125; </span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> initialize() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> db <span class="keyword">of</span> <span class="built_in">Object</span>.keys(dbconfig)) &#123;</span><br><span class="line">        <span class="keyword">let</span> config = dbconfig[db];</span><br><span class="line">        <span class="keyword">this</span>.dbsPool[config.poolAlias] = <span class="keyword">await</span> oracledb.createPool(config);</span><br><span class="line">      &#125;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">this</span>.initialized = <span class="literal">true</span>;</span><br><span class="line">      <span class="keyword">this</span>.emit(<span class="string">'initialized'</span>);</span><br><span class="line">      <span class="keyword">const</span> oldState = <span class="keyword">this</span>.state;</span><br><span class="line">      <span class="keyword">this</span>.state = <span class="keyword">new</span> InitializedState(<span class="keyword">this</span>);</span><br><span class="line">      oldState[deactivate] &amp;&amp; oldState[deactivate]();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(err);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> doExecute(poolAlias, statement, binds = [], opts = &#123;&#125;) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.state.doExecute(poolAlias, statement, binds, opts);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> doExecuteMany(poolAlias, statement, binds = [], opts = &#123;&#125;) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.state.doExecuteMany(poolAlias, statement, binds, opts);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">async</span> close() &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">let</span> db <span class="keyword">of</span> <span class="built_in">Object</span>.keys(dbconfig)) &#123;</span><br><span class="line">        <span class="keyword">await</span> oracledb.getPool(dbconfig[db].poolAlias).close();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(err);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="keyword">new</span> DB();</span><br></pre></td></tr></table></figure>
+
+<p>第 8 行的 InitializedState 類與第 62 行的 QueuingState 類分別代表初始化完成後與尚未初始化的兩種狀態。</p>
+<p>第 87 行的 DB 類是維一對外揭露的類，在建構式中第 91 行，開始是處於尚未初始化的 QueuingState。在這個狀態下，把所有的需求操作都送入 commandsQueue 陣列中，尚未實際調用資料庫驅動程式對資料庫提出需求，因為此時尚未完成 Connection Pools 的創建。</p>
+<p>第 94 行 initialize( ) 方法開始創建 Oracle Connection Pools，在創建 Connection Pools 完成後，在第 104 行將狀態切換到初始化完成後的 InitializedState。在這之後所有的需求操作都會直接調用資料庫驅動程式 oracledb 對資料庫提出需求，不再需要使用 QueuingState。</p>
+<p>先來測試看看，第 3 行在開始初始化時，我們並沒有等到 Connection Pools 完成，主程式就繼續往下執行，馬上對資料庫提出需求操作。</p>
+<figure class="highlight javascript"><figcaption><span>simpleTest.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> oradb = <span class="built_in">require</span>(<span class="string">'./database'</span>);</span><br><span class="line"></span><br><span class="line">oradb.initialize();</span><br><span class="line">oradb.on(<span class="string">'initialized'</span>, () =&gt; <span class="built_in">console</span>.log(<span class="string">'Database initialized.'</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> statement = <span class="string">'select * from emp where empno = :empno'</span>;</span><br><span class="line"></span><br><span class="line">doExecute(<span class="string">"xepdb1demo"</span>, statement, [<span class="number">7788</span>]);</span><br><span class="line">doExecute(<span class="string">"xepdb1demo"</span>, statement, [<span class="number">7934</span>]);</span><br><span class="line"><span class="comment">//employees();</span></span><br><span class="line"></span><br><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  doExecute(<span class="string">"xepdb1demo"</span>, statement, [<span class="number">7782</span>]);</span><br><span class="line">  doExecute(<span class="string">"xepdb1demo"</span>, statement, [<span class="number">7876</span>]);</span><br><span class="line">&#125;, <span class="number">500</span>);</span><br><span class="line"></span><br><span class="line">setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> oradb.close(), <span class="number">30000</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">doExecute</span>(<span class="params">dbpool, statement, binds</span>) </span>&#123;  </span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> result = <span class="keyword">await</span> oradb.doExecute(dbpool, statement, binds);</span><br><span class="line">    <span class="built_in">console</span>.log(result);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err);</span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">doExecuteMany</span>(<span class="params">dbpool, statement, binds</span>) </span>&#123;  </span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> result = <span class="keyword">await</span> oradb.doExecuteMany(dbpool, statement, binds);</span><br><span class="line">    <span class="built_in">console</span>.log(result);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err);</span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">employees</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> dbpool = <span class="string">"xepdb1demo"</span>;</span><br><span class="line">  <span class="keyword">const</span> statement = <span class="string">'select * from emp'</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> result = <span class="keyword">await</span> oradb.doExecute(dbpool, statement);</span><br><span class="line">    <span class="built_in">console</span>.log(result);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err);</span><br><span class="line">  &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>現在將它實際應用在伺服器上，讓我們創建一個非常基本的 HTTP 服務器來使用 Oracle Database。</p>
+<figure class="highlight javascript"><figcaption><span>routes.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> oradb = <span class="built_in">require</span>(<span class="string">'./database'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports.listEmployees = <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> dbpool = <span class="string">"xepdb1demo"</span>;</span><br><span class="line">  <span class="keyword">const</span> statement = <span class="string">'select * from emp'</span>;</span><br><span class="line"></span><br><span class="line">  oradb.doExecute(dbpool, statement)</span><br><span class="line">    .then(<span class="function"><span class="params">result</span> =&gt;</span> &#123;</span><br><span class="line">      res.writeHead(<span class="number">200</span>, &#123;<span class="string">'Content-Type'</span>: <span class="string">'application/json; charset=utf8'</span>&#125;);</span><br><span class="line">      res.end(<span class="built_in">JSON</span>.stringify(result));</span><br><span class="line">    &#125;)</span><br><span class="line">    .catch(<span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">      res.writeHead(<span class="number">500</span>);</span><br><span class="line">      <span class="keyword">return</span> res.end(<span class="string">`Error: <span class="subst">$&#123;err.message&#125;</span>`</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><figcaption><span>app.js</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"><span class="keyword">const</span> routes = <span class="built_in">require</span>(<span class="string">'./routes'</span>);</span><br><span class="line"><span class="keyword">const</span> oradb = <span class="built_in">require</span>(<span class="string">'./database'</span>);</span><br><span class="line"></span><br><span class="line">oradb.initialize();</span><br><span class="line">oradb.on(<span class="string">'initialized'</span>, () =&gt; <span class="built_in">console</span>.log(<span class="string">'Database initialized.'</span>));</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span>(req.method === <span class="string">'GET'</span> &amp;&amp; req.url === <span class="string">'/employees'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> routes.listEmployees(req, res);</span><br><span class="line">  &#125;</span><br><span class="line">  res.writeHead(<span class="number">404</span>);</span><br><span class="line">  res.end(<span class="string">'Not found'</span>);</span><br><span class="line">&#125;).listen(<span class="number">8000</span>, () =&gt; <span class="built_in">console</span>.log(<span class="string">'Started'</span>));</span><br></pre></td></tr></table></figure>
+
+<p>That is it.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/02/23/VS-Code-Remote-Development-using-SSH/" rel="prev" title="VS Code Remote Development using SSH">
+      <i class="fa fa-chevron-left"></i> VS Code Remote Development using SSH
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目錄
+        </li>
+        <li class="sidebar-nav-overview">
+          本站概要
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#經典解決方案"><span class="nav-number">1.</span> <span class="nav-text">經典解決方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#預初始化隊列-Preinitialization-queues"><span class="nav-number">2.</span> <span class="nav-text">預初始化隊列(Preinitialization queues)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#實現非同步初始化的模塊"><span class="nav-number">2.0.1.</span> <span class="nav-text">實現非同步初始化的模塊</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#用預初始化隊列包裝模塊"><span class="nav-number">2.1.</span> <span class="nav-text">用預初始化隊列包裝模塊</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#應用實例"><span class="nav-number">3.</span> <span class="nav-text">應用實例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Oracle-應用實例"><span class="nav-number">3.1.</span> <span class="nav-text">Oracle 應用實例</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="J.Y. Yang"
+      src="/images/1184yang.jpg">
+  <p class="site-author-name" itemprop="name">J.Y. Yang</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">63</span>
+          <span class="site-state-item-name">文章</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">分類</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/1184yang" title="GitHub → https://github.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:1184yang@gmail.com" title="E-Mail → mailto:1184yang@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/1184yang" title="Twitter → https://twitter.com/1184yang" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">J.Y. Yang</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

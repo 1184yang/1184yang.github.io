@@ -182,6 +182,133 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
+    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2019/10/18/Vue-Oracle-Sample/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/1184yang.jpg">
+      <meta itemprop="name" content="J.Y. Yang">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/10/18/Vue-Oracle-Sample/" class="post-title-link" itemprop="url">Vue Oracle 框架範本</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">發表於</span>
+
+              <time title="創建時間：2019-10-18 14:02:01" itemprop="dateCreated datePublished" datetime="2019-10-18T14:02:01+08:00">2019-10-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新於</span>
+                <time title="修改時間：2020-07-25 10:23:30" itemprop="dateModified" datetime="2020-07-25T10:23:30+08:00">2020-07-25</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分類於</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JavaScript/" itemprop="url" rel="index"><span itemprop="name">JavaScript</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>這個框架範本，是建立在前一篇 <a href="/2019/10/05/Vue-Fullstack-Sample/">Vue Fullstack 框架範本</a> 的基礎上。</p>
+<p>除了基本的認證外，實際加入了 Oracle 資料庫的資料運作。因此除了客戶端 Vue 的框架，也實作了伺服端與 Oracle 資料庫的 API， 實做了 Oracle 資料表的資料讀取、新增、更改與刪除，因此在此專案中需要安裝 Node.js 的 Oracle Database driver <a href="https://github.com/oracle/node-oracledb" target="_blank" rel="noopener">node_oracledb</a>。安裝這個 node_oracledb 你必須先在你的伺服器端安裝 Oracle Client。</p>
+<p>如果你使用的是 Microsoft Windows 64 bit，可將 XXX111:\DBA\Oracle Client\12.2\instantclient_12_2_basic 整個目錄複製到你的電腦上，並將路徑加入你的 PATH 環境變數上。 </p>
+<h3 id="原始碼"><a href="#原始碼" class="headerlink" title="原始碼"></a>原始碼</h3><ul>
+<li>如果你有安裝 git，可以用 git clone 取得程式碼，我的 Z: 虛擬硬碟是指向 XXX111。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git clone Z:\DBA\Git\Depot\vue-oracle-sample.git</span><br><span class="line"></span><br><span class="line">cd vue-oracle-sample</span><br><span class="line"></span><br><span class="line">npm install</span><br><span class="line"></span><br><span class="line">npm start</span><br></pre></td></tr></table></figure>
+
+<p>如果要用在正試環境時，記得將 package.json 的屬性 start 改為用 Node.js 啟動:</p>
+<figure class="highlight"><figcaption><span>package.json</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">"scripts": &#123;</span><br><span class="line">  "start": "node ./bin/www"</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+
+<p>你可以使用 admin 管理員帳號管理使用者，記得更改 admin 的密碼。</p>
+<p>範例帳號，預設密碼都是 changeonlogin:</p>
+<ul>
+<li>admin</li>
+<li>user</li>
+<li>scott</li>
+<li>smith</li>
+<li>allen</li>
+</ul>
+<p>網址 <a href="http://localhost:3000/" target="_blank" rel="noopener">http://localhost:3000/</a></p>
+<p>Oracle Database 使用的則是 Lxxx, Schema: xxxx/xxxxxxx</p>
+<p>Used TNSNAMES adapter:</p>
+<p>(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = xxxx.xxx.com.tw)(PORT = 1522)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = xxxx.xxx.com.tw)))</p>
+<h3 id="頁面簡介"><a href="#頁面簡介" class="headerlink" title="頁面簡介"></a>頁面簡介</h3><img src="/2019/10/18/Vue-Oracle-Sample/ui-2.png" title="Vue Client">
+
+<p>這個是 Oracle Table dept 的 UI 介面:</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-3.png" title="Vue Client">
+
+<p>這個是 Oracle Table emp 的 UI 介面:</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-4.png" title="Vue Client">
+
+
+<h4 id="Lost-Update-問題"><a href="#Lost-Update-問題" class="headerlink" title="Lost Update 問題"></a>Lost Update 問題</h4><p>Web Application 是一種 stateless 架構，我們這裡的範本仍有一個重要的問題需要解決，就是 <strong>Lost Update Problem</strong>。甚麼是 <strong>Lost Update</strong>，我們直接來看例子:</p>
+<p>使用者 A 與使用者 B 幾乎在同一時間從資料庫讀取同筆資料:</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-5.png" title="Vue Client">
+
+<p>然後各自修改了資料:</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-6.png" title="Vue Client">
+
+<p>然後使用者 A 與 B 相繼送出更新，資料庫的資料會如何?</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-7.png" title="Vue Client">
+
+<p>這種狀況在單人系統發生的機率很少，多人使用的系統，這是必須解決的問題，在 stateful 的架構中，關連性資料庫的 ACID 特性會防止這個狀況，你們可以嘗試了解一下 Oracle Forms 是如何解決的。</p>
+<p>至於 APEX 又是如何解決的?</p>
+<p>你如果是使用 APEX 的精靈產生的 Form</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-8.png" title="Vue Client">
+
+<p>當使用者 B 嘗試送出更新時，則會出現如下的錯誤訊息</p>
+<img src="/2019/10/18/Vue-Oracle-Sample/ui-9.png" title="Vue Client">
+
+<p>使用者 B 必須取消更新(Cancel)重新讀取資料，再重做更新。</p>
+<p>APEX 使用的是 checksum 技術，你則可以另行使用其它的版本控制技術。</p>
+<p>我們一直使用的是 Oracle 關連式資料庫，ACID 的特性幫我們解決了單塊架構的資料一至性問題，微服務背後的問題則相當的複雜，如果雲端與微服務是未來的策略，這些基礎的問題與架構必須加緊了解與規劃。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
     <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2019/10/05/Vue-Fullstack-Sample/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1312,7 +1439,7 @@
 
 <p>main 是專案的入口點，我們會放在專案根目錄下的子目錄 app，index.html 是一般的 HTML 文件，這是此範例的起始文件。window 屬性則設定 NW.js 起始的視窗大小，start 屬性可讓我們在開發專案時使用 npm start 啟動此應用系統，這是唯一與 NW.js 有關的地方，編寫程式碼時，你可以把它忘了。</p>
 <p>我們先看 index.html 初始的樣子。</p>
-<figure class="highlight html"><figcaption><span>index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Todo List<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"../node_modules/bootstrap/dist/css/bootstrap.min.css"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"stylesheets/app.css"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span></span><br><span class="line">      [v-cloak] &#123;</span><br><span class="line">        display: none;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"todoapp"</span> <span class="attr">class</span>=<span class="string">"container"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">h1</span> <span class="attr">class</span>=<span class="string">"text-center"</span>&gt;</span>Todos<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"../node_modules/director/build/director.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"../node_modules/vue/dist/vue.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/store.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/app.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/routes.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><figcaption><span>index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"ie=edge"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Todo List<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"../node_modules/bootstrap/dist/css/bootstrap.min.css"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"stylesheets/app.css"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span></span><br><span class="line"><span class="css">      <span class="selector-attr">[v-cloak]</span> &#123;</span></span><br><span class="line">        display: none;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"todoapp"</span> <span class="attr">class</span>=<span class="string">"container"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">h1</span> <span class="attr">class</span>=<span class="string">"text-center"</span>&gt;</span>Todos<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"../node_modules/director/build/director.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"../node_modules/vue/dist/vue.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/store.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/app.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/routes.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p>在 NW.js 中可以直接從 node_modules 目錄中引用這些套件，但如果用的是 Web Server 通常都會有限制，你必須把用戶端所需要的資源放在靜態檔案(static files)服務區，而且如果最後使用 nwbuild 打包程式碼時會將整個 node_modules 目錄打包進來，這不是我們要的，我們只需要幾個模組，最好將它們複製到 app 目錄下分類規劃的子目錄。</p>
 <figure class="highlight html"><figcaption><span>index.html</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span> <span class="attr">href</span>=<span class="string">"stylesheets/bootstrap.min.css"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/director.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"javascripts/vue.min.js"</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
@@ -1647,11 +1774,11 @@
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/RabbitMQ/" itemprop="url" rel="index"><span itemprop="name">RabbitMQ</span></a>
+                  <a href="/categories/Oracle/" itemprop="url" rel="index"><span itemprop="name">Oracle</span></a>
                 </span>
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Oracle/" itemprop="url" rel="index"><span itemprop="name">Oracle</span></a>
+                  <a href="/categories/RabbitMQ/" itemprop="url" rel="index"><span itemprop="name">RabbitMQ</span></a>
                 </span>
             </span>
 
@@ -1815,199 +1942,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-TW">
-    <link itemprop="mainEntityOfPage" href="https://1184yang.github.io/2019/07/09/RabbitMQ-with-C/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/1184yang.jpg">
-      <meta itemprop="name" content="J.Y. Yang">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/07/09/RabbitMQ-with-C/" class="post-title-link" itemprop="url">RabbitMQ with C#</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">發表於</span>
-
-              <time title="創建時間：2019-07-09 13:33:06" itemprop="dateCreated datePublished" datetime="2019-07-09T13:33:06+08:00">2019-07-09</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新於</span>
-                <time title="修改時間：2020-07-25 10:23:30" itemprop="dateModified" datetime="2020-07-25T10:23:30+08:00">2020-07-25</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分類於</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C#</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/RabbitMQ/" itemprop="url" rel="index"><span itemprop="name">RabbitMQ</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="RabbitMQ-AMQP"><a href="#RabbitMQ-AMQP" class="headerlink" title="RabbitMQ AMQP"></a>RabbitMQ AMQP</h3><p>RabbitMQ AMQP 是最流行的開源和跨平台消息代理伺服器。</p>
-<p>RabbitMQ 也是一種在應用程式之間交換數據的方式，可在不同平台之間交換訊息。例如 .Net 應用程式發送的消息可以由 Node.js 應用程式或 java 應用程式讀取。</p>
-<p>RabbitMQ 被設計為通用消息代理，採用點對點，請求/回覆和 pub-sub 通信模式的多種變體。它使用智能代理/啞消費者模型，專注於向消費者提供一致的消息傳遞，消費者的消費速度與經紀人跟踪消費者狀態的速度大致相似。它是成熟的，在正確配置時表現良好。並且有許多可用的插件可以將它擴展到更多的用例和場景。當應用程式需要訪問流 (Stream)歷史時，RabbitMQ 通常與 Apache Cassandra 一起使用，對於需要 “無限” 佇列(queue)的應用程式，RabbitMQ 通常與 LevelDB 插件一起使用，但這兩個功能都不附帶在 RabbitMQ 本身。</p>
-<img src="/2019/07/09/RabbitMQ-with-C/rabbitmq.png" title="RabbitMQ">
-
-<h4 id="AMQP"><a href="#AMQP" class="headerlink" title="AMQP"></a>AMQP</h4><p>一般來說，訊息佇列會被應用在所有無法接受訊息漏失的環境，也就是極為重要的應用程式，例如銀行業務或財務系統。這通常表示，典型的企業級訊息佇列其實是相當複雜的軟體設計，會使用堅固的協定及可靠的存儲，來確保即便有任何故障都能夠完成訊息的交換。因此企業級的訊息中介軟體多年來一直由 Oracle 與 IBM 這類軟體巨人所獨佔，而它們多半是實做了專有的通訊協定，嚴厲的綁住了客戶的選擇。所幸這幾年來，訊息系統已突破這道障礙而蓬勃發展，這歸功於 AMQP、STOMP 與 MQTT 這類的開放協定。為了瞭解訊息佇列系統的運作方式，以下我們會針對 AMQP 進行概述，藉此初步瞭解如何使用基於這類協定的 API。</p>
-<p>AMQP(Advanced Message Queuing Protocol)是一項開放標準的協定，許多訊息佇列系統都支援了這項協定。事實上它除了是通訊協定外，還是一個涉及路由、過濾、佇列、可靠性與安全性的模型。</p>
-<p>在 AMQP 裡，共有三個基礎元件:</p>
-<ul>
-<li><strong>佇列(Queue)</strong>: 負責儲存訊息的資料架構，裡頭的訊息將由客戶端消費。佇列訊息會被推送(或拉取)至一或多個消費者，也就是我們的應用程式。若有多個消費者連接至相同的佇列，則訊息會是負載平衡的。</li>
-</ul>
-<blockquote>
-<p>佇列可以是以下幾種類型:</p>
-<blockquote>
-<ul>
-<li><strong>可延續性(Durable)</strong>: 意即若中介者重新啟動，則佇列也會自動建立。可延續性佇列並不表示先前的內容一定會被保留，只有被標示為需要保存的訊息，才會存入磁碟，並於重啟時復原。</li>
-<li><strong>專用性(Exclusive)</strong>: 意即佇列綁定於特定的訂閱者。若彼此的連線關閉，則佇列就會被銷毀。</li>
-<li><strong>自動刪除(Auto-delete)</strong>: 當沒有任何訂閱者連線時，便刪除佇列</li>
-</ul>
-</blockquote>
-</blockquote>
-<ul>
-<li><strong>交換(Exchange)</strong>: 訊息發佈之處。依據所實作的演算法，將訊息輸送到一個或多個佇列。</li>
-</ul>
-<blockquote>
-<ul>
-<li><strong>直接交換(Direct exchange)</strong>: 比對整個路由鍵(例如 chat.msg)是否相符來輸送訊息。</li>
-<li><strong>主題交換(Topic exchange)</strong>: 使用萬用模式比對路由鍵(例如 chat.# 便吻合所有以 chat 為開頭的路由鍵)。</li>
-<li><strong>擴散交換(Fanout exchange)</strong>: 忽略任何的路由鍵，廣播訊息至所有連線的佇列。</li>
-</ul>
-</blockquote>
-<ul>
-<li><strong>綁定(Binding)</strong>: 交換元件與佇列之間的連結。這裡也定義了路由鍵以過濾來自交換元件的訊息。</li>
-</ul>
-<p>以上這些元件是由一個中介者 (broker) 進行管理，它會揭露一個 API，用於相關的建置及處理。當連線到中介者時，客戶端會建立一個抽象化的通道 (channel)，用於維護與中介者之間的通訊狀態。而在 AMQP 裡，「專用性」或「自動刪除」以外的佇列都可用於實作可延續性訂閱者。</p>
-<img src="/2019/07/09/RabbitMQ-with-C/amqp.png" title="RabbitMQ AMQP">
-
-
-<h4 id="RabbitMQ-with-C"><a href="#RabbitMQ-with-C" class="headerlink" title="RabbitMQ with C#"></a>RabbitMQ with C#</h4><p>這裡我們會使用 C# 來實作最簡單的發送與接收訊息。我們將使用 <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">Visual Studio Code</a> 與 <a href="https://dotnet.microsoft.com/download" target="_blank" rel="noopener">.Net Code SDK</a>。安裝完成後，開啟 VSCode，打開一個終端視窗或命令提示字元輸入:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet --version</span><br></pre></td></tr></table></figure>
-
-<p>如果一卻正常會返回 .NET Code 的版本訊息，那我們就可以開始了。</p>
-<h4 id="解決方案與專案設定"><a href="#解決方案與專案設定" class="headerlink" title="解決方案與專案設定"></a>解決方案與專案設定</h4><p>我們先在電腦裡面用一個空的資料夾建立 amqp-sample 的 .NET 解決方案。然後使用 VSCode 打開解決方案資料夾 amqp-sample，開啟一個終端視窗，我們需要用 dotnet 初始化解決方案:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dotnet new sln</span><br></pre></td></tr></table></figure>
-
-<p>範本 “Solution File” 建立成功後，目錄下會產生一個 amqp-sample.sln 檔案。</p>
-<p>接著我們要在這個解決方案目錄下產生兩個專案 Send 與 Receive 分別擺放資料的送出與接收程式。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dotnet new console --name Send</span><br><span class="line"></span><br><span class="line">dotnet new console --name Receive</span><br></pre></td></tr></table></figure>
-
-<p>這會在解決方案目錄下產生兩個專案目錄 Send 與 Receive，首先我們來看看 Send 專案。切換到 Send 目錄測試一下專案。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd Send</span><br><span class="line">move Program.cs Send.cs</span><br><span class="line">dotnet run</span><br></pre></td></tr></table></figure>
-
-<p>切換到 Send 目錄，將 Program.cs 改名為 Send.cs，使用 dotnet run 測試它，你應該會看到 Hello World!。</p>
-<p>以同樣的方式測試一下 Receive 專案:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd ../Receive</span><br><span class="line">move Program.cs Receive.cs</span><br><span class="line">dotnet run</span><br></pre></td></tr></table></figure>
-
-<p>接著我們需要安裝 C# 的 RabbitMQ Client，在兩個專案中分別安裝 RabbitMQ 的客戶端依賴:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd Send</span><br><span class="line">dotnet add package RabbitMQ.Client</span><br><span class="line">cd ../Receive</span><br><span class="line">dotnet add package RabbitMQ.Client</span><br></pre></td></tr></table></figure>
-
-<p>現在我們已經設置好 .NET 專案了，可以開始編寫代碼。</p>
-<h4 id="Sending"><a href="#Sending" class="headerlink" title="Sending"></a>Sending</h4><p>我們將調用我們的消息發佈者 publisher (sender) Send.cs 和消息消費者 consumer (receiver) Receive.cs。 從消息發佈者開始。</p>
-<p>發布者將連接到 RabbitMQ，發送單個消息，然後退出。</p>
-<p>在 Send.cs 中，我們需要使用一些命名空間，也將 class 名稱修改為 Send，靜態方法 Main() 是整個專案程式碼的進入點，我們就從這裡開始：</p>
-<figure class="highlight csharp"><figcaption><span>Send.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> RabbitMQ.Client;</span><br><span class="line"><span class="keyword">using</span> System.Text;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Send</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">class</span> <span class="title">Send</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      Console.WriteLine(<span class="string">"Hello World!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>首先我們創建一個 RabbitMQ 伺服器的連接製造工廠：</p>
-<figure class="highlight csharp"><figcaption><span>Send.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">Send</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">var</span> factory = <span class="keyword">new</span> ConnectionFactory() &#123; HostName = <span class="string">"10.11.xxx.xxx"</span> &#125;;</span><br><span class="line">      <span class="keyword">using</span> (<span class="keyword">var</span> connection = factory.CreateConnection())</span><br><span class="line">      <span class="keyword">using</span> (<span class="keyword">var</span> channel = connection.CreateModel())</span><br><span class="line">      &#123;</span><br><span class="line">        ...</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用製造工廠創建一個連接到 RabbitMQ 伺服器的連接 (connection)，接下來，創建一個頻道 (channel)，這是完成任務的 API 所在的通道。</p>
-<p>這裡使用的 using 與名稱空間 (namespace) 完全沒有關係。這裡的 using 語句可以確保在實現 IDisposable 介面的物件的引用超出作用域時，在該物件上自動調用 Dispose( ) 方法。using 語句的後面是一對小括號，其中是引用變數的聲明和實例化(connection，channel)，該語句使變數的作用域限制在隨後的語句塊中，因此在超出此作用域時就會自動關閉連線 (connection)與頻道 (channel)。另外，在變數超出作用域時，即使出現異常，也會自動調用其 Dispose( ) 方法。這也可省去使用 try/finally 語句處理異常狀況。</p>
-<p>這裡我們宣告變數也使用了一個關鍵字 <strong>var</strong>，這是一種類型推斷關鍵字，使用 var 關鍵字替代實際的類型。編譯器可以根據變數的初始化值推斷變數的類型，但需要遵循以下一些規則:</p>
-<blockquote>
-<ul>
-<li>變數必須初始化。否則，編譯器就沒有推斷變數類型的依據。</li>
-<li>初始化器不能為空。</li>
-<li>初始化器必須放在表達式中。</li>
-<li>不能把初始化器設置為一個物件，除非在初始化器中創建一個新物件。</li>
-</ul>
-</blockquote>
-<p>聲明了變數且推斷出類型後，就不能再改變變數的類型了。變數的類型確定後，對該變數進行任何賦值時，其強類型化規則必須以推斷出的類型為基礎。</p>
-<p>初始化 ConnectionFactory 建構式中，我們使用預設的 port 5672 與預設的使用者名稱與密碼 guest， 如果使用的不是預設值，則建構實例時得顯式的加上這些值:</p>
-<figure class="highlight csharp"><figcaption><span>Send.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> factory = <span class="keyword">new</span> ConnectionFactory()</span><br><span class="line">  &#123;</span><br><span class="line">    HostName = <span class="string">"10.11.xx.xxx"</span>,</span><br><span class="line">    Port = <span class="number">5672</span>,</span><br><span class="line">    UserName = <span class="string">"yourname"</span>,</span><br><span class="line">    Password = <span class="string">"yourpassword"</span></span><br><span class="line">  &#125;;</span><br></pre></td></tr></table></figure>
-
-<p>要發送訊息，我們必須聲明一個佇列(Queue)供我們發送，然後我們就可以向佇列發佈消息，以下是 Send.cs 程式碼：</p>
-<figure class="highlight csharp"><figcaption><span>Send.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> RabbitMQ.Client;</span><br><span class="line"><span class="keyword">using</span> System.Text;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Send</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">class</span> <span class="title">Send</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">var</span> factory = <span class="keyword">new</span> ConnectionFactory() &#123; HostName = <span class="string">"10.11.xx.xxx"</span> &#125;;</span><br><span class="line">      <span class="keyword">using</span> (<span class="keyword">var</span> connection = factory.CreateConnection())</span><br><span class="line">      <span class="keyword">using</span> (<span class="keyword">var</span> channel = connection.CreateModel())</span><br><span class="line">      &#123;</span><br><span class="line">        channel.QueueDeclare(</span><br><span class="line">          queue: <span class="string">"dotnetDemoQueue"</span>,</span><br><span class="line">          durable: <span class="literal">false</span>,</span><br><span class="line">          exclusive: <span class="literal">false</span>,</span><br><span class="line">          autoDelete: <span class="literal">false</span>,</span><br><span class="line">          arguments: <span class="literal">null</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">string</span> message = <span class="string">$"哈囉 from C# send 消息 <span class="subst">&#123;DateTime.Now.ToString()&#125;</span>"</span>;</span><br><span class="line">        <span class="keyword">var</span> body = Encoding.UTF8.GetBytes(message);</span><br><span class="line">        <span class="keyword">var</span> properties = channel.CreateBasicProperties();</span><br><span class="line"></span><br><span class="line">        properties.Persistent = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        channel.BasicPublish(</span><br><span class="line">          exchange: <span class="string">""</span>,</span><br><span class="line">          routingKey: <span class="string">"dotnetDemoQueue"</span>,</span><br><span class="line">          basicProperties: properties,</span><br><span class="line">          body: body</span><br><span class="line">        );</span><br><span class="line">        Console.WriteLine(<span class="string">$" [x] Send <span class="subst">&#123;message&#125;</span>"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      Console.WriteLine(<span class="string">"Press [enter] to exit."</span>);</span><br><span class="line">      Console.ReadLine();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>QueueDeclare( ) 方法聲明一個 queue 佇列來儲存我們的消息，在這個簡單的範例中，我們會跳過交換器 (exchange) 直接將消息送到 queue 中，其實 RabbitMQ 伺服器會使用一個內建的交換器幫我們把消息直接送到 queue 中。此範例，我們可以省掉交換器的聲明與路由鍵對佇列的綁定 (Binding)。</p>
-<p>QueueDeclare( ) 聲明佇列是可冪性的(idempotent)，只有在它不存在的情況下才會創建它，否則就使用已存在的佇列。 durable 引數目前設為 false，表示如果 RabbitMQ 伺服器重新啟動或崩潰，這個佇列將不復存在。</p>
-<p>消息內容是一個字節陣列 (byte array)，因此您可以編碼您喜歡的任何內容。這裡則使用 Encoding.UTF8.GetBytes( ) 將字串序列化。</p>
-<p>properties.Persistent 這裡設定為 true，這會指示 RabbitMQ 伺服器將佇列的訊息存入磁碟中，預設值是 false，這只會將佇列訊息存在記憶體中，如果 RabbitMQ 伺服器重新啟動或崩潰，這些訊息將會消失。在這個範例中雖然設定為 true，但它不會有作用，因為我們在佇列聲明時 durable 設定為 false，這會在伺服器重啟時將整個佇列刪除。</p>
-<p>BasicPublish( ) 方法讓我們送出消息。引數 exchange 這裡設定為空字串，RabbitMQ 伺服器會使用內建的交換器幫我們送出消息，此時引數 routingKey 可直接設定為佇列名稱。接下來就可以測試送出消息了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dotnet run</span><br><span class="line"> [x] Send 哈囉 from C# send 消息 2019/7/11 上午 08:57:47</span><br><span class="line">Press [enter] to exit.</span><br></pre></td></tr></table></figure>
-
-<p>在我們尚未編寫消費者端時，可以前往 RabbitMQ 的 <a href="http://10.11.xx.xxx:15672/" target="_blank" rel="noopener">Management UI</a> 查詢佇列的狀況。</p>
-<h4 id="Receiving"><a href="#Receiving" class="headerlink" title="Receiving"></a>Receiving</h4><p>消費者，它會監聽來自 RabbitMQ 的消息。 因此，與發佈單個消息的發佈者不同，我們將使消費者保持持續運行以偵聽消息並將其顯示出來。</p>
-<p>在 Receive.cs 中，我們需要使用一些命名空間，並將 class 名稱修改為 Receive:</p>
-<figure class="highlight csharp"><figcaption><span>Receive.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Text;</span><br><span class="line"><span class="keyword">using</span> RabbitMQ.Client;</span><br><span class="line"><span class="keyword">using</span> RabbitMQ.Client.Events;</span><br></pre></td></tr></table></figure>
-
-<p>開始的設置與發佈布者 (Send.cs)相同。我們打開一個連接(connection)和一個通道(channel)，並聲明我們要消耗的佇列。請注意，這與 Send 發佈者的佇列要相匹配。</p>
-<p>在這裡，我們也在此處聲明佇列。因為我們可能在發佈者之前啟動消費者，所以我們希望在嘗試使用消息之前確保佇列的存在。以下是 Receive.cs 的程式碼:</p>
-<figure class="highlight csharp"><figcaption><span>Receive.cs</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"><span class="keyword">using</span> System.Text;</span><br><span class="line"><span class="keyword">using</span> RabbitMQ.Client;</span><br><span class="line"><span class="keyword">using</span> RabbitMQ.Client.Events;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title">Receive</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">class</span> <span class="title">Receive</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></span><br><span class="line"><span class="function"></span>    &#123;</span><br><span class="line">      <span class="keyword">var</span> factory = <span class="keyword">new</span> ConnectionFactory() &#123; HostName = <span class="string">"10.11.xx.xxx"</span> &#125;;</span><br><span class="line">      <span class="keyword">using</span> (<span class="keyword">var</span> connection = factory.CreateConnection())</span><br><span class="line">      <span class="keyword">using</span> (<span class="keyword">var</span> channel = connection.CreateModel())</span><br><span class="line">      &#123;</span><br><span class="line">        channel.QueueDeclare(</span><br><span class="line">          queue: <span class="string">"dotnetDemoQueue"</span>,</span><br><span class="line">          durable: <span class="literal">false</span>,</span><br><span class="line">          exclusive: <span class="literal">false</span>,</span><br><span class="line">          autoDelete: <span class="literal">false</span>,</span><br><span class="line">          arguments: <span class="literal">null</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> consumer = <span class="keyword">new</span> EventingBasicConsumer(channel);</span><br><span class="line"></span><br><span class="line">        consumer.Received += (model, e) =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">var</span> body = e.Body;</span><br><span class="line">          <span class="keyword">var</span> message = Encoding.UTF8.GetString(body);</span><br><span class="line"></span><br><span class="line">          Console.WriteLine(<span class="string">$" [x] Received <span class="subst">&#123;message&#125;</span>"</span>);</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        channel.BasicConsume(</span><br><span class="line">          queue: <span class="string">"dotnetDemoQueue"</span>,</span><br><span class="line">          autoAck: <span class="literal">true</span>,</span><br><span class="line">          consumer: consumer</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        Console.WriteLine(<span class="string">" Press [enter] to exit."</span>);</span><br><span class="line">        Console.ReadLine();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>RabbitMQ 伺服器是以非同步的方式傳遞消息的，所以我們需要提供回呼函式(callback)處理器。這就是 EventingBasicConsumer.Received 事件處理程序所做的事情。</p>
-<p>C# 的事件基於委託(Delegate)，為委托提供了一種發佈/訂閱機制。consumer 實例訂閱了 EventingBasicConsumer 發射的事件，因此我們必須註冊一個處理函式(callback)，在 C# 即是要註冊一個委托(Delegate)，這裡我們使用 “+=” 註冊一個處理器(或稱監聽器)。</p>
-<p>事件一般使用的方法有兩個參數: 其中第一個參數是一個物件，包含事件的發送者，第二個參數提供了事件相關的訊息。</p>
-<p>我們透過 e.Body 取得發佈的消息，它是一個字節陣列 (byte array)，我們使用 Encoding.UTF8.GetString() 作反敘列化，並顯示在終端機上。</p>
-<p>BasicConsume() 中的引數 autoAck 設定為 true，在消費成功後會自動通知伺服器將此訊息從佇列中去除，如果沒有送回 Ack 訊息，消息將會保留在佇列中，有可能會被重覆消費。</p>
-<p>現在將它們兜在一起，首先啟動消費者 Receive:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd Receive</span><br><span class="line">dotnet run</span><br></pre></td></tr></table></figure>
-
-<p>接著從發布者 Send 送出一個訊息。因消費者將透過 RabbitMQ 發佈者處獲得的消息，消費者將會持續運行，等待消息 (使用 Ctrl-C 停止消費)，因此請嘗試從另一個終端視窗執行發佈者。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd Send</span><br><span class="line">dotnet run</span><br></pre></td></tr></table></figure>
-
-<p>持續運行中的消費者視窗將會即時顯示訊息。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dotnet run</span><br><span class="line"> Press [enter] to exit.</span><br><span class="line"> [x] Received 哈囉 from C# send 消息 2019/7/11 上午 11:56:27</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -2079,7 +2013,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">62</span>
+          <span class="site-state-item-count">63</span>
           <span class="site-state-item-name">文章</span>
         </a>
       </div>
